@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { initialJobs, initialSkillDemand, INITIAL_STUDENT_PROFILE } from '../../data/mockData';
 import { JobPosting, StudentProfileData } from '../../types';
+import SkillTechTreeModal from '../../components/SkillTechTreeModal';
 
 interface JobSearchScreenProps {
   onNavigate?: (screen: string) => void;
@@ -33,6 +34,7 @@ export default function JobSearchScreen({
   const [selectedJobId, setSelectedJobId] = useState<string>(initialJobs[0].id);
   const [activeFilter, setActiveFilter] = useState<'all' | 'high_match' | 'campus_partner'>('all');
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [techTreeSkillKey, setTechTreeSkillKey] = useState<string | null>(null);
 
   // Enrich top 6 market skills with live studentProfile competencies
   const radarSkills = initialSkillDemand.slice(0, 6).map((skill) => {
@@ -88,6 +90,7 @@ export default function JobSearchScreen({
   const maxR = 106;
 
   const radarAxes = radarSkills.map((s, idx) => ({
+    id: s.id,
     label: s.name.split(' ')[0],
     fullName: s.name,
     angle: idx * 60,
@@ -222,19 +225,27 @@ export default function JobSearchScreen({
               <span>TOP 6 TARGET ROLE SKILLS</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
-              Opportunities &amp; Market Demand Radar — {profile.targetRole}
+              Opportunities &amp; Market Demand Radar — SRM CDC Placement Console
             </h1>
             <p className="text-xs text-[#9A9A9A] mt-0.5">
-              Comparing student evidenced proficiency (0–100 scale; <code className="font-mono text-[#ffba35]">null</code> preserved for unassessed) against market demand percentage across analyzed role postings.
+              Target Role: <strong className="text-white">{profile.targetRole}</strong> · Directorate of Career Centre (CDC), SRMIST Kattankulathur
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start lg:self-auto">
+          <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+            <button
+              onClick={() => onNavigate?.('interview-room')}
+              className="px-3.5 py-2 rounded-lg bg-[#ffba35] hover:bg-[#ffba35]/90 text-black text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md whitespace-nowrap"
+              title="Practice live technical and HR interviews for Amazon, Cisco, Barclays"
+            >
+              <span className="material-symbols-outlined text-[16px]">mic</span>
+              <span>AI Interview Room</span>
+            </button>
             <button
               onClick={() => onNavigate?.('career-plan')}
               className="px-3.5 py-2 rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 text-white text-xs font-mono font-semibold transition-colors cursor-pointer whitespace-nowrap"
             >
-              Take Skill Assessments in Career Plan →
+              Career Plan →
             </button>
           </div>
         </div>
@@ -298,17 +309,23 @@ export default function JobSearchScreen({
                   strokeWidth="2.5"
                 />
 
-                {/* Vertex Dots & Axis Labels */}
+                {/* Vertex Dots & Axis Labels (Clickable -> Opens Tech Tree Modal) */}
                 {radarAxes.map((axis, idx) => {
-                  const labelPos = getCoordinates(axis.angle, 120);
+                  const labelPos = getCoordinates(axis.angle, 122);
                   const studentVertex = getCoordinates(axis.angle, axis.studentPlotPct);
                   return (
-                    <g key={idx}>
+                    <g
+                      key={idx}
+                      onClick={() => setTechTreeSkillKey(axis.id)}
+                      className="cursor-pointer group"
+                      tabIndex={0}
+                    >
                       <circle
                         cx={studentVertex.x}
                         cy={studentVertex.y}
-                        r={3.5}
+                        r={4.5}
                         fill={axis.studentProficiencyPct === null ? '#ffba35' : '#55C98B'}
+                        className="transition-transform group-hover:scale-150"
                       />
                       <text
                         x={labelPos.x}
@@ -317,6 +334,7 @@ export default function JobSearchScreen({
                         fontSize="11"
                         fontFamily="monospace"
                         textAnchor="middle"
+                        className="group-hover:fill-[#cdbdff] group-hover:font-bold transition-colors underline cursor-pointer"
                       >
                         {axis.label}{' '}
                         {axis.studentProficiencyPct === null
@@ -329,9 +347,15 @@ export default function JobSearchScreen({
               </svg>
             </div>
 
-            <div className="w-full pt-2 border-t border-[#202023] flex items-center justify-between text-[11px] font-mono text-[#9A9A9A]">
-              <span>Unassessed skills remain strictly null</span>
-              <span>Scale: 0–100%</span>
+            <div className="w-full pt-2.5 border-t border-[#202023] flex items-center justify-between text-[11px] font-mono text-[#9A9A9A]">
+              <button
+                onClick={() => setTechTreeSkillKey('dem-kaf')}
+                className="text-[#cdbdff] hover:text-white font-semibold flex items-center gap-1.5 cursor-pointer bg-[#8052ff]/10 hover:bg-[#8052ff]/20 px-2 py-0.5 rounded border border-[#8052ff]/30 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px] text-[#8052ff]">account_tree</span>
+                <span>Open Skill Tech-Tree ↗</span>
+              </button>
+              <span className="text-[10px] text-[#A0A0AB]">Click any skill on radar to inspect</span>
             </div>
           </div>
 
@@ -359,7 +383,7 @@ export default function JobSearchScreen({
                     key={item.id}
                     className={`p-3 rounded-lg border transition-all ${
                       isPriority
-                        ? 'bg-[#0D0D0F] border-[#8052ff]/40'
+                        ? 'bg-[#0D0D0F] border-[#8052ff]/40 hover:border-[#8052ff]'
                         : 'bg-[#0D0D0F]/60 border-[#202023]'
                     }`}
                   >
@@ -382,16 +406,26 @@ export default function JobSearchScreen({
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-[#ffba35] font-bold tabular-nums">
-                          Priority Score: {item.priorityScore.toFixed(3)}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#ffba35] font-bold tabular-nums text-[11px]">
+                          Score: {item.priorityScore.toFixed(3)}
                         </span>
+
+                        <button
+                          onClick={() => setTechTreeSkillKey(item.id)}
+                          className="px-2 py-0.5 rounded bg-[#8052ff]/20 hover:bg-[#8052ff]/30 text-[#cdbdff] hover:text-white border border-[#8052ff]/40 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Inspect Prerequisite Tech-Tree"
+                        >
+                          <span className="material-symbols-outlined text-[12px]">account_tree</span>
+                          <span>Tech-Tree →</span>
+                        </button>
+
                         {isPriority && (
                           <button
                             onClick={() => onNavigate?.('career-plan')}
                             className="text-[#cdbdff] hover:text-white underline text-[11px] cursor-pointer"
                           >
-                            {item.actionType === 'Assess' ? 'Take Assessment →' : 'Start Roadmap →'}
+                            {item.actionType === 'Assess' ? 'Assessment →' : 'Roadmap →'}
                           </button>
                         )}
                       </div>
@@ -744,6 +778,17 @@ export default function JobSearchScreen({
           </div>
         </div>
       </div>
+
+      {/* Skill Dependency Tech-Tree Modal Inspector */}
+      {techTreeSkillKey && (
+        <SkillTechTreeModal
+          isOpen={Boolean(techTreeSkillKey)}
+          onClose={() => setTechTreeSkillKey(null)}
+          targetSkillKey={techTreeSkillKey}
+          profile={profile}
+          onNavigate={onNavigate}
+        />
+      )}
     </div>
   );
 }

@@ -4,9 +4,14 @@ import { initialSharedReviews, initialRemediations } from '../../data/mockData';
 interface FacultyReviewsTrainingScreenProps {
   onNavigate?: (screen: string) => void;
   onShowToast?: (msg: string, type?: 'success' | 'info' | 'warning') => void;
+  extraWorkshops?: Array<{ id: string; title: string; cohort: string; deadline: string; studentCount: number }>;
 }
 
-export default function FacultyReviewsTrainingScreen({ onNavigate, onShowToast }: FacultyReviewsTrainingScreenProps) {
+export default function FacultyReviewsTrainingScreen({
+  onNavigate,
+  onShowToast,
+  extraWorkshops = [],
+}: FacultyReviewsTrainingScreenProps) {
   const [reviews, setReviews] = useState(initialSharedReviews);
   const [activeTab, setActiveTab] = useState<'reviews' | 'remediation'>('reviews');
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
@@ -183,7 +188,7 @@ export default function FacultyReviewsTrainingScreen({ onNavigate, onShowToast }
         /* Institutional Training & Remediation Catalog */
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {initialRemediations.map((mod) => (
+              {initialRemediations.map((mod) => (
               <div
                 key={mod.id}
                 className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 flex flex-col justify-between space-y-4"
@@ -215,6 +220,48 @@ export default function FacultyReviewsTrainingScreen({ onNavigate, onShowToast }
                   <button
                     onClick={() => onShowToast?.(`Dispatched reminder for ${mod.code} to overdue students!`, 'info')}
                     className="px-2.5 py-1 bg-[#16161A] hover:bg-[#202023] text-[#8052ff] border border-[#202023] rounded text-[11px]"
+                  >
+                    Dispatch Reminders
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* Extra Workshops Assigned via Institutional Placement Copilot */}
+            {extraWorkshops.map((ws) => (
+              <div
+                key={ws.id}
+                className="bg-[#0D0D0F] border border-[#ffba35]/50 rounded-lg p-5 flex flex-col justify-between space-y-4 shadow-lg"
+              >
+                <div>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="px-2 py-0.5 rounded bg-[#ffba35]/20 text-[#ffba35] font-bold border border-[#ffba35]/30">
+                      COPILOT ASSIGNED
+                    </span>
+                    <span className="text-[#55C98B] font-mono">Active (Deadline: {ws.deadline})</span>
+                  </div>
+                  <h3 className="text-base font-bold text-white mt-2">{ws.title}</h3>
+                  <p className="text-xs text-[#D6D6DC] mt-1.5 leading-relaxed">
+                    Targeted institutional intervention for candidates in {ws.cohort} lacking verified containerization evidence.
+                  </p>
+
+                  <div className="mt-4 p-3 bg-[#16161A] rounded border border-[#202023] grid grid-cols-2 gap-2 text-xs font-mono">
+                    <div>
+                      <span className="text-[#8B8B93] block">Assigned Cohort:</span>
+                      <strong className="text-[#ffba35] text-sm">{ws.studentCount} Students</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8B8B93] block">Status:</span>
+                      <strong className="text-[#55C98B] text-sm">Dispatched ✓</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-[#202023] flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#ffba35]">Cohort: {ws.cohort}</span>
+                  <button
+                    onClick={() => onShowToast?.(`Dispatched reminder for ${ws.title} to cohort candidates!`, 'info')}
+                    className="px-2.5 py-1 bg-[#ffba35]/15 hover:bg-[#ffba35]/25 text-[#ffba35] border border-[#ffba35]/40 rounded text-[11px] cursor-pointer"
                   >
                     Dispatch Reminders
                   </button>

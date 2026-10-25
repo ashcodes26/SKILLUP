@@ -4,14 +4,16 @@ import { INITIAL_STUDENT_PROFILE, alexMercerSession, sarahJenkinsSession } from 
 import StudentHeader from './components/StudentHeader';
 import FacultyHeader from './components/FacultyHeader';
 import Footer from './components/Footer';
+import CareerCopilot from './components/CareerCopilot';
 
 // Screens
 import LoginScreen from './screens/auth/LoginScreen';
-import CareerPlanScreen from './screens/student/CareerPlanScreen';
+import CareerPlanScreen, { calculateDeterministicReadiness } from './screens/student/CareerPlanScreen';
 import ResumeAnalyzerScreen from './screens/student/ResumeAnalyzerScreen';
 import JobSearchScreen from './screens/student/JobSearchScreen';
 import SkillDemandScreen from './screens/student/SkillDemandScreen';
 import PlacementHubScreen from './screens/student/PlacementHubScreen';
+import InterviewRoomScreen from './screens/student/InterviewRoomScreen';
 
 import FacultyOverviewScreen from './screens/faculty/FacultyOverviewScreen';
 import FacultyStudentsScreen from './screens/faculty/FacultyStudentsScreen';
@@ -26,6 +28,16 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<string>('career-plan');
   const [studentProfile, setStudentProfile] = useState<StudentProfileData>(INITIAL_STUDENT_PROFILE);
   const [dockerQuizCompleted, setDockerQuizCompleted] = useState<boolean>(false);
+  const [copilotQuizSkillId, setCopilotQuizSkillId] = useState<string | null>(null);
+  const [customRoadmapTasks, setCustomRoadmapTasks] = useState<
+    Array<{ id: string; title: string; skillId?: string; time: string; objective: string }>
+  >([]);
+  const [facultyWorkshops, setFacultyWorkshops] = useState<
+    Array<{ id: string; title: string; cohort: string; deadline: string; studentCount: number }>
+  >([]);
+  const [cohortNudgesSent, setCohortNudgesSent] = useState<
+    Array<{ id: string; studentIds: string[]; reason: string; timestamp: string }>
+  >([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'info' | 'warning' = 'info') => {
@@ -164,13 +176,20 @@ export default function App() {
                 onUpdateProfile={setStudentProfile}
                 dockerScore={dockerCompScore}
                 onDockerQuizCompleted={handleDockerQuizFinished}
+                externalQuizSkillId={copilotQuizSkillId}
+                onClearExternalQuizSkillId={() => setCopilotQuizSkillId(null)}
+                customRoadmapTasks={customRoadmapTasks}
               />
             )}
-            {(currentScreen === 'resume-analyzer' || currentScreen === 'resume_analyzer') && (
+            {(currentScreen === 'resume-analyzer' ||
+              currentScreen === 'resume_analyzer' ||
+              currentScreen === 'career-assets' ||
+              currentScreen === 'career_assets') && (
               <ResumeAnalyzerScreen
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
                 initialWorkspaceTab="resume"
+                targetRole={studentProfile.targetRole}
               />
             )}
             {(currentScreen === 'linkedin-optimizer' || currentScreen === 'linkedin_optimizer') && (
@@ -178,6 +197,7 @@ export default function App() {
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
                 initialWorkspaceTab="linkedin"
+                targetRole={studentProfile.targetRole}
               />
             )}
             {(currentScreen === 'job-search' || currentScreen === 'job_search') && (
@@ -201,6 +221,13 @@ export default function App() {
                 onShowToast={showToast}
                 onDockerQuizCompleted={handleDockerQuizFinished}
                 dockerScore={dockerCompScore}
+              />
+            )}
+            {(currentScreen === 'interview-room' || currentScreen === 'interview_room') && (
+              <InterviewRoomScreen
+                onNavigate={handleNavigate}
+                onShowToast={showToast}
+                profile={studentProfile}
               />
             )}
           </>
@@ -234,6 +261,7 @@ export default function App() {
               <FacultyReviewsTrainingScreen
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
+                extraWorkshops={facultyWorkshops}
               />
             )}
             {(currentScreen === 'admin/reports' || currentScreen === 'admin-reports') && (
@@ -251,6 +279,45 @@ export default function App() {
           </>
         )}
       </main>
+
+      {/* Persistent Role-Adaptive Conversational Copilot (Student & Faculty Views) */}
+      <CareerCopilot
+        userRole={currentUser.role}
+        profile={studentProfile}
+        readinessPct={calculateDeterministicReadiness(studentProfile.competencies)}
+        facultyName={currentUser.name}
+        department={currentUser.department || 'Computer Science & Engineering'}
+        activeCohort="CSE 2028 A"
+        onNavigate={handleNavigate}
+        onLaunchQuiz={(skillId) => {
+          setCopilotQuizSkillId(skillId);
+          handleNavigate('career-plan');
+        }}
+        onAddRoadmapTask={(task) => {
+          setCustomRoadmapTasks((prev) => [
+            ...prev,
+            { ...task, id: `custom-task-${Date.now()}` },
+          ]);
+        }}
+        onAddFacultyWorkshop={(workshop) => {
+          setFacultyWorkshops((prev) => [
+            ...prev,
+            { ...workshop, id: `ws-${Date.now()}` },
+          ]);
+        }}
+        onSendCohortNudges={(targetIds, reason) => {
+          setCohortNudgesSent((prev) => [
+            ...prev,
+            {
+              id: `nudge-${Date.now()}`,
+              studentIds: targetIds,
+              reason,
+              timestamp: new Date().toLocaleTimeString(),
+            },
+          ]);
+        }}
+        onShowToast={showToast}
+      />
 
       {/* Global Footer */}
       <Footer onNavigate={handleNavigate} onShowToast={showToast} />

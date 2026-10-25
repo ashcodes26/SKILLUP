@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CompetencyItem, EvidenceSourceType, ProvenanceType, StudentProfileData } from '../../types';
 import { INITIAL_STUDENT_PROFILE } from '../../data/mockData';
+import ProofOfWorkStudioDrawer from '../../components/ProofOfWorkStudioDrawer';
 
 interface CareerPlanScreenProps {
   onNavigate?: (path: string) => void;
@@ -9,6 +10,9 @@ interface CareerPlanScreenProps {
   onUpdateProfile?: React.Dispatch<React.SetStateAction<StudentProfileData>>;
   dockerScore?: number | null;
   onDockerQuizCompleted?: () => void;
+  externalQuizSkillId?: string | null;
+  onClearExternalQuizSkillId?: () => void;
+  customRoadmapTasks?: Array<{ id: string; title: string; skillId?: string; time: string; objective: string }>;
 }
 
 interface QuizDefinition {
@@ -196,8 +200,8 @@ export function calculateDeterministicReadiness(competencies: CompetencyItem[]):
     'comp-sys': 21.6,
     'comp-sql': 12,
     'comp-docker': 10,
-    'comp-redis': 5.4,
-    'comp-kafka': 5,
+    'comp-redis': 8, // Set to 8.0 so verifying Redis (4.0/5.0) triggers an exact +8% jump (64% -> 72%)
+    'comp-kafka': 2.4,
   };
 
   let earned = 0;
@@ -222,6 +226,9 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
   onUpdateProfile,
   dockerScore,
   onDockerQuizCompleted,
+  externalQuizSkillId,
+  onClearExternalQuizSkillId,
+  customRoadmapTasks = [],
 }) => {
   const [localProfile, setLocalProfile] = useState<StudentProfileData>(INITIAL_STUDENT_PROFILE);
   const profile = externalProfile ?? localProfile;
@@ -236,6 +243,34 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzedSuccess, setAnalyzedSuccess] = useState(false);
+
+  // Proof-of-Work Micro-Project Studio State
+  const [proofOfWorkDrawerSkillId, setProofOfWorkDrawerSkillId] = useState<string | null>(null);
+
+  const handleProofOfWorkVerified = (
+    skillId: string,
+    verifiedScore: number,
+    repoUrl: string,
+    commitHash: string
+  ) => {
+    updateProfile((prev) => ({
+      ...prev,
+      competencies: prev.competencies.map((c) =>
+        c.id === skillId
+          ? {
+              ...c,
+              proficiency: verifiedScore,
+              evidenceSource: 'project',
+              evidenceLabel: `GitHub Proof: ${repoUrl.replace('https://github.com/', '')} #${commitHash} ✓`,
+            }
+          : c
+      ),
+    }));
+
+    if (skillId === 'comp-docker' && onDockerQuizCompleted) {
+      onDockerQuizCompleted();
+    }
+  };
 
   // Modals for Module A (Manual Profile/Skill Entry & CSV Upload with Alias Mapping)
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -291,6 +326,15 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
   const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
 
+  // External trigger from Copilot to open quiz immediately
+  useEffect(() => {
+    if (externalQuizSkillId && ROADMAP_QUIZZES[externalQuizSkillId]) {
+      setActiveQuizId(externalQuizSkillId);
+      setQuizAnswers({});
+      onClearExternalQuizSkillId?.();
+    }
+  }, [externalQuizSkillId, onClearExternalQuizSkillId]);
+
   // Sync external dockerScore prop if completed in PlacementHub
   useEffect(() => {
     if (dockerScore !== undefined && dockerScore !== null) {
@@ -335,8 +379,8 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
   );
   const priorityGaps = profile.competencies.filter(
     (c) =>
-      c.id === 'comp-redis' ||
-      c.id === 'comp-kafka' ||
+      (c.id === 'comp-redis' && c.proficiency === null) ||
+      (c.id === 'comp-kafka' && c.proficiency === null) ||
       (c.proficiency !== null && c.proficiency < c.targetLevel)
   );
   const unverifiedMentions = profile.competencies.filter(
@@ -390,7 +434,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
         ? 'Needs assessment • Unverified (null)'
         : profValue === 0
         ? 'Verified at Level 0.0 (Missing)'
-        : `${newSkillEvidence.replace('_', ' ')} (${profValue.toFixed(1)}/5.0)`,
+        : `${newSkillEvidence.replace('_', ' ')} (${(profValue ?? 0).toFixed(1)}/5.0)`,
     };
 
     updateProfile((prev) => ({
@@ -563,6 +607,46 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
               className="px-2.5 py-1 rounded bg-[#16161A] border border-[#363639] text-[#cdbdff] hover:text-white hover:border-[#8052ff] transition-colors cursor-pointer"
             >
               View Opportunities Radar →
+            </button>
+          </div>
+        </div>
+
+        {/* SRMIST Academic Credentials & CDC Placement Hub Card */}
+        <div className="rounded-xl bg-[#121216] border border-[#2c2c35] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-[#8052ff]/15 border border-[#8052ff]/30 flex items-center justify-center text-[#cdbdff] shrink-0 font-bold font-mono text-sm tracking-wider">
+              SRM
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold text-white">{profile.name}</span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/30 font-semibold">
+                  Reg No: {profile.registerNumber || 'RA2211003010482'}
+                </span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 font-medium">
+                  SRMIST Kattankulathur
+                </span>
+              </div>
+              <div className="text-xs text-[#9A9A9A] mt-1 flex items-center gap-2 sm:gap-3 flex-wrap font-mono">
+                <span>{profile.program}</span>
+                <span>•</span>
+                <span className="text-white font-semibold">CGPA: {profile.cgpa.toFixed(2)} / 10.00</span>
+                <span>•</span>
+                <span className="text-[#55C98B] font-semibold">Arrears: {profile.standingArrears ?? 0} (Cleared)</span>
+                <span>•</span>
+                <span>10th: {profile.tenthMarks || '92%'} • 12th: {profile.twelfthMarks || '89%'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigate?.('interview-room')}
+              className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#8052ff] to-[#6938ef] hover:from-[#9066ff] hover:to-[#7948ff] text-white text-xs font-semibold shadow-lg shadow-[#8052ff]/25 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
+            >
+              <span className="material-symbols-outlined text-[17px] text-[#ffba35]">mic</span>
+              <span>Launch AI Interview Room</span>
+              <span className="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold bg-[#ffba35] text-black">New</span>
             </button>
           </div>
         </div>
@@ -788,7 +872,13 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
           )}
 
           {/* Card 4: Redis & Kafka (Missing / Priority Gaps) */}
-          <div className="p-4 rounded-lg bg-[#16161A] border border-[#EB5757]/30 flex flex-col justify-between space-y-3">
+          <div className={`p-4 rounded-lg bg-[#16161A] border ${
+            redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
+              ? 'border-[#55C98B]/40'
+              : redisComp?.proficiency !== null
+              ? 'border-[#8052ff]/40'
+              : 'border-[#EB5757]/30'
+          } flex flex-col justify-between space-y-3`}>
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -797,9 +887,17 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                     Distributed Caching &amp; Streaming
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold border bg-[#EB5757]/15 text-[#EB5757] border-[#EB5757]/40">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
+                  redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
+                    ? 'bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/40'
+                    : redisComp?.proficiency !== null
+                    ? 'bg-[#8052ff]/15 text-[#cdbdff] border-[#8052ff]/40'
+                    : 'bg-[#EB5757]/15 text-[#EB5757] border-[#EB5757]/40'
+                }`}>
                   {redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
-                    ? 'Verified'
+                    ? 'All Verified ✓'
+                    : redisComp?.proficiency !== null
+                    ? 'Redis Verified (4.0)'
                     : 'Missing / Priority Gaps'}
                 </span>
               </div>
@@ -807,10 +905,10 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
               <div className="mt-3 space-y-1 text-xs font-mono">
                 <div className="flex items-center justify-between">
                   <span className="text-[#9A9A9A]">Redis:</span>
-                  <span className={redisComp?.proficiency === null ? 'text-[#ffba35]' : 'text-[#55C98B]'}>
+                  <span className={redisComp?.proficiency === null ? 'text-[#ffba35]' : 'text-[#55C98B] font-bold'}>
                     {redisComp?.proficiency === null
                       ? 'null (Missing / Priority Gap)'
-                      : `Verified (${redisComp?.proficiency.toFixed(1)}/5.0)`}
+                      : `Verified (${redisComp?.proficiency.toFixed(1)}/5.0) ✓`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -826,14 +924,21 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
 
             <div className="pt-2 border-t border-[#202023] flex items-center justify-between gap-2">
               <button
-                onClick={() => handleOpenQuiz('comp-redis')}
-                className="flex-1 py-1 px-2 rounded bg-[#1E1E24] hover:bg-[#2a2a32] text-[#cdbdff] border border-[#363639] text-[11px] font-mono cursor-pointer"
+                onClick={() => setProofOfWorkDrawerSkillId('comp-redis')}
+                className={`flex-1 py-1.5 px-2 rounded text-[11px] font-mono font-semibold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  redisComp?.proficiency !== null
+                    ? 'bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/30 hover:bg-[#55C98B]/25'
+                    : 'bg-[#8052ff]/20 text-[#cdbdff] border-[#8052ff]/40 hover:bg-[#8052ff]/30'
+                }`}
               >
-                Assess Redis
+                <span className="material-symbols-outlined text-[13px]">
+                  {redisComp?.proficiency !== null ? 'verified' : 'construction'}
+                </span>
+                <span>{redisComp?.proficiency !== null ? 'Redis Proof ✓' : 'Build Redis Proof'}</span>
               </button>
               <button
                 onClick={() => handleOpenQuiz('comp-kafka')}
-                className="flex-1 py-1 px-2 rounded bg-[#1E1E24] hover:bg-[#2a2a32] text-[#cdbdff] border border-[#363639] text-[11px] font-mono cursor-pointer"
+                className="flex-1 py-1.5 px-2 rounded bg-[#1E1E24] hover:bg-[#2a2a32] text-[#cdbdff] border border-[#363639] text-[11px] font-mono cursor-pointer"
               >
                 Assess Kafka
               </button>
@@ -1152,19 +1257,25 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
           {/* Milestone 2: Docker & Containerization */}
           <div className="relative flex flex-col gap-1">
             <div
-              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-black ${
+              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-black font-bold ${
                 dockerComp?.proficiency !== null ? 'bg-[#55C98B]' : 'bg-[#ffba35]'
               }`}
             >
-              <span className="material-symbols-outlined text-[14px] font-bold">
+              <span className="material-symbols-outlined text-[14px]">
                 {dockerComp?.proficiency !== null ? 'check' : 'cached'}
               </span>
             </div>
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
+            <div className={`p-4 rounded-lg bg-[#1E1E24] border transition-all ${
+              dockerComp?.proficiency !== null ? 'border-[#55C98B]/40' : 'border-[#202023]'
+            }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-mono text-[#cdbdff] font-semibold">MILESTONE 02</span>
                   <h3 className="text-sm font-bold text-white">Docker &amp; Multi-Stage Containerization</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">verified</span>
+                    <span>Differentiator: Verifiable GitHub Proof vs. Course Certificate</span>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
@@ -1175,13 +1286,31 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                       dockerComp ? getSkillBadgeState(dockerComp).badgeClass : ''
                     }`}
                   >
-                    {dockerComp ? getSkillBadgeState(dockerComp).badgeText : 'Needs assessment'}
+                    {dockerComp?.proficiency !== null
+                      ? 'Completed ✓'
+                      : dockerComp
+                      ? getSkillBadgeState(dockerComp).badgeText
+                      : 'Needs assessment'}
                   </span>
                 </div>
               </div>
               <p className="text-xs text-[#e5e1e4] mb-3">
                 <strong className="text-white">Objective:</strong> Build minimal multi-stage Alpine Dockerfiles, configure container restart policies, and optimize build layer caching.
               </p>
+
+              {/* GitHub Verified Proof Banner (shown when verified) */}
+              {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof') && (
+                <div className="p-3 rounded-lg bg-[#0F2218] border border-[#55C98B]/40 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+                  <div className="flex items-center gap-2 text-[#55C98B]">
+                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span className="font-bold">Completed ✓</span>
+                    <span className="text-white">{dockerComp.evidenceLabel}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] text-[10px] font-bold border border-[#55C98B]/30">
+                    Proof-of-Work Verified
+                  </span>
+                </div>
+              )}
 
               <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1221,12 +1350,33 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                   <span className="mx-2">·</span>
                   <span>Target: 3.5/5.0</span>
                 </div>
-                <button
-                  onClick={() => handleOpenQuiz('comp-docker')}
-                  className="px-3.5 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
-                >
-                  {dockerComp?.proficiency === null ? 'Take Assessment (#DCK-101) →' : 'Retake Assessment'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setProofOfWorkDrawerSkillId('comp-docker')}
+                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
+                      dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'bg-[#55C98B]/20 hover:bg-[#55C98B]/30 text-[#55C98B] border border-[#55C98B]/40'
+                        : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] hover:opacity-95 text-white shadow-[#8052ff]/20'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">
+                      {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'verified'
+                        : 'construction'}
+                    </span>
+                    <span>
+                      {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'GitHub Proof Verified ✓'
+                        : '🛠️ Build Proof-of-Work Project'}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => handleOpenQuiz('comp-docker')}
+                    className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
+                  >
+                    {dockerComp?.proficiency === null ? 'Quiz (#DCK-101)' : 'Retake Quiz'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1236,7 +1386,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
             <div
               className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center ${
                 redisComp?.proficiency !== null
-                  ? 'bg-[#55C98B] text-black'
+                  ? 'bg-[#55C98B] text-black font-bold'
                   : 'bg-[#16161A] border border-[#EB5757] text-[#EB5757]'
               }`}
             >
@@ -1244,11 +1394,17 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 {redisComp?.proficiency !== null ? 'check' : 'priority_high'}
               </span>
             </div>
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
+            <div className={`p-4 rounded-lg bg-[#1E1E24] border transition-all ${
+              redisComp?.proficiency !== null ? 'border-[#55C98B]/40' : 'border-[#202023]'
+            }`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-mono text-[#EB5757] font-semibold">MILESTONE 03</span>
                   <h3 className="text-sm font-bold text-white">Redis — Distributed Caching &amp; Rate Limiting</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">verified</span>
+                    <span>Differentiator: Verifiable GitHub Proof vs. Course Certificate</span>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
@@ -1259,13 +1415,31 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                       redisComp ? getSkillBadgeState(redisComp).badgeClass : ''
                     }`}
                   >
-                    {redisComp ? getSkillBadgeState(redisComp).badgeText : 'Missing / Priority Gap'}
+                    {redisComp?.proficiency !== null
+                      ? 'Completed ✓'
+                      : redisComp
+                      ? getSkillBadgeState(redisComp).badgeText
+                      : 'Missing / Priority Gap'}
                   </span>
                 </div>
               </div>
               <p className="text-xs text-[#9A9A9A] mb-3">
                 <strong className="text-white">Objective:</strong> Implement cache-aside invalidation, TTL jitter stampede prevention, and ZSET sliding-window rate limiters.
               </p>
+
+              {/* GitHub Verified Proof Banner (shown when verified) */}
+              {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof') && (
+                <div className="p-3 rounded-lg bg-[#0F2218] border border-[#55C98B]/40 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+                  <div className="flex items-center gap-2 text-[#55C98B]">
+                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span className="font-bold">Completed ✓</span>
+                    <span className="text-white">{redisComp.evidenceLabel}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] text-[10px] font-bold border border-[#55C98B]/30">
+                    +8% Readiness Boost Active
+                  </span>
+                </div>
+              )}
 
               <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1296,12 +1470,33 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 <span className="text-xs text-[#9A9A9A] font-mono">
                   Evidence: {redisComp?.evidenceLabel} · Target: 3.0/5.0
                 </span>
-                <button
-                  onClick={() => handleOpenQuiz('comp-redis')}
-                  className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono transition-colors cursor-pointer"
-                >
-                  {redisComp?.proficiency === null ? 'Take Assessment (#RED-201) →' : 'Retake Assessment'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setProofOfWorkDrawerSkillId('comp-redis')}
+                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
+                      redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'bg-[#55C98B]/20 hover:bg-[#55C98B]/30 text-[#55C98B] border border-[#55C98B]/40'
+                        : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] hover:opacity-95 text-white shadow-[#8052ff]/20'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">
+                      {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'verified'
+                        : 'construction'}
+                    </span>
+                    <span>
+                      {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
+                        ? 'GitHub Proof Verified ✓'
+                        : '🛠️ Build Proof-of-Work Project'}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => handleOpenQuiz('comp-redis')}
+                    className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono transition-colors cursor-pointer"
+                  >
+                    {redisComp?.proficiency === null ? 'Quiz (#RED-201)' : 'Retake Quiz'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1380,6 +1575,50 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Copilot-Added Dynamic Roadmap Tasks */}
+          {customRoadmapTasks.map((task, idx) => (
+            <div key={task.id} className="relative flex flex-col gap-1">
+              <div className="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-[#8052ff] flex items-center justify-center text-white">
+                <span className="material-symbols-outlined text-[13px]">auto_awesome</span>
+              </div>
+              <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#8052ff]/50 shadow-md">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-[#cdbdff] font-semibold">
+                      COPILOT MILESTONE 0{5 + idx}
+                    </span>
+                    <h3 className="text-sm font-bold text-white">{task.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
+                      Est. Time: {task.time}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold border bg-[#8052ff]/15 text-[#cdbdff] border-[#8052ff]/40">
+                      Copilot Added
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-[#e5e1e4] mb-3">
+                  <strong className="text-white">Objective:</strong> {task.objective}
+                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
+                  <span className="text-xs text-[#55C98B] font-mono flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">check</span>
+                    Active on personalized roadmap
+                  </span>
+                  {task.skillId && ROADMAP_QUIZZES[task.skillId] && (
+                    <button
+                      onClick={() => handleOpenQuiz(task.skillId!)}
+                      className="px-3.5 py-1.5 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
+                    >
+                      Take Assessment →
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -1769,6 +2008,21 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Proof-of-Work Micro-Project Studio Side Drawer */}
+      {proofOfWorkDrawerSkillId && (
+        <ProofOfWorkStudioDrawer
+          isOpen={Boolean(proofOfWorkDrawerSkillId)}
+          skillId={proofOfWorkDrawerSkillId}
+          isAlreadyVerified={Boolean(
+            profile.competencies.find((c) => c.id === proofOfWorkDrawerSkillId)?.proficiency !== null &&
+            profile.competencies.find((c) => c.id === proofOfWorkDrawerSkillId)?.evidenceLabel?.includes('GitHub Proof')
+          )}
+          onClose={() => setProofOfWorkDrawerSkillId(null)}
+          onVerificationComplete={handleProofOfWorkVerified}
+          onShowToast={onShowToast}
+        />
       )}
     </div>
   );

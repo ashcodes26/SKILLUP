@@ -16,8 +16,8 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
   onNavigate,
   onRoleSwitch,
   onSwitchRole,
-  facultyName = 'Prof. Sarah Jenkins',
-  department = 'Dept: CSE',
+  facultyName = 'Dr. S. Soundararajan',
+  department = 'Directorate of Career Centre (CDC), SRMIST',
   onLogout,
 }) => {
   const [showQuickMenu, setShowQuickMenu] = useState(false);
@@ -45,15 +45,20 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
         <div className="flex items-center gap-6">
           <button
             onClick={() => onNavigate('admin-overview')}
-            className="flex items-center gap-2 cursor-pointer group text-left"
+            className="flex items-center gap-2.5 cursor-pointer group text-left"
           >
-            <span className="flex items-center justify-center w-8 h-8 rounded bg-[#16161A] text-[#8052ff] border border-[#363639] group-hover:border-[#8052ff] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">terminal</span>
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#16161A] text-[#ffba35] border border-[#ffba35]/40 group-hover:border-[#ffba35] transition-colors">
+              <span className="material-symbols-outlined text-[20px]">shield</span>
             </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xl font-bold tracking-tight text-white">Skillup</span>
-              <span className="text-[11px] font-semibold tracking-widest px-1.5 py-0.5 rounded bg-[#16161A] text-[#9A9A9A]">
-                CONSOLE
+            <div className="flex flex-col">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold tracking-tight text-white">Skillup</span>
+                <span className="text-[10px] font-mono font-bold tracking-widest px-1.5 py-0.5 rounded bg-[#ffba35]/20 text-[#ffba35] border border-[#ffba35]/30">
+                  CDC CONSOLE
+                </span>
+              </div>
+              <span className="text-[9px] font-mono text-[#9A9A9A] tracking-wider hidden xl:block leading-none">
+                Directorate of Career Centre (CDC) — SRMIST Kattankulathur
               </span>
             </div>
           </button>
@@ -203,12 +208,12 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
           </div>
 
           <div className="hidden lg:flex flex-col text-right leading-none">
-            <span className="text-xs font-semibold text-white">Prof. Sarah Jenkins</span>
-            <span className="text-[11px] text-[#9A9A9A]">Placement Director • Dept: CSE • #FAC-2026-04</span>
+            <span className="text-xs font-semibold text-white">Dr. S. Soundararajan</span>
+            <span className="text-[11px] text-[#ffba35]">Directorate of Career Centre (CDC) • SRMIST Kattankulathur</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-[#cdbdff] text-[#370095] flex items-center justify-center font-bold text-xs shrink-0">
-            <span className="material-symbols-outlined text-[18px]">person</span>
+          <div className="w-8 h-8 rounded-full bg-[#ffba35]/20 border border-[#ffba35]/40 text-[#ffba35] flex items-center justify-center font-bold text-xs shrink-0">
+            <span className="material-symbols-outlined text-[18px]">verified_user</span>
           </div>
 
           {/* Role Switcher Button */}
@@ -235,10 +240,10 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
       <div className="h-12 w-full px-4 md:px-6 bg-[#131315] border-b border-[#202023] flex items-center justify-between text-sm overflow-x-auto">
         <div className="flex items-center gap-4 lg:gap-6 min-w-0">
           <div className="flex items-center gap-1.5 text-white shrink-0">
-            <span className="material-symbols-outlined text-[#9A9A9A] text-[18px]">school</span>
-            <span className="font-semibold text-xs sm:text-sm">Class of 2026 — B.S. Computer Science</span>
-            <span className="text-xs text-[#9A9A9A] bg-[#16161A] px-1.5 py-0.5 rounded border border-[#202023]">
-              (N=148)
+            <span className="material-symbols-outlined text-[#ffba35] text-[18px]">school</span>
+            <span className="font-semibold text-xs sm:text-sm">B.Tech CSE — Batch 2026 (Section A)</span>
+            <span className="text-xs text-[#55C98B] bg-[#16161A] px-2 py-0.5 rounded border border-[#202023] font-mono font-bold">
+              45 Candidates • Avg CGPA 8.42
             </span>
           </div>
 

@@ -151,12 +151,16 @@ export interface CompetencyItem {
 export interface StudentProfileData {
   id: string;
   name: string;
+  registerNumber?: string;
   email: string;
   program: string;
   department: string;
   specialization: string;
   semester: string;
   cgpa: number;
+  standingArrears?: number;
+  tenthMarks?: string;
+  twelfthMarks?: string;
   graduationYear: string;
   targetRole: string;
   competencies: CompetencyItem[];
@@ -173,4 +177,20 @@ export interface ResumeSuggestionDiff {
   ruleRef: string;
   status: 'pending' | 'accepted' | 'rejected';
 }
+
+export type SRMPlacementTier = 'Super Dream' | 'Dream' | 'Day Sharing';
+export type InterviewRoundMode = 'technical' | 'hr';
+
+export interface CDCInterviewScorecard {
+  technicalCompetency: number; // 0-100
+  coreProblemSolving: number; // 0-100
+  communicationConfidence: number; // 0-100
+  overallScore: number; // 0-100
+  srmRecommendationGrade: 'S' | 'A+' | 'A' | 'B';
+  recommendationTitle: string;
+  recommendationText: string;
+  strengths: string[];
+  weakPointsToFix: string[];
+}
+
 

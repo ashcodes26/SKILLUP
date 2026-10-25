@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { initialSkillDemand, INITIAL_STUDENT_PROFILE } from '../../data/mockData';
 import { StudentProfileData } from '../../types';
+import SkillTechTreeModal from '../../components/SkillTechTreeModal';
 
 interface SkillDemandScreenProps {
   onNavigate?: (screen: string) => void;
@@ -33,6 +34,7 @@ export default function SkillDemandScreen({
   // Multi-role comparison state (compare 1, 2, or 3 target roles simultaneously)
   const [selectedTracks, setSelectedTracks] = useState<('backend' | 'devops' | 'data')[]>(['backend', 'devops']);
   const [mentionFilter, setMentionFilter] = useState<'all' | 'Required' | 'Preferred' | 'Mentioned'>('all');
+  const [techTreeSkillKey, setTechTreeSkillKey] = useState<string | null>(null);
 
   const toggleTrack = (track: 'backend' | 'devops' | 'data') => {
     setSelectedTracks((prev) => {
@@ -105,6 +107,8 @@ export default function SkillDemandScreen({
   const maxR = 112;
 
   const radarAxes = enrichedSkills.map((s, idx) => ({
+    id: s.id,
+    fullName: s.name,
     name: s.name.split(' ')[0],
     angle: idx * 60,
     backendPct: s.roleDemandByTrack?.backend ?? s.demandPercentage,
@@ -288,33 +292,53 @@ export default function SkillDemandScreen({
                 strokeWidth="2.5"
               />
 
-              {/* Axis Labels */}
+              {/* Interactive Radar Vertex Nodes & Labels */}
               {radarAxes.map((axis, idx) => {
                 const { x, y } = getCoordinates(axis.angle, 118);
+                const sCoord = getCoordinates(axis.angle, axis.studentPct);
                 return (
-                  <text
+                  <g
                     key={idx}
-                    x={x}
-                    y={y + 4}
-                    fill="#D6D6DC"
-                    fontSize="11"
-                    fontFamily="monospace"
-                    textAnchor="middle"
+                    onClick={() => setTechTreeSkillKey(axis.id)}
+                    className="cursor-pointer group"
                   >
-                    {axis.name} {axis.isNull ? '(null)' : `${axis.studentPct}%`}
-                  </text>
+                    {/* Glowing point on student polygon */}
+                    <circle
+                      cx={sCoord.x}
+                      cy={sCoord.y}
+                      r="4.5"
+                      fill="#55C98B"
+                      stroke="#000000"
+                      strokeWidth="1.5"
+                      className="group-hover:r-6 transition-all filter drop-shadow-[0_0_6px_#55C98B]"
+                    />
+
+                    {/* Outer label with tech-tree trigger */}
+                    <text
+                      x={x}
+                      y={y + 4}
+                      fill="#D6D6DC"
+                      fontSize="11"
+                      fontFamily="monospace"
+                      textAnchor="middle"
+                      className="group-hover:fill-[#cdbdff] group-hover:font-bold transition-colors"
+                    >
+                      {axis.name} {axis.isNull ? '(null)' : `${axis.studentPct}%`}
+                    </text>
+                  </g>
                 );
               })}
             </svg>
           </div>
 
-          <div className="w-full bg-[#16161A] p-3 rounded border border-[#202023] text-xs text-[#8B8B93] flex items-center justify-between">
-            <span>
-              Demand Formula: <code className="font-mono text-white">(jobs_mentioning / total_jobs) * 100</code>
+          <div className="w-full bg-[#16161A] p-2.5 rounded border border-[#202023] text-xs text-[#8B8B93] flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[11px] text-[#cdbdff]">
+              <span className="material-symbols-outlined text-[14px]">account_tree</span>
+              <span>Click any skill on radar to inspect RPG Tech-Tree</span>
             </span>
             <button
               onClick={() => onNavigate?.('career-plan')}
-              className="text-[#cdbdff] hover:underline font-mono text-[11px] cursor-pointer"
+              className="text-[#55C98B] hover:underline font-mono text-[11px] cursor-pointer"
             >
               Verify Gaps →
             </button>
@@ -344,11 +368,25 @@ export default function SkillDemandScreen({
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-[#cdbdff] font-bold">#{index + 1}</span>
-                    <span className="font-bold text-white">{skill.name}</span>
+                    <button
+                      onClick={() => setTechTreeSkillKey(skill.id)}
+                      className="font-bold text-white hover:text-[#cdbdff] hover:underline cursor-pointer flex items-center gap-1 text-left"
+                      title="Inspect Skill Tech-Tree"
+                    >
+                      {skill.name}
+                      <span className="material-symbols-outlined text-[13px] text-[#8052ff]">account_tree</span>
+                    </button>
                     <span className="text-[#9A9A9A]">· {skill.mentionType}</span>
                     <span className="text-[#9A9A9A]">· {skill.provenance}</span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setTechTreeSkillKey(skill.id)}
+                      className="px-2 py-0.5 bg-[#8052ff]/15 hover:bg-[#8052ff]/30 text-[#cdbdff] border border-[#8052ff]/40 rounded text-[10px] cursor-pointer flex items-center gap-1 transition-all"
+                    >
+                      <span>Tech-Tree</span>
+                      <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
+                    </button>
                     <span className="text-[#9A9A9A] tabular-nums">
                       Action: <strong className="text-white">{skill.actionType} ({skill.actionWeight}x)</strong>
                     </span>
@@ -492,6 +530,17 @@ export default function SkillDemandScreen({
           </table>
         </div>
       </div>
+
+      {/* Skill Dependency Tech-Tree Modal Inspector */}
+      {techTreeSkillKey && (
+        <SkillTechTreeModal
+          isOpen={Boolean(techTreeSkillKey)}
+          onClose={() => setTechTreeSkillKey(null)}
+          targetSkillKey={techTreeSkillKey}
+          profile={profile}
+          onNavigate={onNavigate}
+        />
+      )}
     </div>
   );
 }

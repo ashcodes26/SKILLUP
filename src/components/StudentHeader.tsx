@@ -16,8 +16,8 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
   onNavigate,
   onRoleSwitch,
   onSwitchRole,
-  studentId = '#STU-2026-88',
-  studentName = 'Alex R. Mercer',
+  studentId = 'RA2211003010482',
+  studentName = 'Aravind R. (Alex Mercer)',
   onLogout,
 }) => {
   const [showQuickMenu, setShowQuickMenu] = useState(false);
@@ -25,9 +25,10 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
   const navLinks = [
     { id: 'career-plan', label: 'My Career Plan', icon: 'flag' },
     { id: 'skill-demand', label: 'Market Radar', icon: 'radar' },
-    { id: 'resume-analyzer', label: 'Resume & LinkedIn', icon: 'description' },
+    { id: 'resume-analyzer', label: 'Career Assets', icon: 'description' },
     { id: 'job-search', label: 'Opportunities', icon: 'travel_explore' },
     { id: 'placement-hub', label: 'Placement Hub', icon: 'corporate_fare' },
+    { id: 'interview-room', label: 'Interview Room', icon: 'mic', isSpecial: true },
   ];
 
   return (
@@ -37,33 +38,55 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
         <div className="flex items-center gap-6 lg:gap-8">
           <button
             onClick={() => onNavigate('career-plan')}
-            className="flex items-center gap-2 text-left cursor-pointer group shrink-0"
+            className="flex items-center gap-2.5 text-left cursor-pointer group shrink-0"
           >
-            <div className="w-8 h-8 rounded bg-[#16161A] border border-[#363639] flex items-center justify-center text-[#8052ff] group-hover:border-[#8052ff] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">terminal</span>
+            <div className="w-8 h-8 rounded-lg bg-[#16161A] border border-[#363639] flex items-center justify-center text-[#8052ff] group-hover:border-[#8052ff] transition-colors">
+              <span className="material-symbols-outlined text-[20px]">school</span>
             </div>
-            <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-1.5 whitespace-nowrap">
-              Skill<span className="text-[#cdbdff]">up</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-semibold text-base sm:text-lg tracking-tight text-white flex items-center gap-1.5 whitespace-nowrap">
+                Skill<span className="text-[#8052ff]">up</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ffba35]/20 text-[#ffba35] border border-[#ffba35]/40 font-mono font-bold">
+                  SRMIST CDC
+                </span>
+              </span>
+              <span className="text-[9px] font-mono text-[#9A9A9A] tracking-wider hidden xl:block leading-none">
+                Directorate of Career Centre (CDC) — SRMIST Kattankulathur
+              </span>
+            </div>
           </button>
 
-          <nav className="hidden md:flex items-center gap-5 lg:gap-6">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-5">
             {navLinks.map((link) => {
               const isActive =
                 currentPath === link.id ||
-                (link.id === 'resume-analyzer' && (currentPath === 'resume-analyzer' || currentPath === 'linkedin-optimizer'));
+                (link.id === 'resume-analyzer' &&
+                  (currentPath === 'resume-analyzer' ||
+                    currentPath === 'career-assets' ||
+                    currentPath === 'career_assets' ||
+                    currentPath === 'linkedin-optimizer'));
 
               return (
                 <button
                   key={link.id}
                   onClick={() => onNavigate(link.id)}
-                  className={`py-2 text-sm transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  className={`py-2 text-xs lg:text-sm transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'text-white border-b-2 border-[#8052ff] font-semibold'
+                      : link.isSpecial
+                      ? 'text-[#ffba35] hover:text-[#ffba35]/80 font-medium'
                       : 'text-[#9A9A9A] hover:text-white'
                   }`}
                 >
+                  {link.isSpecial && (
+                    <span className="material-symbols-outlined text-[15px] animate-pulse">mic</span>
+                  )}
                   <span>{link.label}</span>
+                  {link.isSpecial && (
+                    <span className="px-1 py-0.2 rounded bg-[#ffba35]/20 text-[#ffba35] text-[9px] font-mono font-bold">
+                      NEW
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -130,6 +153,16 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                   <span>6. Placement Hub &amp; Assessments</span>
                   <span className="text-[10px] text-[#55C98B]">Drives</span>
                 </button>
+                <button
+                  onClick={() => { onNavigate('interview-room'); setShowQuickMenu(false); }}
+                  className="w-full px-3 py-2 text-left text-xs text-[#ffba35] hover:bg-[#16161A] flex items-center justify-between font-medium"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px]">mic</span>
+                    <span>7. AI Technical &amp; HR Interview Room</span>
+                  </span>
+                  <span className="text-[10px] bg-[#ffba35]/20 px-1.5 py-0.5 rounded font-mono font-bold">SRM CDC</span>
+                </button>
 
                 <div className="px-3 py-1.5 text-[11px] font-semibold text-[#9A9A9A] uppercase tracking-wider border-y border-[#202023] mt-1">
                   Faculty Console Screens
@@ -138,49 +171,49 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                   onClick={() => { onNavigate('admin-overview'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>6. Faculty Overview</span>
+                  <span>8. Faculty Overview (CDC)</span>
                   <span className="text-[10px] text-[#8052ff]">Console</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-students'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>7. Student Roster & Detail</span>
+                  <span>9. Student Roster &amp; Detail</span>
                   <span className="text-[10px] text-[#78d8be]">Evals</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-skill-analytics'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>8. Skill Analytics</span>
+                  <span>10. Skill Analytics</span>
                   <span className="text-[10px] text-[#ffba35]">Telemetry</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-placement-drives'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>9. Placement Drives</span>
+                  <span>11. Placement Drives (Tiers)</span>
                   <span className="text-[10px] text-[#8052ff]">Rules</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-reviews-training'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>10. Reviews & Training</span>
+                  <span>12. Reviews &amp; Training</span>
                   <span className="text-[10px] text-[#55C98B]">Queue</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-reports'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>11. Reports & Audit Manifest</span>
+                  <span>13. Reports &amp; Audit Manifest</span>
                   <span className="text-[10px] text-[#cdbdff]">Exports</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('admin-import'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>12. Cohort CSV Ingestion</span>
+                  <span>14. Cohort CSV Ingestion</span>
                   <span className="text-[10px] text-[#78d8be]">Mapping</span>
                 </button>
                 <button
@@ -194,13 +227,13 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
           </div>
 
           <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#16161A] border border-[#363639] text-xs text-[#9A9A9A]">
-            <span className="w-2 h-2 rounded-full bg-[#ffba35] animate-pulse"></span>
-            <span className="text-white font-medium">Demo Mode</span>
+            <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-pulse"></span>
+            <span className="text-white font-medium font-mono text-[11px]">SRMIST KTR</span>
           </div>
 
           <div className="hidden lg:flex flex-col text-right leading-none">
-            <span className="text-xs font-semibold text-white">#STU-2026-88</span>
-            <span className="text-[11px] text-[#9A9A9A]">Computer Science</span>
+            <span className="text-xs font-semibold text-white font-mono">{studentId}</span>
+            <span className="text-[11px] text-[#cdbdff] font-mono">Aravind R. • CGPA 8.74</span>
           </div>
 
           <div className="w-8 h-8 rounded-full bg-[#cdbdff] text-[#370095] flex items-center justify-center font-bold text-xs shrink-0">
