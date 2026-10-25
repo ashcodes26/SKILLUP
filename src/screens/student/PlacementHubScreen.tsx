@@ -5,15 +5,17 @@ interface PlacementHubScreenProps {
   onNavigate?: (screen: string) => void;
   onShowToast?: (msg: string, type?: 'success' | 'info' | 'warning') => void;
   onDockerQuizCompleted?: () => void;
+  dockerScore?: number | null;
 }
 
 export default function PlacementHubScreen({
   onNavigate,
   onShowToast,
   onDockerQuizCompleted,
+  dockerScore,
 }: PlacementHubScreenProps) {
   const [drives, setDrives] = useState(initialDrives);
-  const [dockerCompleted, setDockerCompleted] = useState(false);
+  const [dockerCompleted, setDockerCompleted] = useState(Boolean(dockerScore && dockerScore >= 3.5));
   const [activeQuizModal, setActiveQuizModal] = useState<boolean>(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
@@ -92,13 +94,13 @@ export default function PlacementHubScreen({
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigate?.('career-plan')}
-            className="px-3.5 py-2 bg-[#16161A] hover:bg-[#202023] text-xs font-mono text-[#D6D6DC] border border-[#363639] rounded transition-colors"
+            className="px-3.5 py-2 bg-[#16161A] hover:bg-[#202023] text-xs font-mono text-[#D6D6DC] border border-[#363639] rounded transition-colors cursor-pointer"
           >
             ← Back to Career Plan
           </button>
           <button
             onClick={() => onNavigate?.('resume-analyzer')}
-            className="px-3.5 py-2 bg-[#8052ff] hover:bg-[#8052ff]/90 text-xs font-mono text-white rounded transition-colors"
+            className="px-3.5 py-2 bg-[#8052ff] hover:bg-[#8052ff]/90 text-xs font-mono text-white rounded transition-colors cursor-pointer"
           >
             Review Resume Assets
           </button>
@@ -113,13 +115,13 @@ export default function PlacementHubScreen({
             <div>
               <div className="text-sm font-bold text-white">Gated Prerequisite: Docker Containerization Lab (#DCK-101)</div>
               <p className="text-xs text-[#D6D6DC] mt-0.5">
-                CloudScale Systems requires verified competency in Docker (minimum 3.0). Complete the 3-question hands-on quiz to unlock eligibility.
+                CloudScale Systems requires verified competency in Docker (minimum 3.5). Complete the 3-question hands-on quiz to unlock eligibility.
               </p>
             </div>
           </div>
           <button
             onClick={() => setActiveQuizModal(true)}
-            className="px-4 py-2 bg-[#ffba35] hover:bg-[#ffba35]/90 text-black text-xs font-mono font-bold rounded whitespace-nowrap transition-colors"
+            className="px-4 py-2 bg-[#ffba35] hover:bg-[#ffba35]/90 text-black text-xs font-mono font-bold rounded whitespace-nowrap transition-colors cursor-pointer"
           >
             Launch Quiz #DCK-101 Now →
           </button>
@@ -129,7 +131,7 @@ export default function PlacementHubScreen({
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-[#55C98B] text-[22px]">verified</span>
             <div>
-              <div className="text-sm font-bold text-white">All Institutional Prerequisites Verified (100% Eligible)</div>
+              <div className="text-sm font-bold text-white">All Institutional Prerequisites Verified (Eligible)</div>
               <p className="text-xs text-[#55C98B] mt-0.5">
                 Docker Containerization Lab score: 4.0 / 5.0 recorded. CloudScale drive gate is fully unlocked.
               </p>
@@ -152,7 +154,7 @@ export default function PlacementHubScreen({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {drives.map((drive) => {
-            const isGated = drive.id === 'drive-1' && !dockerCompleted;
+            const isGated = (drive.id === 'drv-cloudscale-2026' || drive.id === 'drive-1') && !dockerCompleted;
             const isApplied = appliedDriveIds.includes(drive.id);
 
             return (

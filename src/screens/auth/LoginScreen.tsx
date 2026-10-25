@@ -77,13 +77,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onLoginSucces
               <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-pulse"></span>
               <span>Class of 2026 CS Production Instance</span>
             </div>
-            <a
-              href="#support"
-              onClick={(e) => { e.preventDefault(); alert('Skillup Help & Institutional Support Terminal active.'); }}
-              className="flex items-center gap-1 text-[#9A9A9A] hover:text-white transition-colors text-sm"
+            <button
+              type="button"
+              onClick={() => onShowToast?.('Skillup Help & Institutional Support Terminal active (FERPA & IEEE P2863 compliant).', 'info')}
+              className="flex items-center gap-1 text-[#9A9A9A] hover:text-white transition-colors text-sm cursor-pointer"
+              title="Institutional Support"
             >
               <span className="material-symbols-outlined text-[18px]">help</span>
-            </a>
+            </button>
           </div>
         </div>
       </header>

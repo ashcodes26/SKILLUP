@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UserRole, UserSession } from './types';
-import { alexMercerSession, sarahJenkinsSession } from './data/mockData';
+import { StudentProfileData, UserRole, UserSession } from './types';
+import { INITIAL_STUDENT_PROFILE, alexMercerSession, sarahJenkinsSession } from './data/mockData';
 import StudentHeader from './components/StudentHeader';
 import FacultyHeader from './components/FacultyHeader';
 import Footer from './components/Footer';
@@ -24,6 +24,7 @@ import FacultyImportScreen from './screens/faculty/FacultyImportScreen';
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(alexMercerSession);
   const [currentScreen, setCurrentScreen] = useState<string>('career-plan');
+  const [studentProfile, setStudentProfile] = useState<StudentProfileData>(INITIAL_STUDENT_PROFILE);
   const [dockerQuizCompleted, setDockerQuizCompleted] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
 
@@ -34,10 +35,29 @@ export default function App() {
     }, 4000);
   };
 
+  // Role-aware navigation helper so jumping between student & faculty screens never renders blank
+  const handleNavigate = (screen: string) => {
+    if (screen === 'login') {
+      setCurrentScreen('login');
+      return;
+    }
+    if (screen.startsWith('admin')) {
+      if (currentUser?.role !== 'faculty') {
+        setCurrentUser(sarahJenkinsSession);
+      }
+      setCurrentScreen(screen);
+    } else {
+      if (currentUser?.role !== 'student') {
+        setCurrentUser(alexMercerSession);
+      }
+      setCurrentScreen(screen);
+    }
+  };
+
   const handleRoleSwitch = (newRole: UserRole) => {
     if (newRole === 'faculty') {
       setCurrentUser(sarahJenkinsSession);
-      setCurrentScreen('admin');
+      setCurrentScreen('admin-overview');
       showToast('Switched to Faculty Placement Director console (Prof. Sarah Jenkins)', 'info');
     } else {
       setCurrentUser(alexMercerSession);
@@ -53,7 +73,7 @@ export default function App() {
       showToast('Authenticated as Student Candidate (Alex R. Mercer #STU-2026-88)', 'success');
     } else {
       setCurrentUser(sarahJenkinsSession);
-      setCurrentScreen('admin');
+      setCurrentScreen('admin-overview');
       showToast('Authenticated as Placement Director (Prof. Sarah Jenkins #FAC-2026-04)', 'success');
     }
   };
@@ -66,6 +86,19 @@ export default function App() {
 
   const handleDockerQuizFinished = () => {
     setDockerQuizCompleted(true);
+    setStudentProfile((prev) => ({
+      ...prev,
+      competencies: prev.competencies.map((c) =>
+        c.id === 'comp-docker'
+          ? {
+              ...c,
+              proficiency: 4.0,
+              evidenceSource: 'verified_assessment',
+              evidenceLabel: 'Placement Hub Quiz #DCK-101 • Verified (4.0/5.0)',
+            }
+          : c
+      ),
+    }));
     showToast('Docker Containerization score: 4.0 recorded! CloudScale placement gate unlocked.', 'success');
   };
 
@@ -84,6 +117,9 @@ export default function App() {
     );
   }
 
+  const dockerCompScore =
+    studentProfile.competencies.find((c) => c.id === 'comp-docker')?.proficiency ?? (dockerQuizCompleted ? 4.0 : null);
+
   return (
     <div className="min-h-screen bg-[#000000] text-[#D6D6DC] flex flex-col font-sans selection:bg-[#8052ff]/30 selection:text-white antialiased">
       {/* Toast Notification Container */}
@@ -99,7 +135,7 @@ export default function App() {
       {currentUser.role === 'student' ? (
         <StudentHeader
           currentPath={currentScreen}
-          onNavigate={(screen) => setCurrentScreen(screen)}
+          onNavigate={handleNavigate}
           onRoleSwitch={handleRoleSwitch}
           studentId={currentUser.id}
           studentName={currentUser.name}
@@ -108,7 +144,7 @@ export default function App() {
       ) : (
         <FacultyHeader
           currentPath={currentScreen}
-          onNavigate={(screen) => setCurrentScreen(screen)}
+          onNavigate={handleNavigate}
           onRoleSwitch={handleRoleSwitch}
           facultyName={currentUser.name}
           department={currentUser.department}
@@ -122,34 +158,49 @@ export default function App() {
           <>
             {(currentScreen === 'career-plan' || currentScreen === 'career_plan' || currentScreen === '') && (
               <CareerPlanScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
-                dockerScore={dockerQuizCompleted ? 4.0 : null}
+                profile={studentProfile}
+                onUpdateProfile={setStudentProfile}
+                dockerScore={dockerCompScore}
+                onDockerQuizCompleted={handleDockerQuizFinished}
               />
             )}
             {(currentScreen === 'resume-analyzer' || currentScreen === 'resume_analyzer') && (
               <ResumeAnalyzerScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
+                initialWorkspaceTab="resume"
+              />
+            )}
+            {(currentScreen === 'linkedin-optimizer' || currentScreen === 'linkedin_optimizer') && (
+              <ResumeAnalyzerScreen
+                onNavigate={handleNavigate}
+                onShowToast={showToast}
+                initialWorkspaceTab="linkedin"
               />
             )}
             {(currentScreen === 'job-search' || currentScreen === 'job_search') && (
               <JobSearchScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
+                profile={studentProfile}
               />
             )}
             {(currentScreen === 'skill-demand' || currentScreen === 'skill_demand') && (
               <SkillDemandScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
+                profile={studentProfile}
+                dockerScore={dockerCompScore}
               />
             )}
             {(currentScreen === 'placement-hub' || currentScreen === 'placement_hub') && (
               <PlacementHubScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
                 onDockerQuizCompleted={handleDockerQuizFinished}
+                dockerScore={dockerCompScore}
               />
             )}
           </>
@@ -157,43 +208,43 @@ export default function App() {
           <>
             {(currentScreen === 'admin' || currentScreen === 'admin-overview' || currentScreen === 'admin/overview') && (
               <FacultyOverviewScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/students' || currentScreen === 'admin-students') && (
               <FacultyStudentsScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/skill-analytics' || currentScreen === 'admin-skill-analytics') && (
               <FacultySkillAnalyticsScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/placement-drives' || currentScreen === 'admin-placement-drives') && (
               <FacultyPlacementDrivesScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/reviews-training' || currentScreen === 'admin-reviews-training') && (
               <FacultyReviewsTrainingScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/reports' || currentScreen === 'admin-reports') && (
               <FacultyReportsScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
             {(currentScreen === 'admin/import' || currentScreen === 'admin-import') && (
               <FacultyImportScreen
-                onNavigate={(screen) => setCurrentScreen(screen)}
+                onNavigate={handleNavigate}
                 onShowToast={showToast}
               />
             )}
@@ -202,7 +253,7 @@ export default function App() {
       </main>
 
       {/* Global Footer */}
-      <Footer onNavigate={(screen) => setCurrentScreen(screen)} />
+      <Footer onNavigate={handleNavigate} onShowToast={showToast} />
     </div>
   );
 }

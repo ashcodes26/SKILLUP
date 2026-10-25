@@ -112,6 +112,9 @@ export interface SkillDemandItem {
   id: string;
   name: string;
   category: string;
+  mentionType?: 'Required' | 'Preferred' | 'Mentioned';
+  requiredFraction?: number;
+  actionType?: 'Learn' | 'Assess' | 'Maintain';
   penetrationPct: number;
   jobCount: number;
   totalSample: number;
@@ -122,4 +125,52 @@ export interface SkillDemandItem {
   isGap?: boolean;
   isExceeded?: boolean;
   sourceNote: string;
+  provenance?: ProvenanceType;
+  roleDemandByTrack?: {
+    backend: number;
+    devops: number;
+    data: number;
+  };
 }
+
+export type ProvenanceType = 'serpapi_live' | 'curated_fallback' | 'demo_fixture';
+
+export type EvidenceSourceType = 'self-reported' | 'project' | 'coursework' | 'verified_assessment';
+
+export interface CompetencyItem {
+  id: string;
+  name: string;
+  category: string;
+  proficiency: number | null; // 0-5 scale, null strictly for unmeasured/unknown
+  targetLevel: number;
+  requirementType: 'Required' | 'Preferred' | 'Mentioned';
+  evidenceSource: EvidenceSourceType | null;
+  evidenceLabel: string;
+}
+
+export interface StudentProfileData {
+  id: string;
+  name: string;
+  email: string;
+  program: string;
+  department: string;
+  specialization: string;
+  semester: string;
+  cgpa: number;
+  graduationYear: string;
+  targetRole: string;
+  competencies: CompetencyItem[];
+}
+
+export interface ResumeSuggestionDiff {
+  id: number;
+  title: string;
+  category: 'Relevance' | 'Evidence' | 'Clarity';
+  priority: 'High Priority' | 'ATS Keyword Match' | 'Stylistic Lift';
+  rationale: string;
+  originalPassage: string;
+  proposedPassage: string;
+  ruleRef: string;
+  status: 'pending' | 'accepted' | 'rejected';
+}
+

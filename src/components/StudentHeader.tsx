@@ -24,7 +24,8 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
 
   const navLinks = [
     { id: 'career-plan', label: 'My Career Plan', icon: 'flag' },
-    { id: 'resume-analyzer', label: 'Career Assets', icon: 'description' },
+    { id: 'skill-demand', label: 'Market Radar', icon: 'radar' },
+    { id: 'resume-analyzer', label: 'Resume & LinkedIn', icon: 'description' },
     { id: 'job-search', label: 'Opportunities', icon: 'travel_explore' },
     { id: 'placement-hub', label: 'Placement Hub', icon: 'corporate_fare' },
   ];
@@ -36,28 +37,27 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
         <div className="flex items-center gap-6 lg:gap-8">
           <button
             onClick={() => onNavigate('career-plan')}
-            className="flex items-center gap-2 text-left cursor-pointer group"
+            className="flex items-center gap-2 text-left cursor-pointer group shrink-0"
           >
             <div className="w-8 h-8 rounded bg-[#16161A] border border-[#363639] flex items-center justify-center text-[#8052ff] group-hover:border-[#8052ff] transition-colors">
               <span className="material-symbols-outlined text-[20px]">terminal</span>
             </div>
-            <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-1.5">
+            <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-1.5 whitespace-nowrap">
               Skill<span className="text-[#cdbdff]">up</span>
             </span>
           </button>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-5 lg:gap-6">
             {navLinks.map((link) => {
               const isActive =
                 currentPath === link.id ||
-                (link.id === 'resume-analyzer' && currentPath === 'resume-analyzer') ||
-                (link.id === 'job-search' && (currentPath === 'job-search' || currentPath === 'skill-demand'));
+                (link.id === 'resume-analyzer' && (currentPath === 'resume-analyzer' || currentPath === 'linkedin-optimizer'));
 
               return (
                 <button
                   key={link.id}
                   onClick={() => onNavigate(link.id)}
-                  className={`py-2 text-sm transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`py-2 text-sm transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'text-white border-b-2 border-[#8052ff] font-semibold'
                       : 'text-[#9A9A9A] hover:text-white'
@@ -71,12 +71,12 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
         </div>
 
         {/* Right Section: Demo Mode, Student Credential, Avatar, Actions */}
-        <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex items-center gap-3 md:gap-4 shrink-0">
           {/* Quick Screen Switcher Trigger */}
           <div className="relative">
             <button
               onClick={() => setShowQuickMenu(!showQuickMenu)}
-              className="px-2.5 py-1 text-xs rounded-lg bg-[#16161A] border border-[#363639] text-[#cdbdff] hover:text-white hover:border-[#8052ff] transition-colors flex items-center gap-1.5"
+              className="px-2.5 py-1 text-xs rounded-lg bg-[#16161A] border border-[#363639] text-[#cdbdff] hover:text-white hover:border-[#8052ff] transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
               title="Jump to any screen"
             >
               <span className="material-symbols-outlined text-[15px]">apps</span>
@@ -86,41 +86,48 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
             {showQuickMenu && (
               <div className="absolute right-0 mt-2 w-72 rounded-xl bg-[#0D0D0F] border border-[#363639] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="px-3 py-1.5 text-[11px] font-semibold text-[#9A9A9A] uppercase tracking-wider border-b border-[#202023]">
-                  Student Screens
+                  Student Screens (AIMORA)
                 </div>
                 <button
                   onClick={() => { onNavigate('career-plan'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>1. My Career Plan</span>
+                  <span>1. My Career Plan &amp; Evidence</span>
                   <span className="text-[10px] text-[#55C98B]">Roadmap</span>
-                </button>
-                <button
-                  onClick={() => { onNavigate('resume-analyzer'); setShowQuickMenu(false); }}
-                  className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
-                >
-                  <span>2. Resume Analyzer</span>
-                  <span className="text-[10px] text-[#cdbdff]">Split Diff</span>
-                </button>
-                <button
-                  onClick={() => { onNavigate('job-search'); setShowQuickMenu(false); }}
-                  className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
-                >
-                  <span>3. Job Search & Matching</span>
-                  <span className="text-[10px] text-[#78d8be]">SerpApi</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('skill-demand'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>4. Skill-Demand Insights</span>
-                  <span className="text-[10px] text-[#ffba35]">Radar & Trends</span>
+                  <span>2. Market Radar &amp; Priority Engine</span>
+                  <span className="text-[10px] text-[#ffba35]">Multi-Role</span>
+                </button>
+                <button
+                  onClick={() => { onNavigate('resume-analyzer'); setShowQuickMenu(false); }}
+                  className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
+                >
+                  <span>3. Resume Analyzer &amp; Diff Stream</span>
+                  <span className="text-[10px] text-[#cdbdff]">Split Diff</span>
+                </button>
+                <button
+                  onClick={() => { onNavigate('linkedin-optimizer'); setShowQuickMenu(false); }}
+                  className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
+                >
+                  <span>4. LinkedIn Profile Optimizer</span>
+                  <span className="text-[10px] text-[#78d8be]">Diagnostic</span>
+                </button>
+                <button
+                  onClick={() => { onNavigate('job-search'); setShowQuickMenu(false); }}
+                  className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
+                >
+                  <span>5. Job Search &amp; Matching</span>
+                  <span className="text-[10px] text-[#78d8be]">Provenance</span>
                 </button>
                 <button
                   onClick={() => { onNavigate('placement-hub'); setShowQuickMenu(false); }}
                   className="w-full px-3 py-2 text-left text-xs text-white hover:bg-[#16161A] flex items-center justify-between"
                 >
-                  <span>5. Placement Hub</span>
+                  <span>6. Placement Hub &amp; Assessments</span>
                   <span className="text-[10px] text-[#55C98B]">Drives</span>
                 </button>
 
