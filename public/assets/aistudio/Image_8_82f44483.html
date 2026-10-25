@@ -1,0 +1,670 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-container": "#15846e", "on-tertiary-fixed": "#002019", "error-container": "#93000a", "on-error": "#690005", "inverse-surface": "#e5e1e4", "tertiary-fixed": "#94f4da", "surface": "#131315", "background": "#131315", "surface-container-highest": "#353437", "text-muted": "#9A9A9A", "surface-container": "#1E1E24", "status-highlight-green": "#55C98B", "tertiary": "#78d8be", "surface-container-low": "#1b1b1d", "on-tertiary-fixed-variant": "#005142", "text-body": "#BDBDBD", "inverse-primary": "#6835e7", "highlight-replacement": "#FFFF00", "secondary-container": "#e19f00", "on-tertiary": "#00382d", "primary-container": "#8052ff", "border-strong": "#363639", "secondary-fixed-dim": "#ffba35", "semantic-error": "#EB5757", "on-surface": "#e5e1e4", "border-subtle": "#202023", "surface-dim": "#131315", "surface-higher": "#16161A", "on-secondary-fixed-variant": "#5f4100", "inverse-on-surface": "#313032", "on-tertiary-container": "#f9fffb", "surface-tint": "#cdbdff", "outline": "#948ea1", "on-primary-container": "#fffdff", "semantic-info": "#3B82F6", "on-secondary-container": "#563a00", "error": "#ffb4ab", "surface-container-high": "#2a2a2c", "surface-elevated": "#0D0D0F", "canvas": "#000000", "secondary": "#ffba35", "on-primary-fixed": "#20005f", "on-background": "#e5e1e4", "on-surface-variant": "#cbc3d8", "text-primary": "#FFFFFF", "primary-fixed": "#e8deff", "primary-fixed-dim": "#cdbdff", "on-secondary-fixed": "#281900", "text-disabled": "#606066", "surface-bright": "#39393b", "on-primary-fixed-variant": "#5001cf", "outline-variant": "#494455", "on-error-container": "#ffdad6", "surface-variant": "#353437", "secondary-fixed": "#ffdeac", "on-secondary": "#422c00", "on-primary": "#370095", "surface-container-lowest": "#0e0e10", "tertiary-fixed-dim": "#78d8be", "primary": "#cdbdff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin-top": "2.25rem", "gutter-sm": "1rem", "space-xs": "0.375rem", "space-sm": "0.75rem", "space-xl": "2.25rem", "margin": "1.5rem", "gutter": "1.5rem", "space-md": "1rem", "space-lg": "1.5rem", "margin-bottom": "3rem" }, "fontFamily": { "metric-md": ["Inter"], "metric-lg": ["Inter"], "body-default": ["Inter"], "eyebrow-kicker": ["Inter"], "caption-muted": ["Inter"], "body-compact": ["Inter"], "headline-h3": ["Inter"], "page-title": ["Inter"], "label-default": ["Inter"], "headline-h4": ["Inter"], "display-hero-mobile": ["Inter"], "page-title-mobile": ["Inter"], "display-hero": ["Inter"], "stage-heading": ["Inter"], "headline-h2": ["Inter"] }, "fontSize": { "metric-md": ["30px", { "lineHeight": "36px", "fontWeight": "600" }], "metric-lg": ["48px", { "lineHeight": "54px", "fontWeight": "600" }], "body-default": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "eyebrow-kicker": ["11px", { "lineHeight": "14px", "letterSpacing": "2px", "fontWeight": "600" }], "caption-muted": ["12px", { "lineHeight": "20px", "fontWeight": "400" }], "body-compact": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-h3": ["20px", { "lineHeight": "26px", "fontWeight": "600" }], "page-title": ["42px", { "lineHeight": "50px", "fontWeight": "600" }], "label-default": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "headline-h4": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "display-hero-mobile": ["42px", { "lineHeight": "46px", "fontWeight": "600" }], "page-title-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }], "display-hero": ["78px", { "lineHeight": "86px", "fontWeight": "600" }], "stage-heading": ["34px", { "lineHeight": "40px", "fontWeight": "600" }], "headline-h2": ["24px", { "lineHeight": "30px", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-container-lowest font-body-default text-text-primary min-h-screen flex flex-col antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface-elevated"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="flex items-center justify-center w-8 h-8 rounded bg-surface-higher text-primary-container"><span class="material-symbols-outlined text-[20px]">terminal</span></span><div class="flex items-baseline gap-space-xs"><span class="font-headline-h3 text-headline-h3 tracking-tight text-text-primary">Skillup</span><span class="font-eyebrow-kicker text-eyebrow-kicker px-space-xs py-0.5 rounded bg-surface-higher text-text-muted">CONSOLE</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-surface-higher text-text-primary font-headline-h4"><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="overview" href="#">Overview</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="students" href="#">Students</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="skill-analytics" href="#">Skill Analytics</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="placement-drives" href="#">Placement Drives</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reviews-and-training" href="#">Reviews &amp; Training</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reports" href="#">Reports</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="import" href="#">Import</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs px-2.5 py-1 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-text-muted">Faculty Synthetic Cohort • Active</span></div><div class="hidden lg:flex flex-col text-right"><span class="font-label-default text-label-default text-text-primary">Prof. Sarah Jenkins</span><span class="font-caption-muted text-caption-muted text-text-muted">Placement Director • Dept: CSE • #FAC-2026-04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="flex items-center gap-1 px-space-sm py-1.5 rounded bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Log out</span></a></div></div><div class="h-12 w-full px-gutter bg-surface flex items-center justify-between text-body-compact"><div class="flex items-center gap-space-lg overflow-x-auto"><div class="flex items-center gap-space-xs text-text-primary"><span class="material-symbols-outlined text-text-muted text-[18px]">school</span><span class="font-headline-h4 text-headline-h4 text-text-primary">Class of 2026 — B.S. Computer Science</span><span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher px-1.5 py-0.5 rounded">(N=148)</span></div><div class="flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">domain</span><span>Dept: All CS</span></div><div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-status-highlight-green font-medium">Active Placement Drive</span></div><div class="hidden sm:flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">sync</span><span>Last sync: Today 09:48 AM</span></div></div><div class="flex items-center gap-space-xs"><button class="px-space-sm py-1 rounded bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">filter_list</span><span>Apply Filters</span></button><button class="p-1 rounded bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary transition-colors flex items-center justify-center" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span></button><button class="px-space-sm py-1 rounded bg-primary-container text-text-primary hover:opacity-95 font-label-default text-label-default transition-all flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">add</span><span>Create Cohort</span></button></div></div></header><main class="w-full pt-28 bg-surface-container-lowest flex-1"><div class="flex flex-col w-full">
+<!-- Interactive Script for Tab/Filter Toggle & Metric Simulation -->
+<script>
+    function switchDriveTab(tabName, el) {
+      document.querySelectorAll('.drive-filter-btn').forEach(b => {
+        b.classList.remove('bg-surface-higher', 'text-text-primary');
+        b.classList.add('text-text-muted');
+      });
+      el.classList.add('bg-surface-higher', 'text-text-primary');
+      el.classList.remove('text-text-muted');
+      
+      const cards = document.querySelectorAll('.drive-card-item');
+      cards.forEach(card => {
+        if (tabName === 'all') {
+          card.style.display = 'flex';
+        } else if (card.getAttribute('data-status') === tabName) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function testSimulateQuery() {
+      const statusEl = document.getElementById('simulation-status');
+      const val = document.getElementById('benchmarkSlider').value;
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="material-symbols-outlined text-[14px] animate-spin text-primary">sync</span> Deterministic recalculation running on N=148 at cutoff ${val}%...`;
+        setTimeout(() => {
+          statusEl.innerHTML = `<span class="material-symbols-outlined text-[14px] text-status-highlight-green">check_circle</span> Query simulated: 42 Cleared, 31 Borderline, 75 Ineligible. Zero regression.`;
+        }, 450);
+      }
+    }
+
+    function updateSliderValue(val) {
+      const display = document.getElementById('slider-val-display');
+      if (display) display.innerText = val + '%';
+    }
+  </script>
+<!-- Top Institutional Scope & Compliance Banner -->
+<div class="w-full px-gutter pt-margin-top pb-space-md">
+<div class="max-w-[1280px] mx-auto bg-surface-elevated rounded-xl p-space-md shadow-md">
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary-container">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">FERPA &amp; Institutional Scope Enforced: Placement Drives &amp; Student Eligibility</span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker uppercase px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green">RBAC SECURE</span>
+<span class="font-caption-muted text-caption-muted px-2 py-0.5 rounded bg-surface-container text-text-muted">Section 5 • Screen S8d</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body max-w-4xl">
+              Faculty oversee institution-sponsored recruiting drives. Eligibility rules are deterministically evaluated against verified student competencies, transcript milestones, and endorsed artifacts. Student applications, criteria overrides, and employer shares require immutable audit logging. Readiness benchmarks are informational cohort comparisons, not automated hiring guarantees.
+            </p>
+</div>
+</div>
+<div class="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 self-end lg:self-center">
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-status-highlight-green"></span>
+            Policy Hash: <span class="font-mono text-text-primary text-[11px]">0x9b42...e28f</span>
+</span>
+<button class="px-space-md py-1.5 rounded-full bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">policy</span>
+<span>View Institutional Bylaws</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Placement Drive Metrics Summary Strip -->
+<div class="w-full px-gutter pb-space-lg">
+<div class="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Metric 1: Total Active Drives -->
+<div class="bg-surface-elevated rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Active Institutional Drives</span>
+<span class="material-symbols-outlined text-primary-container text-[20px]">corporate_fare</span>
+</div>
+<div class="mt-space-md flex items-baseline gap-2">
+<span class="font-metric-lg text-metric-lg text-text-primary">3</span>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green flex items-center">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Live Pipeline
+          </span>
+</div>
+<div class="mt-2 font-caption-muted text-caption-muted text-text-muted flex items-center gap-2">
+<span class="text-secondary">1 Closing in 48h</span>
+<span>•</span>
+<span>1 Mid-Stage</span>
+<span>•</span>
+<span>1 Scheduled</span>
+</div>
+</div>
+<!-- Metric 2: Cohort Overall Eligibility -->
+<div class="bg-surface-elevated rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Cleared for Tier 1 Drives</span>
+<span class="material-symbols-outlined text-status-highlight-green text-[20px]">how_to_reg</span>
+</div>
+<div class="mt-space-md flex items-baseline gap-2">
+<span class="font-metric-lg text-metric-lg text-text-primary">86</span>
+<span class="font-headline-h3 text-headline-h3 text-text-muted">/ 148</span>
+<span class="font-label-default text-label-default text-status-highlight-green ml-auto">58.1%</span>
+</div>
+<div class="mt-2 w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-status-highlight-green h-full rounded-full" style="width: 58.1%"></div>
+</div>
+<div class="mt-2 font-caption-muted text-caption-muted text-text-muted flex justify-between">
+<span>Target Benchmark: ≥50%</span>
+<span class="text-status-highlight-green font-medium">+12% vs 2025</span>
+</div>
+</div>
+<!-- Metric 3: Pending Endorsements -->
+<div class="bg-surface-elevated rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Pending Shortlists</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">rate_review</span>
+</div>
+<div class="mt-space-md flex items-baseline gap-2">
+<span class="font-metric-lg text-metric-lg text-secondary">19</span>
+<span class="font-caption-muted text-caption-muted text-text-muted">shared revisions</span>
+</div>
+<div class="mt-2 font-caption-muted text-caption-muted text-text-muted flex items-center justify-between">
+<span class="text-text-primary font-medium">14 distinct candidates</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-secondary text-[11px] font-medium">Action Needed</span>
+</div>
+</div>
+<!-- Metric 4: External Application Disclosures -->
+<div class="bg-surface-elevated rounded-xl p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Student Disclosures</span>
+<span class="material-symbols-outlined text-tertiary text-[20px]">share_location</span>
+</div>
+<div class="mt-space-md flex items-baseline gap-2">
+<span class="font-metric-lg text-metric-lg text-text-primary">42</span>
+<span class="font-caption-muted text-caption-muted text-text-body">External logged</span>
+</div>
+<div class="mt-2 font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check</span>
+<span>Self-reported off-campus hiring track</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Section: 1280px Grid (Split Master-Detail Hub) -->
+<div class="w-full px-gutter pb-margin-bottom">
+<div class="max-w-[1280px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT / PRIMARY COLUMN: Active & Scheduled Placement Drives List (xl:col-span-7) -->
+<div class="xl:col-span-7 flex flex-col gap-space-md">
+<!-- Controls & Filter Tab Bar -->
+<div class="bg-surface-elevated rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm shadow-sm">
+<div class="flex items-center gap-1 overflow-x-auto p-1 bg-surface-container rounded-lg">
+<button class="drive-filter-btn px-3 py-1 rounded font-label-default text-label-default bg-surface-higher text-text-primary transition-colors whitespace-nowrap" onclick="switchDriveTab('all', this)" type="button">
+              All Drives (3)
+            </button>
+<button class="drive-filter-btn px-3 py-1 rounded font-label-default text-label-default text-text-muted hover:text-text-primary transition-colors whitespace-nowrap" onclick="switchDriveTab('open', this)" type="button">
+              Open for Registration (2)
+            </button>
+<button class="drive-filter-btn px-3 py-1 rounded font-label-default text-label-default text-text-muted hover:text-text-primary transition-colors whitespace-nowrap" onclick="switchDriveTab('review', this)" type="button">
+              Shortlisting (1)
+            </button>
+<button class="drive-filter-btn px-3 py-1 rounded font-label-default text-label-default text-text-muted hover:text-text-primary transition-colors whitespace-nowrap" onclick="switchDriveTab('completed', this)" type="button">
+              Completed (4)
+            </button>
+</div>
+<div class="flex items-center gap-2 self-end sm:self-auto">
+<button class="px-space-sm py-1.5 rounded-full bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors flex items-center gap-1.5" title="Export CSV for Class of 2026" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Export CSV</span>
+</button>
+<button class="px-space-md py-1.5 rounded-full bg-primary-container text-text-primary font-label-default text-label-default hover:opacity-90 transition-all flex items-center gap-1 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>New Drive</span>
+</button>
+</div>
+</div>
+<!-- DRIVE CARD 1 (Active Focus / Urgent) -->
+<div class="drive-card-item flex flex-col bg-surface-elevated rounded-xl p-space-lg shadow-sm transition-all relative overflow-hidden" data-status="open">
+<!-- Accent Urgency Indicator Stripe -->
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
+<!-- Card Header & Metadata -->
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">CloudScale Infrastructure Inc.</span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-secondary text-surface-container-lowest font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Closes in 2 Days (Oct 24)
+                </span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-tertiary-container text-on-tertiary-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Tier 1 Drive
+                </span>
+</div>
+<p class="font-headline-h4 text-headline-h4 text-primary">Junior Backend Track (Distributed Systems)</p>
+</div>
+<div class="flex items-center sm:flex-col sm:items-end gap-1 text-right shrink-0">
+<span class="font-headline-h4 text-headline-h4 text-text-primary font-mono">$115K Base + Equity</span>
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">language</span> Remote (US/Canada)
+              </span>
+</div>
+</div>
+<!-- Eligibility Rules Defined Box -->
+<div class="mt-space-md p-space-sm rounded-lg bg-surface-higher flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-caption-muted">
+<span class="font-label-default text-label-default text-text-muted uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">rule</span> Verified Deterministic Criteria
+              </span>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green font-mono">Engine ID: #RULE-2026-CS-01</span>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-1 font-caption-muted text-caption-muted text-text-body">
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Weighted Readiness ≥ 70%</span>
+<span>+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Docker Assessed OR #DCK-101 Remediation</span>
+<span>+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Approved Shared Resume v1.2+</span>
+</div>
+</div>
+<!-- Roster Breakdown Progress Bar -->
+<div class="mt-space-md space-y-2">
+<div class="flex items-center justify-between text-body-compact">
+<span class="text-text-muted">Roster Pipeline Status</span>
+<span class="font-mono text-text-primary font-medium">34 Registered / 42 Eligible</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 flex overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 55%" title="Registered (34)"></div>
+<div class="bg-status-highlight-green h-full" style="width: 13%" title="Eligible Not Applied (8)"></div>
+<div class="bg-secondary h-full" style="width: 29%" title="In Remediation (18)"></div>
+<div class="bg-semantic-error h-full" style="width: 3%" title="Critical Gap"></div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+<div class="p-2 rounded bg-surface-container flex flex-col">
+<span class="font-caption-muted text-caption-muted text-text-muted">Total Registered</span>
+<span class="font-headline-h4 text-headline-h4 text-text-primary font-mono">34</span>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col">
+<span class="font-caption-muted text-caption-muted text-status-highlight-green">Eligible Pool</span>
+<span class="font-headline-h4 text-headline-h4 text-status-highlight-green font-mono">42 <span class="font-caption-muted text-[11px] text-text-muted">(8 pending)</span></span>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col">
+<span class="font-caption-muted text-caption-muted text-secondary">In Remediation</span>
+<span class="font-headline-h4 text-headline-h4 text-secondary font-mono">18 <span class="font-caption-muted text-[11px] text-text-muted">(Docker blocker)</span></span>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col">
+<span class="font-caption-muted text-caption-muted text-primary">Pending Review</span>
+<span class="font-headline-h4 text-headline-h4 text-primary font-mono">12 <span class="font-caption-muted text-[11px] text-text-muted">to Endorse</span></span>
+</div>
+</div>
+</div>
+<!-- Quick Action Controls -->
+<div class="mt-space-lg pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<button class="px-space-md py-2 rounded-full bg-primary-container text-text-primary hover:opacity-90 font-label-default text-label-default transition-all flex items-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">how_to_vote</span>
+<span>Manage Shortlist (12 Pending)</span>
+</button>
+<button class="px-space-sm py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+<span>View Applicants (34)</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary transition-colors" title="Edit Eligibility Rules" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+<a class="px-space-sm py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1" href="https://careers.cloudscale.internal/drives/2026-cs-backend" rel="noopener noreferrer" target="_blank">
+<span>Employer Portal</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- DRIVE CARD 2 (Review / Mid-Stage) -->
+<div class="drive-card-item flex flex-col bg-surface-elevated rounded-xl p-space-lg shadow-sm transition-all relative overflow-hidden" data-status="review">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-container"></div>
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">FinFlow Technologies</span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-surface-container text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span> 7 Days Remaining (Oct 28)
+                </span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-surface-container text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">corporate_fare</span> FinTech Core
+                </span>
+</div>
+<p class="font-headline-h4 text-headline-h4 text-primary">Backend Software Engineer 2026 (FinTech Core Engine)</p>
+</div>
+<div class="flex items-center sm:flex-col sm:items-end gap-1 text-right shrink-0">
+<span class="font-headline-h4 text-headline-h4 text-text-primary font-mono">$120K - $130K</span>
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Onsite (San Francisco, CA)
+              </span>
+</div>
+</div>
+<div class="mt-space-md p-space-sm rounded-lg bg-surface-higher flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-caption-muted">
+<span class="font-label-default text-label-default text-text-muted uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">checklist</span> Verified Criteria
+              </span>
+<span class="font-caption-muted text-caption-muted text-text-muted font-mono">#RULE-FINFLOW-92</span>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-1 font-caption-muted text-caption-muted text-text-body">
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Readiness ≥ 75%</span>
+<span>+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">PostgreSQL Core ≥ 3.5</span>
+<span>+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Go or Python Verified</span>
+</div>
+</div>
+<div class="mt-space-md space-y-2">
+<div class="flex items-center justify-between text-body-compact">
+<span class="text-text-muted">Roster Pipeline Status</span>
+<span class="font-mono text-text-primary font-medium">28 Registered / 39 Eligible (11 Unapplied)</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 flex overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 71%"></div>
+<div class="bg-status-highlight-green h-full" style="width: 29%"></div>
+</div>
+<div class="flex items-center justify-between font-caption-muted text-caption-muted text-text-muted pt-1">
+<span class="flex items-center gap-1 text-status-highlight-green">
+<span class="material-symbols-outlined text-[14px]">check</span> 6 Shortlist Endorsed
+              </span>
+<span class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[14px]">pending</span> 5 Applications in Faculty Review
+              </span>
+<span class="text-text-body">Last batch push: Yesterday 17:30</span>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<button class="px-space-md py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">fact_check</span>
+<span>Review Applicants (5)</span>
+</button>
+<button class="px-space-sm py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">contact_mail</span>
+<span>Contact Recruiter</span>
+</button>
+</div>
+<button class="p-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary transition-colors" title="Edit Drive Rules" type="button">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+</button>
+</div>
+</div>
+<!-- DRIVE CARD 3 (Scheduled / Upcoming) -->
+<div class="drive-card-item flex flex-col bg-surface-elevated rounded-xl p-space-lg shadow-sm transition-all relative overflow-hidden" data-status="open">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-status-highlight-green"></div>
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-1">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">Nexus Data Platforms</span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-surface-container text-status-highlight-green flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">event</span> Scheduled (Opens Nov 05)
+                </span>
+<span class="px-2.5 py-0.5 rounded-full font-label-default text-label-default bg-surface-container text-text-muted">Winter 2026</span>
+</div>
+<p class="font-headline-h4 text-headline-h4 text-primary">Associate Cloud &amp; API Systems</p>
+</div>
+<div class="flex items-center sm:flex-col sm:items-end gap-1 text-right shrink-0">
+<span class="font-headline-h4 text-headline-h4 text-text-primary font-mono">$105K - $115K</span>
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Hybrid (San Jose, CA)
+              </span>
+</div>
+</div>
+<div class="mt-space-md p-space-sm rounded-lg bg-surface-higher flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-caption-muted">
+<span class="font-label-default text-label-default text-text-muted uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">rule</span> Verified Requirements
+              </span>
+<span class="font-caption-muted text-caption-muted text-text-muted font-mono">#RULE-NEXUS-04</span>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-1 font-caption-muted text-caption-muted text-text-body">
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">Readiness ≥ 65%</span>
+<span>+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-primary font-medium">RESTful API &amp; OpenAPI Met</span>
+</div>
+</div>
+<div class="mt-space-md space-y-2">
+<div class="flex items-center justify-between text-body-compact">
+<span class="text-text-muted">Early Registration Status</span>
+<span class="font-mono text-text-primary font-medium">19 / 51 Eligible Pool Registered</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 flex overflow-hidden">
+<div class="bg-status-highlight-green h-full" style="width: 37%"></div>
+</div>
+<div class="font-caption-muted text-caption-muted text-text-muted">
+              Eligible cohort pool can pre-register resume tokens until Nov 04 midnight.
+            </div>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="px-space-md py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Preview Student Pool (51)</span>
+</button>
+<button class="px-space-sm py-2 rounded-full bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors" type="button">
+                Configure Rules
+              </button>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span> Ready for Auto-Broadcast
+            </span>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Drive Configuration & Eligibility Rules Engine (xl:col-span-5) -->
+<div class="xl:col-span-5 flex flex-col gap-space-md">
+<!-- Rules Engine Interactive Configuration Panel -->
+<div class="bg-surface-elevated rounded-xl p-space-lg shadow-md relative">
+<!-- Header and Active Mode -->
+<div class="flex items-start justify-between pb-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">tune</span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">Rules Config Engine</span>
+</div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Drive Configuration &amp; Eligibility</h2>
+<p class="font-caption-muted text-caption-muted text-primary">Editing: CloudScale Infrastructure (Active Drive)</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green font-mono text-[11px] font-semibold">
+              STRICT_FERPA
+            </span>
+</div>
+<form class="mt-space-md space-y-space-md" onsubmit="event.preventDefault(); testSimulateQuery();">
+<!-- Company & Role -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted uppercase tracking-wider block">Company &amp; Target Track</label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+<input class="w-full bg-canvas rounded px-3 py-2 text-text-primary font-body-compact text-body-compact focus:outline-none focus:ring-1 focus:ring-primary-container" type="text" value="CloudScale Infrastructure">
+<input class="w-full bg-canvas rounded px-3 py-2 text-text-primary font-body-compact text-body-compact focus:outline-none focus:ring-1 focus:ring-primary-container" type="text" value="Junior Backend Track">
+</div>
+</div>
+<!-- Cutoff & Compensation -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted uppercase tracking-wider block">Registration Cutoff</label>
+<div class="relative flex items-center">
+<input class="w-full bg-canvas rounded px-3 py-2 text-text-primary font-body-compact text-body-compact focus:outline-none focus:ring-1 focus:ring-primary-container pr-8 font-mono text-[13px]" type="text" value="Oct 24, 2026 23:59 PST">
+<span class="material-symbols-outlined text-[16px] text-text-muted absolute right-2.5 pointer-events-none">event</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted uppercase tracking-wider block">Compensation Package</label>
+<input class="w-full bg-canvas rounded px-3 py-2 text-text-primary font-body-compact text-body-compact focus:outline-none focus:ring-1 focus:ring-primary-container font-mono text-[13px]" type="text" value="$115,000 Base + Equity">
+</div>
+</div>
+<!-- Job Portal URL -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted uppercase tracking-wider block">Employer Integration Application Link</label>
+<div class="relative flex items-center">
+<input class="w-full bg-canvas rounded px-3 py-2 text-text-primary font-body-compact text-body-compact focus:outline-none focus:ring-1 focus:ring-primary-container pr-8 font-mono text-[12px]" type="url" value="https://careers.cloudscale.internal/drives/2026-cs-backend">
+<span class="material-symbols-outlined text-[16px] text-text-muted absolute right-2.5 pointer-events-none">link</span>
+</div>
+</div>
+<!-- Section Divider -->
+<div class="pt-2">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-primary uppercase block pb-1">Deterministic Evaluation Criteria</span>
+</div>
+<!-- Criteria 1: Slider for Readiness -->
+<div class="space-y-2 bg-surface-container rounded-lg p-3">
+<div class="flex items-center justify-between">
+<label class="font-label-default text-label-default text-text-primary">Minimum Cohort Readiness Benchmark</label>
+<span class="font-headline-h4 text-headline-h4 text-primary font-mono" id="slider-val-display">70%</span>
+</div>
+<input class="w-full accent-primary-container cursor-pointer" id="benchmarkSlider" max="95" min="50" oninput="updateSliderValue(this.value)" type="range" value="70">
+<div class="flex justify-between font-caption-muted text-caption-muted text-text-muted">
+<span>50% (Lenient)</span>
+<span>Current Pass Pool: 86 / 148 CS Students</span>
+<span>95% (Elite)</span>
+</div>
+</div>
+<!-- Criteria 2: Mandatory Verified Competencies -->
+<div class="space-y-2">
+<label class="font-label-default text-label-default text-text-muted uppercase tracking-wider block">Mandatory Competencies (Deterministic Validation)</label>
+<div class="flex flex-wrap gap-2">
+<div class="px-2.5 py-1.5 rounded-lg bg-surface-higher text-status-highlight-green text-body-compact flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check_box</span>
+<span class="font-mono text-[13px]">Python Core ≥ 4.0</span>
+</div>
+<div class="px-2.5 py-1.5 rounded-lg bg-surface-higher text-status-highlight-green text-body-compact flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check_box</span>
+<span class="font-mono text-[13px]">PostgreSQL ≥ 3.5</span>
+</div>
+<div class="px-2.5 py-1.5 rounded-lg bg-surface-higher text-status-highlight-green text-body-compact flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check_box</span>
+<span class="font-mono text-[13px]">Docker (Quiz OR #DCK-101)</span>
+</div>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-higher text-text-muted hover:text-text-primary text-body-compact flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Add Skill</span>
+</button>
+</div>
+</div>
+<!-- Criteria 3: Resume Toggle -->
+<div class="p-3 rounded-lg bg-surface-higher flex items-center justify-between gap-3">
+<div class="space-y-0.5">
+<span class="font-label-default text-label-default text-text-primary block">Faculty-Approved Resume Artifact Required</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">Student must hold signed v1.2+ shared release before drive lock.</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-primary after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Manual Override Notice -->
+<div class="p-3 rounded-lg bg-surface-container text-caption-muted text-caption-muted text-text-muted flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary shrink-0 mt-0.5">lock_clock</span>
+<p>
+                Manual Eligibility Override Policy: Any student admitted beneath benchmark rules requires an authenticated faculty justification memorandum recorded to immutable FERPA audit log #AUD-DRV-77.
+              </p>
+</div>
+<!-- Action Buttons -->
+<div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
+<button class="w-full sm:w-auto px-space-md py-2.5 rounded-full bg-primary-container text-text-primary hover:opacity-90 font-label-default text-label-default transition-all flex items-center justify-center gap-1.5 shadow-sm" type="submit">
+<span class="material-symbols-outlined text-[16px]">save</span>
+<span>Save Drive Configuration</span>
+</button>
+<button class="w-full sm:w-auto px-space-md py-2.5 rounded-full bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default transition-colors flex items-center justify-center gap-1.5" onclick="testSimulateQuery()" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+<span>Simulate Cohort Pool</span>
+</button>
+<button class="w-full sm:w-auto sm:ml-auto px-space-sm py-2.5 rounded-full text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors text-center" type="button">
+                Revert
+              </button>
+</div>
+<!-- Simulation Status Readout -->
+<div class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1.5 pt-1" id="simulation-status">
+<span class="material-symbols-outlined text-[14px] text-status-highlight-green">check_circle</span>
+<span>Deterministic query engine synced with Registrar Data Feed (09:48 AM).</span>
+</div>
+</form>
+</div>
+<!-- Inset Card: Live Eligibility Simulation Preview -->
+<div class="bg-surface-elevated rounded-xl p-space-md shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-headline-h4 text-headline-h4 text-text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">pie_chart</span>
+<span>Live Eligibility Simulation (CS 2026)</span>
+</span>
+<span class="font-caption-muted text-caption-muted text-text-muted font-mono">N=148 enrolled</span>
+</div>
+<!-- Tier Breakdown Cards -->
+<div class="grid grid-cols-3 gap-2">
+<div class="p-3 rounded-lg bg-surface-container flex flex-col justify-between">
+<span class="font-caption-muted text-caption-muted text-status-highlight-green uppercase font-semibold">Cleared</span>
+<div class="my-1">
+<span class="font-headline-h3 text-headline-h3 text-text-primary font-mono">42</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">28.4%</span>
+</div>
+<span class="font-caption-muted text-[11px] text-text-muted">Instant pass</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container flex flex-col justify-between">
+<span class="font-caption-muted text-caption-muted text-secondary uppercase font-semibold">Borderline</span>
+<div class="my-1">
+<span class="font-headline-h3 text-headline-h3 text-secondary font-mono">31</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">20.9%</span>
+</div>
+<span class="font-caption-muted text-[11px] text-secondary">≤1 Remediation (#DCK-101)</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container flex flex-col justify-between">
+<span class="font-caption-muted text-caption-muted text-semantic-error uppercase font-semibold">Ineligible</span>
+<div class="my-1">
+<span class="font-headline-h3 text-headline-h3 text-text-muted font-mono">75</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">50.7%</span>
+</div>
+<span class="font-caption-muted text-[11px] text-text-muted">Early stage / gaps</span>
+</div>
+</div>
+<!-- Faculty Override Log Block -->
+<div class="p-3 rounded-lg bg-surface-higher space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default text-text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-primary">history_edu</span>
+<span>Active Faculty Overrides (3)</span>
+</span>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green">Audit Verified</span>
+</div>
+<div class="space-y-1.5 font-caption-muted text-caption-muted">
+<div class="p-2 rounded bg-surface-container flex items-center justify-between">
+<div>
+<span class="font-medium text-text-primary">David K. Patel (#STU-4819)</span>
+<span class="block text-text-muted">Override: Docker gap excused (Verified Apache Kafka Capstone &amp; Kubernetes lab honors)</span>
+</div>
+<span class="font-mono text-text-muted text-[11px] shrink-0 ml-2">By: SJ #FAC-04</span>
+</div>
+<div class="p-2 rounded bg-surface-container flex items-center justify-between">
+<div>
+<span class="font-medium text-text-primary">Elena Rostova (#STU-9921)</span>
+<span class="block text-text-muted">Override: Readiness 68.8% → 70% threshold (Grade appeal resolved in CS410)</span>
+</div>
+<span class="font-mono text-text-muted text-[11px] shrink-0 ml-2">By: SJ #FAC-04</span>
+</div>
+<div class="p-2 rounded bg-surface-container flex items-center justify-between">
+<div>
+<span class="font-medium text-text-primary">Marcus Vance (#STU-1102)</span>
+<span class="block text-text-muted">Override: Resume token expedited for employer diversity fellowship track</span>
+</div>
+<span class="font-mono text-text-muted text-[11px] shrink-0 ml-2">By: TC #FAC-01</span>
+</div>
+</div>
+<button class="w-full text-center py-1 rounded font-caption-muted text-caption-muted text-primary hover:text-text-primary transition-colors flex items-center justify-center gap-1" type="button">
+<span>View Full FERPA Override Ledger</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Accessible plain-text fallback data table for Institutional Reporting -->
+<div class="w-full px-gutter pb-margin-bottom">
+<div class="max-w-[1280px] mx-auto bg-surface-elevated rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="space-y-0.5">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Drive Roster Deterministic Audit Table</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">Direct plain-text numerical fractions conforming to accessibility &amp; compliance requirements</span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted">ISO-27001 / FERPA Compliant</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-compact text-body-compact">
+<thead>
+<tr class="bg-surface-higher font-label-default text-label-default text-text-muted uppercase tracking-wider">
+<th class="py-2 px-3">Drive Name</th>
+<th class="py-2 px-3">Employer Track</th>
+<th class="py-2 px-3">Benchmark</th>
+<th class="py-2 px-3">Registered / Cleared</th>
+<th class="py-2 px-3">Remediation Gap</th>
+<th class="py-2 px-3">Shortlist Status</th>
+<th class="py-2 px-3 text-right">Cutoff Date</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 font-caption-muted text-caption-muted">
+<tr class="hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 font-medium text-text-primary">CloudScale Infrastructure</td>
+<td class="py-2.5 px-3 text-text-body">Junior Backend Track</td>
+<td class="py-2.5 px-3 font-mono text-text-primary">≥ 70% + Docker</td>
+<td class="py-2.5 px-3 font-mono text-status-highlight-green">34 / 42 (81.0%)</td>
+<td class="py-2.5 px-3 text-secondary">18 (#DCK-101)</td>
+<td class="py-2.5 px-3 text-primary">12 Pending Endorsement</td>
+<td class="py-2.5 px-3 text-right font-mono text-text-muted">Oct 24, 2026</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 font-medium text-text-primary">FinFlow Technologies</td>
+<td class="py-2.5 px-3 text-text-body">Backend Software Engineer</td>
+<td class="py-2.5 px-3 font-mono text-text-primary">≥ 75% + Postgres</td>
+<td class="py-2.5 px-3 font-mono text-status-highlight-green">28 / 39 (71.7%)</td>
+<td class="py-2.5 px-3 text-text-muted">9 (SQL Querying)</td>
+<td class="py-2.5 px-3 text-status-highlight-green">6 Cleared, 5 Review</td>
+<td class="py-2.5 px-3 text-right font-mono text-text-muted">Oct 28, 2026</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 font-medium text-text-primary">Nexus Data Platforms</td>
+<td class="py-2.5 px-3 text-text-body">Associate Cloud &amp; API</td>
+<td class="py-2.5 px-3 font-mono text-text-primary">≥ 65% + REST API</td>
+<td class="py-2.5 px-3 font-mono text-status-highlight-green">19 / 51 (37.2%)</td>
+<td class="py-2.5 px-3 text-text-muted">4 (OpenAPI spec)</td>
+<td class="py-2.5 px-3 text-text-muted">Early Registration</td>
+<td class="py-2.5 px-3 text-right font-mono text-text-muted">Nov 05, 2026</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-elevated py-space-lg"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md text-text-muted font-caption-muted text-caption-muted"><div class="flex items-center gap-1 text-status-highlight-green"><span class="material-symbols-outlined text-[16px]">verified_user</span><span>FERPA &amp; Institutional Compliance Validated</span></div><span class="text-border-strong">•</span><span>Deterministic Provenance &amp; Scoped RBAC Active</span><span class="text-border-strong">•</span><span>AI Assistance Non-Evaluative Advisory</span></div><div class="flex items-center gap-space-lg font-caption-muted text-caption-muted"><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="audit-logs" href="#"><span class="material-symbols-outlined text-[14px]">history</span><span>Audit Logs</span></a><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="export-data" href="#"><span class="material-symbols-outlined text-[14px]">download</span><span>Export Scoped Data</span></a><span class="text-text-disabled">© 2026 Skillup Systems Inc.</span></div></div></footer></body></html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed":"#94f4da","on-error":"#690005","on-background":"#e5e1e4","border-strong":"#363639","secondary-container":"#e19f00","highlight-replacement":"#FFFF00","text-primary":"#FFFFFF","error":"#ffb4ab","on-secondary":"#422c00","on-tertiary-container":"#f9fffb","tertiary-fixed-dim":"#78d8be","surface-container-low":"#1b1b1d","semantic-error":"#EB5757","secondary-fixed":"#ffdeac","surface-variant":"#353437","inverse-primary":"#6835e7","text-muted":"#9A9A9A","surface-container-highest":"#353437","border-subtle":"#202023","tertiary":"#78d8be","error-container":"#93000a","surface-container-lowest":"#0e0e10","surface-container":"#201f21","on-error-container":"#ffdad6","surface-higher":"#16161A","on-secondary-container":"#563a00","secondary":"#ffba35","inverse-on-surface":"#313032","surface-tint":"#cdbdff","text-body":"#BDBDBD","text-disabled":"#606066","on-tertiary":"#00382d","tertiary-container":"#15846e","status-highlight-green":"#55C98B","canvas":"#000000","secondary-fixed-dim":"#ffba35","outline":"#948ea1","semantic-info":"#3B82F6","on-primary":"#370095","on-primary-fixed-variant":"#5001cf","on-primary-fixed":"#20005f","inverse-surface":"#e5e1e4","primary":"#cdbdff","primary-container":"#8052ff","outline-variant":"#494455","primary-fixed-dim":"#cdbdff","surface-container-high":"#2a2a2c","on-tertiary-fixed-variant":"#005142","on-secondary-fixed-variant":"#5f4100","primary-fixed":"#e8deff","background":"#131315","on-primary-container":"#fffdff","on-secondary-fixed":"#281900","on-surface":"#e5e1e4","surface":"#131315","on-surface-variant":"#cbc3d8","surface-dim":"#131315","surface-elevated":"#0D0D0F","surface-bright":"#39393b","on-tertiary-fixed":"#002019"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.75rem","gutter-sm":"1rem","space-xs":"0.375rem","gutter":"1.5rem","margin-bottom":"3rem","margin-top":"2.25rem","space-md":"1rem","margin":"1.5rem","space-lg":"1.5rem","space-xl":"2.25rem"},"fontFamily":{"display-hero":["Inter"],"caption-muted":["Inter"],"metric-md":["Inter"],"metric-lg":["Inter"],"eyebrow-kicker":["Inter"],"headline-h4":["Inter"],"display-hero-mobile":["Inter"],"stage-heading":["Inter"],"body-default":["Inter"],"label-default":["Inter"],"body-compact":["Inter"],"headline-h3":["Inter"],"page-title-mobile":["Inter"],"page-title":["Inter"],"headline-h2":["Inter"]},"fontSize":{"display-hero":["78px",{"lineHeight":"86px","fontWeight":"600"}],"caption-muted":["12px",{"lineHeight":"20px","fontWeight":"400"}],"metric-md":["30px",{"lineHeight":"36px","fontWeight":"600"}],"metric-lg":["48px",{"lineHeight":"54px","fontWeight":"600"}],"eyebrow-kicker":["11px",{"lineHeight":"14px","letterSpacing":"2px","fontWeight":"600"}],"headline-h4":["16px",{"lineHeight":"24px","fontWeight":"600"}],"display-hero-mobile":["42px",{"lineHeight":"46px","fontWeight":"600"}],"stage-heading":["34px",{"lineHeight":"40px","fontWeight":"600"}],"body-default":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-default":["12px",{"lineHeight":"16px","fontWeight":"500"}],"body-compact":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-h3":["20px",{"lineHeight":"26px","fontWeight":"600"}],"page-title-mobile":["28px",{"lineHeight":"34px","fontWeight":"600"}],"page-title":["42px",{"lineHeight":"50px","fontWeight":"600"}],"headline-h2":["24px",{"lineHeight":"30px","fontWeight":"600"}]}}}};</script></head><body class="bg-canvas text-on-surface font-body-default text-body-default min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-elevated border-b border-border-subtle"><div class="h-16 max-w-[960px] mx-auto px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-gutter"><div class="flex items-center gap-space-xs"><img alt="Skillup Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VhwBIDzZuK9Oheb7wHTGnYlTK_L77VCS6Wyg6RwbB4xlL9UIAu-qpsZvJEc0QKHqxDxAloHAr9kuutjLzfSa5Oi3yBxtk9JDZVtjV0PImsbrUjSJrWsVL8c-T3N8FW7TocWHgd8vMir2cKOFi2Zw4ACo0rxMvYl_eHJ7Y4PYOZB36ff6u3bdz0lykd24T9wSAjwPN7OJOkKa7XqpzYMPlLLm1RxEwC0bVWYRRGDtR6K7MQ_aEnPt8pIYA"><span class="font-headline-h4 text-headline-h4 text-text-primary tracking-tight">Skillup</span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-text-primary border-b-2 border-primary-container font-headline-h4"><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="my-career-plan" href="#">My Career Plan</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="career-assets" href="#">Career Assets</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="opportunities" href="#">Opportunities</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="placement-hub" href="#">Placement Hub</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-xs py-1 rounded-full bg-surface-higher border border-border-strong text-caption-muted font-caption-muted text-text-muted"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="text-on-surface font-label-default text-label-default">Demo Mode</span></div><div class="hidden lg:flex flex-col text-right leading-none"><span class="font-label-default text-label-default text-text-primary">#STU-2026-88</span><span class="font-caption-muted text-caption-muted text-text-muted">Computer Science</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="hidden sm:inline-flex items-center justify-center px-space-sm py-1.5 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high hover:text-text-primary font-label-default text-label-default transition-all" data-path="login" href="#">Log out</a></div></div></header><main class="w-full pt-16 bg-canvas flex-1"><div class="flex flex-col w-full">
+<!-- Sub-Navigation Strip (Opportunities Workspace) -->
+<div class="w-full bg-surface-elevated border-b border-border-subtle">
+<div class="max-w-[1280px] mx-auto px-margin py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+<div class="flex flex-wrap items-center gap-space-md">
+<div class="flex items-center gap-2 text-caption-muted font-caption-muted text-text-muted uppercase tracking-wider">
+<span class="hover:text-text-primary transition-colors cursor-pointer">Opportunities Workspace</span>
+<span class="text-text-disabled">/</span>
+<span class="text-text-primary font-medium">Skill-Demand Insights</span>
+</div>
+<div class="h-4 w-px bg-border-strong hidden sm:block"></div>
+<div class="inline-flex items-center p-0.5 rounded-lg bg-canvas border border-border-subtle">
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-caption-muted font-caption-muted text-text-muted hover:text-text-primary hover:bg-surface-higher transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">travel_explore</span>
+<span>Job Search &amp; Matching</span>
+</a>
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-caption-muted font-caption-muted bg-surface-higher text-text-primary border border-border-strong shadow-sm font-medium" href="#">
+<span class="material-symbols-outlined text-primary text-[16px]">bar_chart</span>
+<span>Skill-Demand Insights</span>
+</a>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-higher border border-border-subtle text-[11px] font-caption-muted text-text-muted">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>
+<span>Sample: 142 Jobs Indexed</span>
+<span class="text-text-disabled">•</span>
+<span>Oct 18–21, 2026</span>
+<span class="text-text-disabled">•</span>
+<span class="text-primary">SerpApi Cache</span>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high text-caption-muted font-caption-muted transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Export CSV (Web)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main View Container -->
+<div class="max-w-[1280px] w-full mx-auto px-margin pt-space-lg pb-margin-bottom flex flex-col gap-space-lg">
+<!-- Header Section -->
+<header class="flex flex-col gap-2">
+<div class="inline-flex items-center gap-2">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-primary uppercase">DOMAIN H • AGGREGATED MARKET INTELLIGENCE • COHORT BENCHMARK 2026</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
+<h1 class="font-stage-heading text-stage-heading text-text-primary tracking-tight">Skill-Demand Insights</h1>
+<div class="text-caption-muted font-caption-muted text-text-muted">
+          Active Cohort Target: <span class="text-text-primary font-medium">B.S. Computer Science '26</span>
+</div>
+</div>
+<p class="font-body-default text-body-default text-text-body max-w-4xl">
+        Interpret retained job samples, compare multi-role requirements, and inspect personal verified evidence against active market hiring benchmarks.
+      </p>
+</header>
+<!-- Disclaimers / Notice Banner -->
+<section aria-label="Sample Demand Notice" class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md border-l-4 border-l-primary flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">policy</span>
+<div class="flex flex-col gap-1 text-caption-muted font-caption-muted">
+<span class="text-text-primary font-semibold tracking-wide uppercase text-[11px]">SAMPLE DEMAND NOTICE</span>
+<p class="text-text-body leading-relaxed">
+          Market demand metrics reflect retained SerpApi sample frequency across 142 deduplicated regional postings. Demand ranking is neither an exhaustive market census nor an inference of personal proficiency. Personal evidence levels are drawn strictly from your verified academic records, coursework, and faculty placement validations.
+        </p>
+</div>
+</section>
+<!-- Sample Scope & Query Controls -->
+<section class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col gap-4">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-md items-end">
+<!-- Target Role Dropdown -->
+<div class="md:col-span-5 flex flex-col gap-1.5">
+<label class="text-label-default font-label-default text-text-muted uppercase tracking-wider text-[11px]" for="scope-selector">Target Role Sample Scope</label>
+<div class="relative">
+<select class="w-full appearance-none bg-canvas border border-border-subtle rounded-lg px-3.5 py-2.5 text-body-compact font-body-compact text-text-primary focus:outline-none focus:border-primary-container pr-10 cursor-pointer" id="scope-selector">
+<option selected="">Backend &amp; Cloud Engineering (N=86 postings)</option>
+<option>Distributed Systems Engineering (N=32 postings)</option>
+<option>Cloud Infrastructure &amp; DevOps (N=48 postings)</option>
+<option>Data Platform Engineering (N=24 postings)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none text-[18px]">unfold_more</span>
+</div>
+</div>
+<!-- Collection Window Filter -->
+<div class="md:col-span-4 flex flex-col gap-1.5">
+<label class="text-label-default font-label-default text-text-muted uppercase tracking-wider text-[11px]">Collection Window (Not Posting Date)</label>
+<div class="flex items-center gap-2 bg-canvas border border-border-subtle rounded-lg px-3 py-2 text-body-compact font-body-compact text-text-body">
+<span class="material-symbols-outlined text-[18px] text-text-muted">calendar_today</span>
+<span class="text-text-primary truncate">Last 14 Days (Oct 07 - Oct 21, 2026)</span>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="md:col-span-3 flex items-center gap-2">
+<button class="w-full inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full bg-primary-container text-text-primary font-label-default text-label-default font-medium hover:brightness-110 active:brightness-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+<span>Analyze Sample</span>
+</button>
+</div>
+</div>
+<!-- Secondary Filter Strip & Compared Roles -->
+<div class="pt-3 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-[11px] font-caption-muted text-text-muted uppercase tracking-wider">Compared Roles:</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-higher border border-border-strong text-caption-muted font-caption-muted text-text-primary">
+<span class="material-symbols-outlined text-primary text-[14px]">check</span>
+<span>Junior Backend Engineer</span>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-higher border border-border-strong text-caption-muted font-caption-muted text-text-primary">
+<span class="material-symbols-outlined text-secondary text-[14px]">check</span>
+<span>Cloud / Systems Developer</span>
+</span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-dashed border-border-strong hover:border-text-muted text-caption-muted font-caption-muted text-text-muted hover:text-text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">add</span>
+<span>Add 3rd Role</span>
+</button>
+</div>
+<button class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-text-muted hover:text-text-primary transition-colors self-start sm:self-auto" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Sample Rules &amp; Cache Options</span>
+</button>
+</div>
+</section>
+<!-- View Mode Switcher Tabs -->
+<div class="flex items-center border-b border-border-subtle gap-2 overflow-x-auto">
+<button class="px-4 py-2.5 border-b-2 border-primary-container text-text-primary font-headline-h4 text-headline-h4 flex items-center gap-2 whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-primary text-[18px]">format_list_numbered</span>
+<span>Demand Ranking (Observed Frequencies)</span>
+</button>
+<button class="px-4 py-2.5 border-b-2 border-transparent text-text-muted hover:text-text-primary font-body-compact text-body-compact flex items-center gap-2 transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[18px]">compare_arrows</span>
+<span>Multi-Role Comparison (2-3 Roles)</span>
+</button>
+<button class="px-4 py-2.5 border-b-2 border-transparent text-text-muted hover:text-text-primary font-body-compact text-body-compact flex items-center gap-2 transition-colors whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[18px]">radar</span>
+<span>My Skill Evidence vs. Market Priority</span>
+</button>
+</div>
+<!-- Main Grid Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT COLUMN: Top Ranked Skills (~60% = 7 Cols) -->
+<section aria-label="Ranked Skill Penetration" class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Section Filter Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary tracking-tight">Ranked Skill Penetration</h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">% of deduplicated postings requiring or strongly weighting skill</p>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Sample N = 86 roles</span>
+</div>
+<!-- Filter Chips Strip -->
+<div class="flex flex-wrap items-center gap-1.5 pb-1">
+<button class="px-2.5 py-1 rounded bg-surface-higher border border-border-strong text-text-primary font-label-default text-label-default font-medium" type="button">All Skills (24)</button>
+<button class="px-2.5 py-1 rounded bg-canvas border border-border-subtle text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors" type="button">Core Required Only</button>
+<button class="px-2.5 py-1 rounded bg-canvas border border-border-subtle text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors" type="button">Frameworks</button>
+<button class="px-2.5 py-1 rounded bg-canvas border border-border-subtle text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors" type="button">Databases &amp; Storage</button>
+<button class="px-2.5 py-1 rounded bg-canvas border border-border-subtle text-text-muted hover:text-text-primary font-label-default text-label-default transition-colors" type="button">Infrastructure</button>
+</div>
+<!-- Skill Cards Stack -->
+<div class="flex flex-col gap-3">
+<!-- Card 1: Python -->
+<article class="bg-surface-elevated border border-border-subtle hover:border-border-strong transition-colors rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">Python Core &amp; Async</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-surface-higher border border-border-strong text-text-muted">Core Required (88%)</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 4.0 / 5.0 • FastApi, AsyncIO, Pytest</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-text-primary leading-none">84%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">72 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-primary-container h-full rounded-full" style="width: 84%"></div>
+<!-- Benchmark marker for personal -->
+<div class="absolute top-0 bottom-0 w-0.5 bg-status-highlight-green" style="left: 88%" title="Your Evidence: 4.2 / 5.0"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-status-highlight-green">Verified Level: 4.2 / 5.0 (+0.2 exceeds benchmark)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex items-center justify-between flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-higher text-[11px] font-caption-muted text-status-highlight-green border border-border-strong">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Verified Match via CS-201, CS-320 Coursework</span>
+</div>
+<a class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-primary hover:underline" href="#">
+<span>Inspect 72 Source Jobs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- Card 2: PostgreSQL -->
+<article class="bg-surface-elevated border border-border-subtle hover:border-border-strong transition-colors rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">PostgreSQL &amp; Relational Architecture</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-surface-higher border border-border-strong text-text-muted">Core Required (79%)</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 3.5 / 5.0 • Query Optimization, Indices, ACID</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-text-primary leading-none">76%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">65 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-primary-container h-full rounded-full" style="width: 76%"></div>
+<div class="absolute top-0 bottom-0 w-0.5 bg-status-highlight-green" style="left: 70%" title="Your Evidence: 3.5 / 5.0"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-status-highlight-green">Verified Level: 3.5 / 5.0 (Exact Match)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex items-center justify-between flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-higher text-[11px] font-caption-muted text-status-highlight-green border border-border-strong">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Verified Match via CS-305 DB Systems</span>
+</div>
+<a class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-primary hover:underline" href="#">
+<span>Inspect 65 Source Jobs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- Card 3: Docker (Actionable Priority Gap) -->
+<article class="bg-surface-elevated border-2 border-secondary/50 rounded-xl p-space-md flex flex-col gap-3 relative">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">Docker &amp; Container Orchestration</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-secondary/15 text-secondary border border-secondary/30 font-medium">+14% YoY Velocity</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-error-container text-error font-medium">Critical Cohort Gap</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 3.5 / 5.0 • Multi-stage builds, Compose, CI isolation</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-secondary leading-none">71%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">61 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-secondary h-full rounded-full" style="width: 71%"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-secondary font-medium">Personal Evidence: Unassessed (0.0 / null verified records)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="inline-flex items-center gap-1.5 text-caption-muted font-caption-muted text-secondary">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Unassessed in academic record • Blocks 43 ATS pipelines</span>
+</div>
+<a class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-secondary text-on-secondary font-label-default text-label-default font-medium hover:brightness-105 transition-all self-start sm:self-auto" href="#">
+<span>Placement Hub Quiz #DCK-101 Available</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 4: Redis -->
+<article class="bg-surface-elevated border border-border-subtle hover:border-border-strong transition-colors rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">Redis &amp; In-Memory Caching</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-surface-higher border border-border-strong text-text-muted">Preferred Elective</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 3.0 / 5.0 • Pub/Sub, TTL Invalidation, Key-Value Structures</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-text-primary leading-none">58%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">50 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-primary-container h-full rounded-full" style="width: 58%"></div>
+<div class="absolute top-0 bottom-0 w-0.5 bg-secondary" style="left: 40%" title="Your Evidence: 2.0 / 5.0"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-secondary">Delta: -1.0 (Current: 2.0 / 5.0 Coursework Level)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex items-center justify-between flex-wrap gap-2">
+<span class="text-caption-muted font-caption-muted text-text-muted">Introductory usage verified in CS-310 Lab 4</span>
+<a class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-primary hover:underline" href="#">
+<span>Inspect 50 Source Jobs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- Card 5: RESTful API -->
+<article class="bg-surface-elevated border border-border-subtle hover:border-border-strong transition-colors rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">RESTful API &amp; OpenAPI Standards</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-surface-higher border border-border-strong text-text-muted">Core Required</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 3.5 / 5.0 • HTTP/REST contracts, Swagger, OAuth2</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-text-primary leading-none">52%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">45 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-primary-container h-full rounded-full" style="width: 52%"></div>
+<div class="absolute top-0 bottom-0 w-0.5 bg-status-highlight-green" style="left: 80%" title="Your Evidence: 4.0 / 5.0"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-status-highlight-green">Verified Level: 4.0 / 5.0 (CS-330 Web Architecture)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex items-center justify-between flex-wrap gap-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-higher text-[11px] font-caption-muted text-status-highlight-green border border-border-strong">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Verified Match • Capstone API Lead</span>
+</span>
+<a class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-primary hover:underline" href="#">
+<span>Inspect 45 Source Jobs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+<!-- Card 6: Kafka -->
+<article class="bg-surface-elevated border border-border-subtle hover:border-border-strong transition-colors rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">Apache Kafka &amp; Event Streaming</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-caption-muted bg-surface-higher border border-border-strong text-text-muted">Emerging Distributed Stack</span>
+</div>
+<span class="text-caption-muted font-caption-muted text-text-muted">Target depth: 3.0 / 5.0 • Consumer groups, partitions, event brokers</span>
+</div>
+<div class="text-right shrink-0">
+<div class="font-metric-md text-metric-md text-text-primary leading-none">38%</div>
+<div class="text-caption-muted font-caption-muted text-text-muted">33 / 86 postings</div>
+</div>
+</div>
+<!-- Frequency Progress Bar -->
+<div class="flex flex-col gap-1">
+<div class="w-full bg-canvas h-2.5 rounded-full overflow-hidden relative border border-border-subtle">
+<div class="bg-surface-variant h-full rounded-full" style="width: 38%"></div>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted text-[11px]">
+<span>Market Frequency Penetration</span>
+<span class="text-text-muted">Missing Evidence (Unassessed in academic transcript)</span>
+</div>
+</div>
+<div class="pt-2 border-t border-border-subtle flex items-center justify-between flex-wrap gap-2">
+<span class="text-caption-muted font-caption-muted text-text-muted">Not tagged in current CS syllabus requirements</span>
+<a class="inline-flex items-center gap-1 text-caption-muted font-caption-muted text-primary hover:underline" href="#">
+<span>Inspect 33 Source Jobs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</article>
+</div>
+</section>
+<!-- RIGHT COLUMN: Multi-Role Comparison & Radar Insights (~40% = 5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Panel 1: Comparative Role Demand Intensity -->
+<section class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-3">
+<div>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">2-Role Demand Overlap</h3>
+<p class="font-caption-muted text-caption-muted text-text-muted">Junior Backend (N=86) vs Cloud Dev (N=48)</p>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">insights</span>
+</div>
+<div class="flex items-center justify-between text-caption-muted font-caption-muted text-text-muted pb-1">
+<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-primary-container inline-block"></span> Backend Eng</span>
+<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-secondary inline-block"></span> Cloud Developer</span>
+</div>
+<!-- Stack Overlap Bars -->
+<div class="flex flex-col gap-3 font-caption-muted text-caption-muted">
+<!-- Row: Python -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-text-body">
+<span class="text-text-primary font-medium">Python Core</span>
+<span>84% vs 62%</span>
+</div>
+<div class="grid grid-cols-2 gap-1 h-2">
+<div class="bg-canvas border border-border-subtle rounded-l overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 84%"></div>
+</div>
+<div class="bg-canvas border border-border-subtle rounded-r overflow-hidden">
+<div class="bg-secondary h-full" style="width: 62%"></div>
+</div>
+</div>
+</div>
+<!-- Row: Docker -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-text-body">
+<span class="text-text-primary font-medium">Docker &amp; Containers</span>
+<span class="text-secondary font-medium">71% vs 89% (Cloud Essential)</span>
+</div>
+<div class="grid grid-cols-2 gap-1 h-2">
+<div class="bg-canvas border border-border-subtle rounded-l overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 71%"></div>
+</div>
+<div class="bg-canvas border border-border-subtle rounded-r overflow-hidden">
+<div class="bg-secondary h-full" style="width: 89%"></div>
+</div>
+</div>
+</div>
+<!-- Row: PostgreSQL -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-text-body">
+<span class="text-text-primary font-medium">PostgreSQL / SQL</span>
+<span>76% vs 41%</span>
+</div>
+<div class="grid grid-cols-2 gap-1 h-2">
+<div class="bg-canvas border border-border-subtle rounded-l overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 76%"></div>
+</div>
+<div class="bg-canvas border border-border-subtle rounded-r overflow-hidden">
+<div class="bg-secondary h-full" style="width: 41%"></div>
+</div>
+</div>
+</div>
+<!-- Row: Kubernetes -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-text-body">
+<span class="text-text-primary font-medium">Kubernetes Cluster Mgmt</span>
+<span>29% vs 68%</span>
+</div>
+<div class="grid grid-cols-2 gap-1 h-2">
+<div class="bg-canvas border border-border-subtle rounded-l overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 29%"></div>
+</div>
+<div class="bg-canvas border border-border-subtle rounded-r overflow-hidden">
+<div class="bg-secondary h-full" style="width: 68%"></div>
+</div>
+</div>
+</div>
+<!-- Row: Cloud Providers (AWS/GCP) -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-text-body">
+<span class="text-text-primary font-medium">Cloud Platforms (AWS / GCP)</span>
+<span>34% vs 79%</span>
+</div>
+<div class="grid grid-cols-2 gap-1 h-2">
+<div class="bg-canvas border border-border-subtle rounded-l overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 34%"></div>
+</div>
+<div class="bg-canvas border border-border-subtle rounded-r overflow-hidden">
+<div class="bg-secondary h-full" style="width: 79%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Panel 2: Personal Evidence Coverage & Radar (Web View) -->
+<section class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col gap-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-3">
+<div>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Evidence vs. Market Baseline</h3>
+<p class="font-caption-muted text-caption-muted text-text-muted">Target role required depth vs. verified competency</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-caption-muted bg-surface-higher border border-border-strong text-primary">Web-Interactive</span>
+</div>
+<!-- Radar Chart Visual Graphic -->
+<div class="w-full flex justify-center py-2 relative">
+<svg aria-label="Skill baseline vs personal verified radar plot" class="w-64 h-64 overflow-visible" role="img" viewBox="0 0 240 240">
+<!-- Radial Grid Rings -->
+<circle cx="120" cy="120" fill="none" r="100" stroke="#202023" stroke-dasharray="2 2" stroke-width="1"></circle>
+<circle cx="120" cy="120" fill="none" r="75" stroke="#202023" stroke-width="1"></circle>
+<circle cx="120" cy="120" fill="none" r="50" stroke="#202023" stroke-width="1"></circle>
+<circle cx="120" cy="120" fill="none" r="25" stroke="#202023" stroke-width="1"></circle>
+<!-- Axes -->
+<line stroke="#363639" stroke-width="1" x1="120" x2="120" y1="20" y2="220"></line>
+<line stroke="#363639" stroke-width="1" x1="20" x2="220" y1="120" y2="120"></line>
+<line stroke="#363639" stroke-opacity="0.5" stroke-width="1" x1="49" x2="191" y1="49" y2="191"></line>
+<line stroke="#363639" stroke-opacity="0.5" stroke-width="1" x1="191" x2="49" y1="49" y2="191"></line>
+<!-- Market Baseline Polygon (Violet dash) -->
+<!-- Python: 4.0, SQL: 3.5, Docker: 3.5, Redis: 3.0, Git: 3.0, Kafka: 3.0 -->
+<polygon fill="none" opacity="0.9" points="120,40 180,68 185,145 120,180 65,150 55,75" stroke="#8052FF" stroke-dasharray="4 3" stroke-width="1.5"></polygon>
+<!-- Personal Verified Polygon (Green Filled) -->
+<!-- Python: 4.2 (top), SQL: 3.5 (tr), Docker: 0 (br - center!), Redis: 2.0 (b), Git: 4.0 (bl), Kafka: 0 (tl - center!) -->
+<polygon fill="#55C98B" fill-opacity="0.22" points="120,36 180,68 120,120 120,160 50,165 120,120" stroke="#55C98B" stroke-width="2"></polygon>
+<!-- Data Points (Personal) -->
+<circle cx="120" cy="36" fill="#55C98B" r="3.5"></circle>
+<circle cx="180" cy="68" fill="#55C98B" r="3.5"></circle>
+<circle cx="120" cy="160" fill="#FFB829" r="3.5"></circle>
+<circle cx="50" cy="165" fill="#55C98B" r="3.5"></circle>
+<!-- Axis Text Labels -->
+<text fill="#FFFFFF" font-family="Inter" font-size="10" font-weight="600" text-anchor="middle" x="120" y="12">Python</text>
+<text fill="#BDBDBD" font-family="Inter" font-size="10" text-anchor="start" x="210" y="65">SQL</text>
+<text fill="#FFB829" font-family="Inter" font-size="10" font-weight="600" text-anchor="start" x="210" y="150">Docker</text>
+<text fill="#BDBDBD" font-family="Inter" font-size="10" text-anchor="middle" x="120" y="235">Redis</text>
+<text fill="#55C98B" font-family="Inter" font-size="10" text-anchor="end" x="10" y="170">Git &amp; CI</text>
+<text fill="#9A9A9A" font-family="Inter" font-size="10" text-anchor="end" x="15" y="75">Kafka</text>
+</svg>
+</div>
+<!-- Radar Legend -->
+<div class="flex items-center justify-center gap-4 text-[11px] font-caption-muted pb-2 border-b border-border-subtle">
+<span class="inline-flex items-center gap-1.5 text-text-muted">
+<span class="w-3 h-0.5 bg-primary border-t border-dashed border-primary"></span> Market Baseline Target
+            </span>
+<span class="inline-flex items-center gap-1.5 text-status-highlight-green">
+<span class="w-2.5 h-2.5 rounded-full bg-status-highlight-green/30 border border-status-highlight-green"></span> Your Verified Status
+            </span>
+</div>
+<!-- Accessible Text-Equivalent Table (Strict Spec Mandate) -->
+<div class="flex flex-col gap-1.5">
+<span class="text-[11px] font-label-default text-text-muted uppercase tracking-wider">Exact Depth Fractions (1.0 to 5.0 scale):</span>
+<div class="w-full overflow-hidden rounded border border-border-subtle">
+<table class="w-full text-left text-caption-muted font-caption-muted">
+<thead class="bg-surface-higher text-text-muted text-[11px] uppercase border-b border-border-subtle">
+<tr>
+<th class="py-1.5 px-3 font-medium" scope="col">Domain Area</th>
+<th class="py-1.5 px-2 font-medium" scope="col">Market Req</th>
+<th class="py-1.5 px-2 font-medium" scope="col">Personal Status</th>
+<th class="py-1.5 px-3 text-right font-medium" scope="col">Delta</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle bg-surface-elevated text-text-body">
+<tr>
+<td class="py-1.5 px-3 font-medium text-text-primary">Python</td>
+<td class="py-1.5 px-2">4.0 / 5.0</td>
+<td class="py-1.5 px-2 text-status-highlight-green">4.2 / 5.0</td>
+<td class="py-1.5 px-3 text-right text-status-highlight-green font-medium">+0.2</td>
+</tr>
+<tr>
+<td class="py-1.5 px-3 font-medium text-text-primary">SQL / Postgres</td>
+<td class="py-1.5 px-2">3.5 / 5.0</td>
+<td class="py-1.5 px-2 text-status-highlight-green">3.5 / 5.0</td>
+<td class="py-1.5 px-3 text-right text-text-muted">0.0</td>
+</tr>
+<tr class="bg-surface-higher/40">
+<td class="py-1.5 px-3 font-medium text-secondary">Docker</td>
+<td class="py-1.5 px-2">3.5 / 5.0</td>
+<td class="py-1.5 px-2 text-secondary font-medium">Unassessed (null)</td>
+<td class="py-1.5 px-3 text-right text-secondary font-medium">-3.5 gap</td>
+</tr>
+<tr>
+<td class="py-1.5 px-3 font-medium text-text-primary">Redis</td>
+<td class="py-1.5 px-2">3.0 / 5.0</td>
+<td class="py-1.5 px-2">2.0 / 5.0</td>
+<td class="py-1.5 px-3 text-right text-secondary">-1.0</td>
+</tr>
+<tr>
+<td class="py-1.5 px-3 font-medium text-text-primary">Git &amp; CI/CD</td>
+<td class="py-1.5 px-2">3.0 / 5.0</td>
+<td class="py-1.5 px-2 text-status-highlight-green">4.0 / 5.0</td>
+<td class="py-1.5 px-3 text-right text-status-highlight-green font-medium">+1.0</td>
+</tr>
+<tr>
+<td class="py-1.5 px-3 font-medium text-text-muted">Kafka</td>
+<td class="py-1.5 px-2">3.0 / 5.0</td>
+<td class="py-1.5 px-2 text-text-disabled">Unassessed (null)</td>
+<td class="py-1.5 px-3 text-right text-text-disabled">n/a</td>
+</tr>
+</tbody>
+</table>
+</div>
+<span class="text-[10px] text-text-disabled">Note: Unassessed skills indicate absence of verified institutional records, distinct from scored 0.0 deficiency.</span>
+</div>
+</section>
+<!-- Panel 3: Actionable Learning Priority CTA -->
+<section class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col gap-3">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[18px]">campaign</span>
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Grounded Market Insight</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+            Market demand across 86 backend openings strongly penalizes unassessed containerization skills. <strong class="text-text-primary font-medium">71% of sampled postings filter for Docker</strong> in preliminary screening stages.
+          </p>
+<div class="flex flex-col gap-2 pt-2">
+<a class="inline-flex items-center justify-center gap-2 h-11 px-4 rounded-full bg-primary-container text-text-primary font-label-default text-label-default font-medium hover:brightness-110 active:brightness-95 transition-all text-center" href="#">
+<span>Bridge Docker Gap in Placement Hub</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="inline-flex items-center justify-center gap-1.5 py-2 text-caption-muted font-caption-muted text-text-muted hover:text-text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[14px]">turn_left</span>
+<span>Return to My Career Plan with Market Findings</span>
+</a>
+</div>
+</section>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-elevated border-t border-border-subtle mt-auto"><div class="max-w-[960px] mx-auto px-margin py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs font-caption-muted text-caption-muted text-text-muted"><span>© 2026 Skillup Inc.</span><span>•</span><span>Institutional Career Verification Platform</span></div><div class="flex items-center gap-space-md font-caption-muted text-caption-muted text-text-muted"><a class="hover:text-text-primary transition-colors" href="#">FERPA &amp; Compliance</a><a class="hover:text-text-primary transition-colors" href="#">Audit Logs</a><a class="hover:text-text-primary transition-colors" href="#">Support Terminal</a></div></div></footer></body></html>

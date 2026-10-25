@@ -1,0 +1,704 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Skillup Faculty Administration Console</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-container-lowest":"#0e0e10","surface-bright":"#39393b","surface-container-highest":"#353437","surface-container":"#1E1E24","on-secondary-fixed":"#281900","surface-tint":"#cdbdff","text-primary":"#FFFFFF","on-tertiary":"#00382d","outline":"#948ea1","surface-dim":"#131315","on-error-container":"#ffdad6","on-surface-variant":"#cbc3d8","error-container":"#93000a","primary-fixed-dim":"#cdbdff","on-secondary":"#422c00","on-secondary-fixed-variant":"#5f4100","on-primary-fixed-variant":"#5001cf","error":"#ffb4ab","tertiary-container":"#15846e","tertiary":"#78d8be","on-surface":"#e5e1e4","semantic-info":"#3B82F6","text-muted":"#9A9A9A","surface-container-low":"#1b1b1d","secondary-fixed-dim":"#ffba35","status-highlight-green":"#55C98B","tertiary-fixed":"#94f4da","secondary-fixed":"#ffdeac","surface-container-high":"#2a2a2c","primary":"#cdbdff","highlight-replacement":"#FFFF00","secondary":"#ffba35","outline-variant":"#494455","on-tertiary-container":"#f9fffb","canvas":"#000000","on-error":"#690005","inverse-on-surface":"#313032","border-subtle":"#202023","surface-elevated":"#0D0D0F","surface":"#131315","surface-higher":"#16161A","primary-container":"#8052ff","inverse-primary":"#6835e7","on-secondary-container":"#563a00","text-disabled":"#606066","on-primary-fixed":"#20005f","secondary-container":"#e19f00","inverse-surface":"#e5e1e4","on-primary":"#370095","text-body":"#BDBDBD","semantic-error":"#EB5757","tertiary-fixed-dim":"#78d8be","on-background":"#e5e1e4","border-strong":"#363639","on-primary-container":"#fffdff","surface-variant":"#353437","on-tertiary-fixed":"#002019","background":"#131315","on-tertiary-fixed-variant":"#005142","primary-fixed":"#e8deff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.75rem","space-xs":"0.375rem","margin":"1.5rem","space-xl":"2.25rem","gutter":"1.5rem","margin-bottom":"3rem","space-md":"1rem","space-lg":"1.5rem","gutter-sm":"1rem","margin-top":"2.25rem"},"fontFamily":{"eyebrow-kicker":["Inter"],"body-default":["Inter"],"metric-lg":["Inter"],"caption-muted":["Inter"],"label-default":["Inter"],"display-hero":["Inter"],"body-compact":["Inter"],"stage-heading":["Inter"],"page-title-mobile":["Inter"],"headline-h3":["Inter"],"metric-md":["Inter"],"display-hero-mobile":["Inter"],"headline-h4":["Inter"],"headline-h2":["Inter"],"page-title":["Inter"]},"fontSize":{"eyebrow-kicker":["11px",{"lineHeight":"14px","letterSpacing":"2px","fontWeight":"600"}],"body-default":["16px",{"lineHeight":"24px","fontWeight":"400"}],"metric-lg":["48px",{"lineHeight":"54px","fontWeight":"600"}],"caption-muted":["12px",{"lineHeight":"20px","fontWeight":"400"}],"label-default":["12px",{"lineHeight":"16px","fontWeight":"500"}],"display-hero":["78px",{"lineHeight":"86px","fontWeight":"600"}],"body-compact":["14px",{"lineHeight":"22px","fontWeight":"400"}],"stage-heading":["34px",{"lineHeight":"40px","fontWeight":"600"}],"page-title-mobile":["28px",{"lineHeight":"34px","fontWeight":"600"}],"headline-h3":["20px",{"lineHeight":"26px","fontWeight":"600"}],"metric-md":["30px",{"lineHeight":"36px","fontWeight":"600"}],"display-hero-mobile":["42px",{"lineHeight":"46px","fontWeight":"600"}],"headline-h4":["16px",{"lineHeight":"24px","fontWeight":"600"}],"headline-h2":["24px",{"lineHeight":"30px","fontWeight":"600"}],"page-title":["42px",{"lineHeight":"50px","fontWeight":"600"}]}}}};</script></head><body class="bg-canvas font-body-default text-body min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 w-full z-50 bg-canvas/95 backdrop-blur-md"><div class="w-full border-b border-border-subtle"><div class="max-w-[1280px] mx-auto px-margin h-16 flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-xs text-text-primary group" data-path="overview" href="#"><div class="w-8 h-8 rounded bg-surface-higher border border-border-strong flex items-center justify-center text-primary group-hover:border-primary-container transition-colors"><span class="material-symbols-outlined text-[20px]">school</span></div><span class="font-headline-h3 text-headline-h3 tracking-tight font-bold text-text-primary">Skill<span class="text-primary">up</span></span><span class="font-eyebrow-kicker text-eyebrow-kicker uppercase text-text-muted bg-surface-higher border border-border-subtle px-1.5 py-0.5 rounded ml-1">Console</span></a><nav class="hidden xl:flex items-center gap-1" data-active-classes="bg-surface-higher text-text-primary border border-border-strong rounded-lg"><a aria-current="page" class="font-label-default px-3 py-2 transition-all bg-surface-higher text-text-primary border border-border-strong rounded-lg" data-path="overview" href="#">Overview</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all" data-path="students" href="#">Students</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all" data-path="skill-analytics" href="#">Skill Analytics</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all" data-path="placement-drives" href="#">Placement Drives</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all" data-path="reviews-and-training" href="#">Reviews &amp; Training</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all" data-path="reports" href="#">Reports</a><a class="font-label-default text-label-default px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-higher hover:text-on-surface transition-all flex items-center gap-1.5" data-path="import" href="#">Import</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-higher border border-border-strong"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green animate-pulse"></span><span class="font-caption-muted text-caption-muted text-text-muted">Faculty Synthetic Cohort • Active</span></div><div class="flex items-center gap-space-sm pl-space-sm border-l border-border-subtle"><div class="hidden md:flex flex-col text-right"><span class="font-label-default text-label-default text-text-primary font-semibold leading-tight">Prof. Sarah Jenkins</span><span class="font-caption-muted text-caption-muted text-text-muted">Placement Director • Dept: CSE</span><span class="font-eyebrow-kicker text-eyebrow-kicker text-text-disabled uppercase">#FAC-2026-04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="font-caption-muted text-caption-muted px-2.5 py-1.5 rounded-lg border border-border-strong bg-surface-higher text-text-muted hover:text-semantic-error hover:border-semantic-error/40 transition-colors ml-1" data-path="login" href="#">Log out</a></div></div></div></div><div class="w-full bg-surface-elevated border-b border-border-subtle"><div class="max-w-[1280px] mx-auto px-margin h-12 flex items-center justify-between gap-space-md overflow-x-auto"><div class="flex items-center gap-space-md flex-shrink-0"><div class="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-higher border border-border-strong cursor-pointer hover:border-primary-container transition-colors"><span class="material-symbols-outlined text-[16px] text-primary">groups</span><span class="font-body-compact text-body-compact text-text-primary font-medium">B.S. Computer Science — Class of 2026</span><span class="font-caption-muted text-caption-muted text-primary bg-primary-container/20 px-1.5 py-0.5 rounded">N=148</span><span class="material-symbols-outlined text-[14px] text-text-muted">unfold_more</span></div><div class="hidden sm:flex items-center gap-3 font-caption-muted text-caption-muted text-text-muted border-l border-border-subtle pl-space-md"><span>Dept: <strong class="text-on-surface font-medium">All CS</strong></span><span>•</span><span>Status: <strong class="text-status-highlight-green font-medium">Active Placement Drive</strong></span><span>•</span><span>Last Sync: <strong class="text-on-surface font-medium">Today 09:42 AM</strong></span></div></div><div class="flex items-center gap-2 flex-shrink-0"><button class="font-caption-muted text-caption-muted px-2.5 py-1 rounded bg-surface-higher border border-border-strong text-text-muted hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">filter_list</span>Apply Filters</button><button class="font-caption-muted text-caption-muted px-2.5 py-1 rounded bg-surface-higher border border-border-strong text-text-muted hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">sync</span>Refresh</button><button class="font-caption-muted text-caption-muted px-2.5 py-1 rounded bg-primary-container text-on-primary-container font-medium hover:bg-primary transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">add</span>+ Create Cohort</button></div></div></div></header><main class="w-full pt-28 bg-canvas flex-1"><div class="flex flex-col w-full">
+<!-- Container with strictly capped max-width (1280px) and Dark Void styling -->
+<div class="w-full max-w-[1280px] mx-auto px-margin py-margin space-y-space-lg">
+<!-- Section Context & Eyebrow Navigation -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="font-eyebrow-kicker text-eyebrow-kicker uppercase text-primary tracking-widest">
+          Faculty Administration &amp; Placement Console • Scoped Oversight
+        </span>
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>
+<span class="font-caption-muted text-caption-muted text-text-muted">Node: #US-EAST-FAC-01</span>
+</div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+<div>
+<h1 class="font-headline-h2 text-headline-h2 md:font-page-title md:text-page-title text-text-primary tracking-tight">
+            Cohort Placement &amp; Readiness Overview
+          </h1>
+<p class="font-body-compact text-body-compact text-text-muted max-w-3xl mt-1">
+            Real-time readiness telemetry, shared student resume review queues, and cohort skill-gap intelligence for authorized department scopes.
+          </p>
+</div>
+<div class="flex items-center gap-space-xs shrink-0 font-caption-muted text-caption-muted text-text-muted bg-surface-elevated px-3 py-1.5 rounded border border-border-subtle">
+<span class="material-symbols-outlined text-[16px] text-text-primary">schedule</span>
+<span>Snapshot cadence: <strong>5m polling</strong></span>
+<span class="text-border-strong">•</span>
+<span class="text-status-highlight-green flex items-center gap-1 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>Live Sync
+          </span>
+</div>
+</div>
+</div>
+<!-- Faculty Permission Boundary Notice (FERPA & Institutional Scope Enforced) -->
+<section aria-label="FERPA Compliance Notice" class="bg-surface-elevated rounded-xl border border-border-strong border-l-4 border-l-primary-container p-space-md shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary-container text-[22px] shrink-0 mt-0.5">verified_user</span>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary text-[14px]">
+                FERPA &amp; Institutional Scope Enforced: Computer Science 2026
+              </span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker uppercase px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green border border-border-subtle">
+                Audit Logged
+              </span>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted mt-1 leading-relaxed">
+              You are viewing authorized students within the Computer Science 2026 cohort. Faculty access does not include student private unshared drafts or external credentials. Readiness scores are informational cohort benchmarks, not employment predictions.
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end sm:self-center pl-sm">
+<button class="font-caption-muted text-caption-muted text-on-surface-variant hover:text-text-primary underline transition-colors" onclick="document.getElementById('compliance-drawer').classList.toggle('hidden')" type="button">
+            Scope Details
+          </button>
+</div>
+</div>
+<div class="hidden mt-space-sm pt-space-sm border-t border-border-subtle text-caption-muted font-caption-muted text-text-muted grid grid-cols-1 md:grid-cols-3 gap-3" id="compliance-drawer">
+<div><strong>Faculty Credential:</strong> Sarah Jenkins (CSE-HEAD-09)</div>
+<div><strong>Data Policy:</strong> Read-Only Private Resumes, Full Telemetry</div>
+<div><strong>Session Expiry:</strong> 52m remaining (Scoped Token)</div>
+</div>
+</section>
+<!-- Action Bar / Multi-Filter Shelf -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl p-space-sm flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-space-sm">
+<div class="flex flex-wrap items-center gap-space-xs">
+<!-- Cohort Switcher -->
+<div class="relative inline-block text-left">
+<label class="sr-only" for="cohort-select">Select Cohort</label>
+<div class="flex items-center gap-2 bg-surface-higher border border-border-strong px-3 py-2 rounded-lg text-body-compact font-body-compact text-text-primary hover:border-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px] text-primary">school</span>
+<span class="font-medium text-[13px]">Class of 2026 — B.S. Computer Science (148 enrolled)</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">expand_more</span>
+</div>
+</div>
+<!-- Specialization Track Selector -->
+<div class="relative inline-block text-left">
+<label class="sr-only" for="track-select">Select Specialization Track</label>
+<div class="flex items-center gap-2 bg-surface-higher border border-border-strong px-3 py-2 rounded-lg text-body-compact font-body-compact text-on-surface-variant hover:text-text-primary hover:border-border-strong transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px] text-text-muted">alt_route</span>
+<span class="text-[13px]">All Specializations (Cloud, Backend, Data, Systems)</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">expand_more</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="hidden lg:block w-px h-6 bg-border-strong mx-1"></div>
+<!-- Status Toggle Chips -->
+<div class="flex items-center gap-1.5 flex-wrap">
+<button class="font-label-default text-label-default px-2.5 py-1.5 rounded-full bg-primary-container text-on-primary-container font-medium hover:bg-primary transition-colors flex items-center gap-1">
+<span>All Students</span>
+<span class="text-[11px] bg-canvas/30 px-1.5 py-0.2 rounded-full">148</span>
+</button>
+<button class="font-label-default text-label-default px-2.5 py-1.5 rounded-full bg-surface-higher text-on-surface-variant border border-border-strong hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1">
+<span>Placement Ready</span>
+<span class="text-[11px] text-status-highlight-green bg-surface-elevated px-1.5 py-0.2 rounded-full font-semibold">86</span>
+</button>
+<button class="font-label-default text-label-default px-2.5 py-1.5 rounded-full bg-surface-higher text-on-surface-variant border border-border-strong hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1">
+<span>In Remediation</span>
+<span class="text-[11px] text-secondary bg-surface-elevated px-1.5 py-0.2 rounded-full font-semibold">38</span>
+</button>
+<button class="font-label-default text-label-default px-2.5 py-1.5 rounded-full bg-surface-higher text-on-surface-variant border border-border-strong hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1">
+<span>Pending Review</span>
+<span class="text-[11px] text-error bg-surface-elevated px-1.5 py-0.2 rounded-full font-semibold">24</span>
+</button>
+</div>
+</div>
+<!-- Action Utilities -->
+<div class="flex items-center gap-2 justify-end pt-2 xl:pt-0 border-t xl:border-t-0 border-border-subtle">
+<button class="font-caption-muted text-caption-muted px-3 py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:border-primary-container transition-colors flex items-center gap-1.5" title="Refresh Live Data" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">sync</span>
+<span class="font-medium">Refresh Metrics</span>
+</button>
+<button class="font-caption-muted text-caption-muted px-3 py-2 rounded-lg bg-surface-higher border border-border-strong text-on-surface-variant hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_box</span>
+<span>+ Create Empty Cohort</span>
+</button>
+<button class="font-caption-muted text-caption-muted px-3 py-2 rounded-lg bg-surface-higher border border-border-strong text-on-surface-variant hover:text-text-primary hover:border-outline-variant transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Export Summary (CSV)</span>
+</button>
+</div>
+</div>
+<!-- 1. High-Level Metric Tiles (4-column grid with strict denominators and technical precision) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Metric 1: Cohort Verified Readiness -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-border-strong transition-colors relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Readiness Benchmark</span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-status-highlight-green flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>+3.4%
+            </span>
+</div>
+<div class="flex items-baseline gap-2 pt-1">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">74.8%</span>
+<span class="font-caption-muted text-caption-muted text-text-muted">avg cohort score</span>
+</div>
+<div class="w-full bg-surface-higher rounded-full h-1.5 mt-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 74.8%"></div>
+</div>
+</div>
+<div class="pt-space-sm border-t border-border-subtle mt-space-sm space-y-1">
+<p class="font-caption-muted text-caption-muted text-on-surface">
+            Benchmark: <strong>≥70% required</strong> for tier-1 drives
+          </p>
+<p class="font-eyebrow-kicker text-eyebrow-kicker text-text-disabled">
+            BASED ON 1,184 VERIFIED COURSEWORK &amp; QUIZ COMPETENCIES
+          </p>
+</div>
+</div>
+<!-- Metric 2: Placement Drive Eligibility -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-border-strong transition-colors relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-status-highlight-green/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Drive Eligibility</span>
+<span class="font-caption-muted text-caption-muted text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
+              58% Cohort
+            </span>
+</div>
+<div class="flex items-baseline gap-2 pt-1">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">86 <span class="font-metric-md text-metric-md text-text-muted font-normal">/ 148</span></span>
+</div>
+<div class="w-full bg-surface-higher rounded-full h-1.5 mt-2 overflow-hidden flex">
+<div class="bg-status-highlight-green h-full" style="width: 58%"></div>
+<div class="bg-secondary h-full" style="width: 26%"></div>
+<div class="bg-semantic-error h-full" style="width: 16%"></div>
+</div>
+</div>
+<div class="pt-space-sm border-t border-border-subtle mt-space-sm space-y-1">
+<p class="font-caption-muted text-caption-muted text-on-surface">
+<strong>86 cleared</strong> • 24 pending review • 38 remediation
+          </p>
+<p class="font-eyebrow-kicker text-eyebrow-kicker text-text-disabled">
+            CRITERIA: ZERO CRITICAL GAPS + VERIFIED RESUME
+          </p>
+</div>
+</div>
+<!-- Metric 3: Shared Resume Review Queue -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-border-strong transition-colors relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Shared Review Queue</span>
+<span class="font-caption-muted text-caption-muted text-secondary bg-secondary/10 border border-secondary/20 px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>12 Urgent
+            </span>
+</div>
+<div class="flex items-baseline gap-2 pt-1">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">19</span>
+<span class="font-headline-h4 text-headline-h4 text-secondary font-normal">Pending</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] text-text-muted pt-1">
+<span>Avg turnaround: <strong class="text-text-primary">1.2 days</strong></span>
+<span>•</span>
+<span>Escalation: 48h limit</span>
+</div>
+</div>
+<div class="pt-space-sm border-t border-border-subtle mt-space-sm space-y-1">
+<p class="font-caption-muted text-caption-muted text-on-surface">
+            12 revisions tied to drives closing within 48 hours
+          </p>
+<p class="font-eyebrow-kicker text-eyebrow-kicker text-text-disabled uppercase">
+            Explicitly shared saved revisions from student workspaces
+          </p>
+</div>
+</div>
+<!-- Metric 4: Critical Cohort Skill Gap -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md flex flex-col justify-between hover:border-border-strong transition-colors relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-semantic-error/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-default text-label-default uppercase tracking-wider text-text-muted">Top Blocker Stack</span>
+<span class="font-caption-muted text-caption-muted text-error bg-error-container/40 border border-semantic-error/30 px-1.5 py-0.5 rounded">
+              High Deficit
+            </span>
+</div>
+<div class="pt-1">
+<span class="font-headline-h3 text-headline-h3 text-text-primary tracking-tight block truncate" title="Docker &amp; Containerization">
+              Docker &amp; Containers
+            </span>
+<span class="font-caption-muted text-caption-muted text-error font-medium">
+              41% unassessed (61/148 students)
+            </span>
+</div>
+<div class="w-full bg-surface-higher rounded-full h-1.5 mt-2 overflow-hidden">
+<div class="bg-semantic-error h-full rounded-full" style="width: 41%"></div>
+</div>
+</div>
+<div class="pt-space-sm border-t border-border-subtle mt-space-sm space-y-1">
+<p class="font-caption-muted text-caption-muted text-on-surface">
+            Primary blocker for <strong>CloudScale &amp; FinFlow</strong> drives
+          </p>
+<p class="font-eyebrow-kicker text-eyebrow-kicker text-text-disabled uppercase">
+            Missing coursework lab submission or quiz benchmark
+          </p>
+</div>
+</div>
+</div>
+<!-- 2. Two-Column Core Operational Area (65/35 Split) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN (Primary - 8 cols) -->
+<div class="lg:col-span-8 space-y-space-lg">
+<!-- SECTION A: Faculty Action & Review Follow-Up Queue -->
+<section aria-labelledby="queue-heading" class="bg-surface-elevated rounded-xl border border-border-subtle overflow-hidden">
+<div class="p-space-md border-b border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface-elevated">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">rate_review</span>
+</div>
+<div>
+<h2 class="font-headline-h4 text-headline-h4 text-text-primary" id="queue-heading">
+                  Faculty Action &amp; Review Follow-Up Queue
+                </h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+                  Requires instructor assessment, resume approval, or prerequisite eligibility override
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-eyebrow-kicker text-eyebrow-kicker uppercase text-secondary bg-surface-higher border border-border-strong px-2 py-1 rounded">
+                19 Pending Cases
+              </span>
+</div>
+</div>
+<!-- Queue List Items -->
+<div class="divide-y divide-border-subtle">
+<!-- Row 1: Alex Mercer -->
+<article class="p-space-md hover:bg-surface-higher transition-colors group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="space-y-1.5 flex-1 min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-body-compact text-body-compact font-semibold text-text-primary group-hover:text-primary transition-colors">
+                      Alex R. Mercer
+                    </span>
+<span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher border border-border-strong px-1.5 py-0.5 rounded">
+                      #STU-2026-88
+                    </span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded-full bg-semantic-error/15 text-error border border-semantic-error/30 font-semibold flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-semantic-error animate-ping"></span>
+                      High Priority • Drive Deadline Tomorrow
+                    </span>
+</div>
+<div class="font-caption-muted text-caption-muted text-on-surface-variant flex items-center gap-2 flex-wrap">
+<span class="text-text-primary font-medium">Target:</span> Junior Backend Engineer (Distributed Systems)
+                    <span class="text-border-strong">•</span>
+<span class="text-text-primary font-medium">Item:</span> Shared Resume Revision v1.3
+                  </div>
+<p class="font-body-compact text-body-compact text-text-body bg-surface-higher/60 border border-border-subtle p-2.5 rounded text-[13px] leading-relaxed">
+<strong class="text-text-primary">Reason:</strong> “Replaced SQL &amp; Docker bullets with grounded lab projects; faculty review requested for FinFlow drive shortlisting.”
+                  </p>
+</div>
+<div class="shrink-0 flex md:flex-col items-center md:items-end justify-between gap-2 pt-2 md:pt-0">
+<span class="font-caption-muted text-caption-muted text-text-muted">Submitted 4h ago</span>
+<button class="font-caption-muted text-caption-muted px-3.5 py-2 rounded-full bg-primary-container text-on-primary-container font-medium hover:bg-primary transition-colors flex items-center gap-1.5 shadow-sm" type="button">
+<span>Review Revision</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Row 2: Maya Chen -->
+<article class="p-space-md hover:bg-surface-higher transition-colors group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="space-y-1.5 flex-1 min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-body-compact text-body-compact font-semibold text-text-primary group-hover:text-primary transition-colors">
+                      Maya Chen
+                    </span>
+<span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher border border-border-strong px-1.5 py-0.5 rounded">
+                      #STU-2026-112
+                    </span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded-full bg-surface-higher text-secondary border border-secondary/30 font-semibold">
+                      Verification Pending
+                    </span>
+</div>
+<div class="font-caption-muted text-caption-muted text-on-surface-variant flex items-center gap-2 flex-wrap">
+<span class="text-text-primary font-medium">Target:</span> Cloud Systems Developer
+                    <span class="text-border-strong">•</span>
+<span class="text-text-primary font-medium">Item:</span> Assessment Exemption Request
+                  </div>
+<p class="font-body-compact text-body-compact text-text-body bg-surface-higher/60 border border-border-subtle p-2.5 rounded text-[13px] leading-relaxed">
+<strong class="text-text-primary">Reason:</strong> “Submitted AWS Certified Solutions Architect credential document to waive prerequisite AWS Cloud Platform module.”
+                  </p>
+</div>
+<div class="shrink-0 flex md:flex-col items-center md:items-end justify-between gap-2 pt-2 md:pt-0">
+<span class="font-caption-muted text-caption-muted text-text-muted">Submitted 11h ago</span>
+<button class="font-caption-muted text-caption-muted px-3.5 py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:border-primary-container transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified</span>
+<span>Verify Evidence</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Row 3: David K. Patel -->
+<article class="p-space-md hover:bg-surface-higher transition-colors group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="space-y-1.5 flex-1 min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-body-compact text-body-compact font-semibold text-text-primary group-hover:text-primary transition-colors">
+                      David K. Patel
+                    </span>
+<span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher border border-border-strong px-1.5 py-0.5 rounded">
+                      #STU-2026-45
+                    </span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded-full bg-surface-higher text-on-surface-variant border border-border-strong font-semibold">
+                      Requires Faculty Justification
+                    </span>
+</div>
+<div class="font-caption-muted text-caption-muted text-on-surface-variant flex items-center gap-2 flex-wrap">
+<span class="text-text-primary font-medium">Target:</span> Data &amp; ML Pipeline Engineer
+                    <span class="text-border-strong">•</span>
+<span class="text-text-primary font-medium">Item:</span> Placement Drive Eligibility Override
+                  </div>
+<p class="font-body-compact text-body-compact text-text-body bg-surface-higher/60 border border-border-subtle p-2.5 rounded text-[13px] leading-relaxed">
+<strong class="text-text-primary">Reason:</strong> “Grounded gap in Apache Kafka; student requests provisional registration for Nexus drive based on ongoing capstone.”
+                  </p>
+</div>
+<div class="shrink-0 flex md:flex-col items-center md:items-end justify-between gap-2 pt-2 md:pt-0">
+<span class="font-caption-muted text-caption-muted text-text-muted">Submitted 1d ago</span>
+<button class="font-caption-muted text-caption-muted px-3.5 py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:border-secondary transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">gavel</span>
+<span>Evaluate Override</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Row 4: Priya Sharma -->
+<article class="p-space-md hover:bg-surface-higher transition-colors group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md">
+<div class="space-y-1.5 flex-1 min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-body-compact text-body-compact font-semibold text-text-primary group-hover:text-primary transition-colors">
+                      Priya Sharma
+                    </span>
+<span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher border border-border-strong px-1.5 py-0.5 rounded">
+                      #STU-2026-94
+                    </span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded-full bg-tertiary-container/20 text-status-highlight-green border border-tertiary-container/50 font-semibold">
+                      Ready for Approval
+                    </span>
+</div>
+<div class="font-caption-muted text-caption-muted text-on-surface-variant flex items-center gap-2 flex-wrap">
+<span class="text-text-primary font-medium">Target:</span> Full Stack Software Engineer
+                    <span class="text-border-strong">•</span>
+<span class="text-text-primary font-medium">Item:</span> Shared Resume Revision v2.0
+                  </div>
+<p class="font-body-compact text-body-compact text-text-body bg-surface-higher/60 border border-border-subtle p-2.5 rounded text-[13px] leading-relaxed">
+<strong class="text-text-primary">Reason:</strong> “Completed Placement Hub Quiz #SQL-01 (Score: 92%); revision incorporates newly verified query profiling project.”
+                  </p>
+</div>
+<div class="shrink-0 flex md:flex-col items-center md:items-end justify-between gap-2 pt-2 md:pt-0">
+<span class="font-caption-muted text-caption-muted text-text-muted">Submitted 1d ago</span>
+<button class="font-caption-muted text-caption-muted px-3.5 py-2 rounded-full bg-primary-container text-on-primary-container font-medium hover:bg-primary transition-colors flex items-center gap-1.5 shadow-sm" type="button">
+<span>Review Revision</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Queue Footer Link -->
+<div class="p-space-sm bg-surface-higher/50 border-t border-border-subtle flex items-center justify-between">
+<span class="font-caption-muted text-caption-muted text-text-muted">
+              Showing 4 of 19 actionable records in active sprint
+            </span>
+<a class="font-caption-muted text-caption-muted text-primary hover:text-text-primary transition-colors flex items-center gap-1 font-medium" data-path="reviews-and-training" href="#">
+              View All 19 Pending Actions in Reviews &amp; Training →
+            </a>
+</div>
+</section>
+<!-- SECTION B: Active Placement Drives & Eligibility Status -->
+<section aria-labelledby="drives-heading" class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<h2 class="font-headline-h4 text-headline-h4 text-text-primary" id="drives-heading">
+                Active Placement Drives &amp; Eligibility Status
+              </h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+                Recruitment campaigns configured with deterministic student shortlists
+              </p>
+</div>
+<a class="font-caption-muted text-caption-muted text-on-surface-variant hover:text-text-primary flex items-center gap-1" data-path="placement-drives" href="#">
+<span>View All Campaigns</span>
+<span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+<!-- 3 Drive Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Drive 1: CloudScale -->
+<div class="bg-surface-higher border border-border-strong rounded-xl p-space-md flex flex-col justify-between hover:border-primary-container transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded bg-semantic-error/15 text-error border border-semantic-error/30 font-semibold">
+                    Closes in 3 Days
+                  </span>
+<span class="font-caption-muted text-caption-muted text-text-muted">Oct 24</span>
+</div>
+<div>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary text-[15px]">
+                    CloudScale Infrastructure
+                  </h3>
+<p class="font-caption-muted text-caption-muted text-text-muted truncate">
+                    Junior Backend &amp; Systems
+                  </p>
+</div>
+<!-- Mini Metric Ratios -->
+<div class="space-y-1.5 pt-2">
+<div class="flex justify-between font-caption-muted text-caption-muted">
+<span class="text-text-muted">Registered vs Eligible:</span>
+<span class="text-text-primary font-medium">34 / 42 Students</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 80%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-disabled text-[11px]">
+                    8 eligible students have not applied
+                  </p>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle">
+<button class="w-full font-caption-muted text-caption-muted py-2 px-3 rounded-lg bg-surface-elevated border border-border-strong text-text-primary hover:border-primary-container hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px] text-primary">group_work</span>
+<span>Manage Drive &amp; Shortlist</span>
+</button>
+</div>
+</div>
+<!-- Drive 2: FinFlow Technologies -->
+<div class="bg-surface-higher border border-border-strong rounded-xl p-space-md flex flex-col justify-between hover:border-primary-container transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 font-semibold">
+                    7 Days Remaining
+                  </span>
+<span class="font-caption-muted text-caption-muted text-text-muted">Oct 28</span>
+</div>
+<div>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary text-[15px]">
+                    FinFlow Technologies
+                  </h3>
+<p class="font-caption-muted text-caption-muted text-text-muted truncate">
+                    Backend Software Engineer 2026
+                  </p>
+</div>
+<!-- Mini Metric Ratios -->
+<div class="space-y-1.5 pt-2">
+<div class="flex justify-between font-caption-muted text-caption-muted">
+<span class="text-text-muted">Registered vs Eligible:</span>
+<span class="text-text-primary font-medium">28 / 39 Students</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 71%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-disabled text-[11px]">
+                    11 eligible students pending review
+                  </p>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle">
+<button class="w-full font-caption-muted text-caption-muted py-2 px-3 rounded-lg bg-surface-elevated border border-border-strong text-text-primary hover:border-primary-container hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px] text-primary">group_work</span>
+<span>Manage Drive &amp; Shortlist</span>
+</button>
+</div>
+</div>
+<!-- Drive 3: Nexus Data Platforms -->
+<div class="bg-surface-higher border border-border-strong rounded-xl p-space-md flex flex-col justify-between hover:border-primary-container transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker px-2 py-0.5 rounded bg-surface-elevated text-on-surface-variant border border-border-subtle font-semibold">
+                    Scheduled
+                  </span>
+<span class="font-caption-muted text-caption-muted text-text-muted">Nov 05</span>
+</div>
+<div>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary text-[15px]">
+                    Nexus Data Platforms
+                  </h3>
+<p class="font-caption-muted text-caption-muted text-text-muted truncate">
+                    Associate Cloud &amp; API Systems
+                  </p>
+</div>
+<!-- Mini Metric Ratios -->
+<div class="space-y-1.5 pt-2">
+<div class="flex justify-between font-caption-muted text-caption-muted">
+<span class="text-text-muted">Registered vs Eligible:</span>
+<span class="text-text-primary font-medium">19 / 51 Students</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 37%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-disabled text-[11px]">
+                    Registration open for eligible pool
+                  </p>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle">
+<button class="w-full font-caption-muted text-caption-muted py-2 px-3 rounded-lg bg-surface-elevated border border-border-strong text-text-primary hover:border-primary-container hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px] text-primary">group_work</span>
+<span>Manage Drive &amp; Shortlist</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN (Intelligence & Quick Utils - 4 cols) -->
+<div class="lg:col-span-4 space-y-space-lg">
+<!-- SECTION C: Cohort Skill Deficit & Assessment Deficits -->
+<section aria-labelledby="analytics-heading" class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-h4 text-headline-h4 text-text-primary" id="analytics-heading">
+                Cohort Skill Deficits
+              </h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+                Aggregated gaps across 148 active student targets
+              </p>
+</div>
+<a class="font-caption-muted text-caption-muted text-primary hover:text-text-primary transition-colors" data-path="skill-analytics" href="#">
+              Matrix →
+            </a>
+</div>
+<!-- Skill Breakdowns with explicit denominator distinction (Unassessed vs Failed) -->
+<div class="space-y-space-md">
+<!-- Skill 1: Docker -->
+<div class="space-y-1.5 bg-surface-higher/40 p-space-sm rounded-lg border border-border-subtle">
+<div class="flex items-center justify-between text-caption-muted font-caption-muted">
+<span class="text-text-primary font-medium">Docker &amp; Containerization</span>
+<span class="text-error font-semibold">Top Critical Gap</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-2 flex overflow-hidden">
+<div class="bg-semantic-error h-full" style="width: 41%" title="41% Unassessed"></div>
+<div class="bg-secondary h-full" style="width: 18%" title="18% Under Benchmark"></div>
+<div class="bg-status-highlight-green h-full" style="width: 41%" title="41% Proficient"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-caption-muted text-text-muted pt-0.5">
+<span>Unassessed: <strong class="text-error">61/148 (41%)</strong></span>
+<span>•</span>
+<span>Below Benchmark: <strong class="text-secondary">27/148</strong></span>
+</div>
+<button class="w-full mt-2 font-caption-muted text-caption-muted py-1.5 px-2 rounded bg-surface-elevated border border-semantic-error/40 text-error hover:bg-semantic-error/10 transition-colors flex items-center justify-center gap-1 font-medium" type="button">
+<span class="material-symbols-outlined text-[14px]">assignment_turned_in</span>
+<span>Assign Remediation Quiz</span>
+</button>
+</div>
+<!-- Skill 2: Redis -->
+<div class="space-y-1.5 bg-surface-higher/40 p-space-sm rounded-lg border border-border-subtle">
+<div class="flex items-center justify-between text-caption-muted font-caption-muted">
+<span class="text-text-primary font-medium">Redis &amp; In-Memory Caching</span>
+<span class="text-secondary font-medium">Remediation Area</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-2 flex overflow-hidden">
+<div class="bg-secondary h-full" style="width: 32%" title="32% Under Benchmark"></div>
+<div class="bg-semantic-error h-full" style="width: 14%" title="14% Unassessed"></div>
+<div class="bg-status-highlight-green h-full" style="width: 54%" title="54% Proficient"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-caption-muted text-text-muted pt-0.5">
+<span>Below Bench: <strong class="text-secondary">48/148 (32%)</strong></span>
+<span>•</span>
+<span>Unassessed: <strong class="text-text-primary">21/148</strong></span>
+</div>
+</div>
+<!-- Skill 3: Apache Kafka -->
+<div class="space-y-1.5 bg-surface-higher/40 p-space-sm rounded-lg border border-border-subtle">
+<div class="flex items-center justify-between text-caption-muted font-caption-muted">
+<span class="text-text-primary font-medium">Apache Kafka Streaming</span>
+<span class="text-text-muted">Elective Stack</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-2 flex overflow-hidden">
+<div class="bg-semantic-error h-full" style="width: 54%" title="54% Unassessed"></div>
+<div class="bg-status-highlight-green h-full" style="width: 46%" title="46% Met"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-caption-muted text-text-muted pt-0.5">
+<span>Unassessed: <strong class="text-text-primary">80/148 (54%)</strong></span>
+<span>•</span>
+<span>Optional for Web Track</span>
+</div>
+</div>
+<!-- Skill 4: PostgreSQL Query Optimization -->
+<div class="space-y-1.5 bg-surface-higher/40 p-space-sm rounded-lg border border-border-subtle">
+<div class="flex items-center justify-between text-caption-muted font-caption-muted">
+<span class="text-text-primary font-medium">PostgreSQL Query Optimization</span>
+<span class="text-status-highlight-green font-medium">Strong Benchmark</span>
+</div>
+<div class="w-full bg-surface-elevated rounded-full h-2 flex overflow-hidden">
+<div class="bg-status-highlight-green h-full" style="width: 82%" title="82% Proficient"></div>
+<div class="bg-surface-elevated h-full" style="width: 18%"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-caption-muted text-text-muted pt-0.5">
+<span>Proficient: <strong class="text-status-highlight-green">122/148 (82%)</strong></span>
+<span>•</span>
+<span>Passed Coursework CS320</span>
+</div>
+</div>
+</div>
+<!-- Automated Cohort Recommendation Callout -->
+<div class="p-space-sm rounded-lg bg-surface-higher border border-primary-container/40 space-y-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">bolt</span>
+<span class="font-eyebrow-kicker text-eyebrow-kicker uppercase text-primary font-semibold">
+                Intelligence Recommendation
+              </span>
+</div>
+<p class="font-caption-muted text-caption-muted text-on-surface leading-relaxed">
+              Run a <strong>Docker Containerization Blitz</strong> via Placement Hub Quizzes to unblock 31 borderline students before CloudScale drive deadline.
+            </p>
+<button class="w-full font-caption-muted text-caption-muted py-2 px-3 rounded-lg bg-primary-container text-on-primary-container font-medium hover:bg-primary transition-colors flex items-center justify-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px]">rocket_launch</span>
+<span>Launch Cohort Training Module</span>
+</button>
+</div>
+</section>
+<!-- SECTION D: Quick Navigation & Scoped Utilities -->
+<section aria-labelledby="quick-utils-heading" class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md space-y-space-sm">
+<h2 class="font-headline-h4 text-headline-h4 text-text-primary text-[14px]" id="quick-utils-heading">
+            Quick Scoped Actions &amp; Navigation
+          </h2>
+<div class="space-y-1.5">
+<a class="p-2.5 rounded-lg bg-surface-higher border border-border-strong hover:border-primary-container hover:bg-surface-higher/80 transition-all flex items-center justify-between group" data-path="students" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary text-[18px] transition-colors">badge</span>
+<span class="font-body-compact text-body-compact text-on-surface group-hover:text-text-primary font-medium text-[13px]">
+                  Student Roster &amp; Profiles
+                </span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted bg-surface-elevated px-2 py-0.5 rounded border border-border-subtle">
+                148 records
+              </span>
+</a>
+<a class="p-2.5 rounded-lg bg-surface-higher border border-border-strong hover:border-primary-container hover:bg-surface-higher/80 transition-all flex items-center justify-between group" data-path="skill-analytics" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary text-[18px] transition-colors">analytics</span>
+<span class="font-body-compact text-body-compact text-on-surface group-hover:text-text-primary font-medium text-[13px]">
+                  Cohort Skill Matrix &amp; Curriculum Map
+                </span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-text-muted group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<a class="p-2.5 rounded-lg bg-surface-higher border border-border-strong hover:border-primary-container hover:bg-surface-higher/80 transition-all flex items-center justify-between group" data-path="import" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary text-[18px] transition-colors">upload_file</span>
+<span class="font-body-compact text-body-compact text-on-surface group-hover:text-text-primary font-medium text-[13px]">
+                  Bulk Import Students (CSV / XLSX)
+                </span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-text-muted group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<a class="p-2.5 rounded-lg bg-surface-higher border border-border-strong hover:border-primary-container hover:bg-surface-higher/80 transition-all flex items-center justify-between group" data-path="reports" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary text-[18px] transition-colors">assignment</span>
+<span class="font-body-compact text-body-compact text-on-surface group-hover:text-text-primary font-medium text-[13px]">
+                  Accreditation &amp; Placement Report
+                </span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-text-muted group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+</div>
+</section>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-elevated border-t border-border-subtle mt-auto"><div class="max-w-[1280px] mx-auto px-margin py-6 flex flex-col md:flex-row items-center justify-between gap-space-sm text-center md:text-left"><div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-caption-muted text-caption-muted text-text-muted"><span>© 2026 Skillup Inc.</span><span>•</span><span>Scoped Faculty Console</span><span>•</span><span class="text-status-highlight-green flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">verified_user</span>FERPA &amp; Institutional Compliance</span></div><div class="flex items-center gap-space-md font-caption-muted text-caption-muted text-text-muted"><a class="hover:text-text-primary transition-colors flex items-center gap-1" data-path="audit-logs" href="#"><span class="material-symbols-outlined text-[14px]">receipt_long</span>Audit Logs</a><span class="text-border-strong">|</span><a class="hover:text-text-primary transition-colors flex items-center gap-1" data-path="export" href="#"><span class="material-symbols-outlined text-[14px]">download</span>Export Scoped Data</a></div></div></footer></body></html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed":"#94f4da","on-error":"#690005","on-background":"#e5e1e4","border-strong":"#363639","secondary-container":"#e19f00","highlight-replacement":"#FFFF00","text-primary":"#FFFFFF","error":"#ffb4ab","on-secondary":"#422c00","on-tertiary-container":"#f9fffb","tertiary-fixed-dim":"#78d8be","surface-container-low":"#1b1b1d","semantic-error":"#EB5757","secondary-fixed":"#ffdeac","surface-variant":"#353437","inverse-primary":"#6835e7","text-muted":"#9A9A9A","surface-container-highest":"#353437","border-subtle":"#202023","tertiary":"#78d8be","error-container":"#93000a","surface-container-lowest":"#0e0e10","surface-container":"#201f21","on-error-container":"#ffdad6","surface-higher":"#16161A","on-secondary-container":"#563a00","secondary":"#ffba35","inverse-on-surface":"#313032","surface-tint":"#cdbdff","text-body":"#BDBDBD","text-disabled":"#606066","on-tertiary":"#00382d","tertiary-container":"#15846e","status-highlight-green":"#55C98B","canvas":"#000000","secondary-fixed-dim":"#ffba35","outline":"#948ea1","semantic-info":"#3B82F6","on-primary":"#370095","on-primary-fixed-variant":"#5001cf","on-primary-fixed":"#20005f","inverse-surface":"#e5e1e4","primary":"#cdbdff","primary-container":"#8052ff","outline-variant":"#494455","primary-fixed-dim":"#cdbdff","surface-container-high":"#2a2a2c","on-tertiary-fixed-variant":"#005142","on-secondary-fixed-variant":"#5f4100","primary-fixed":"#e8deff","background":"#131315","on-primary-container":"#fffdff","on-secondary-fixed":"#281900","on-surface":"#e5e1e4","surface":"#131315","on-surface-variant":"#cbc3d8","surface-dim":"#131315","surface-elevated":"#0D0D0F","surface-bright":"#39393b","on-tertiary-fixed":"#002019"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.75rem","gutter-sm":"1rem","space-xs":"0.375rem","gutter":"1.5rem","margin-bottom":"3rem","margin-top":"2.25rem","space-md":"1rem","margin":"1.5rem","space-lg":"1.5rem","space-xl":"2.25rem"},"fontFamily":{"display-hero":["Inter"],"caption-muted":["Inter"],"metric-md":["Inter"],"metric-lg":["Inter"],"eyebrow-kicker":["Inter"],"headline-h4":["Inter"],"display-hero-mobile":["Inter"],"stage-heading":["Inter"],"body-default":["Inter"],"label-default":["Inter"],"body-compact":["Inter"],"headline-h3":["Inter"],"page-title-mobile":["Inter"],"page-title":["Inter"],"headline-h2":["Inter"]},"fontSize":{"display-hero":["78px",{"lineHeight":"86px","fontWeight":"600"}],"caption-muted":["12px",{"lineHeight":"20px","fontWeight":"400"}],"metric-md":["30px",{"lineHeight":"36px","fontWeight":"600"}],"metric-lg":["48px",{"lineHeight":"54px","fontWeight":"600"}],"eyebrow-kicker":["11px",{"lineHeight":"14px","letterSpacing":"2px","fontWeight":"600"}],"headline-h4":["16px",{"lineHeight":"24px","fontWeight":"600"}],"display-hero-mobile":["42px",{"lineHeight":"46px","fontWeight":"600"}],"stage-heading":["34px",{"lineHeight":"40px","fontWeight":"600"}],"body-default":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-default":["12px",{"lineHeight":"16px","fontWeight":"500"}],"body-compact":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-h3":["20px",{"lineHeight":"26px","fontWeight":"600"}],"page-title-mobile":["28px",{"lineHeight":"34px","fontWeight":"600"}],"page-title":["42px",{"lineHeight":"50px","fontWeight":"600"}],"headline-h2":["24px",{"lineHeight":"30px","fontWeight":"600"}]}}}};</script></head><body class="bg-canvas text-on-surface font-body-default text-body-default min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-elevated border-b border-border-subtle"><div class="h-16 max-w-[960px] mx-auto px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-gutter"><div class="flex items-center gap-space-xs"><img alt="Skillup Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VhwBIDzZuK9Oheb7wHTGnYlTK_L77VCS6Wyg6RwbB4xlL9UIAu-qpsZvJEc0QKHqxDxAloHAr9kuutjLzfSa5Oi3yBxtk9JDZVtjV0PImsbrUjSJrWsVL8c-T3N8FW7TocWHgd8vMir2cKOFi2Zw4ACo0rxMvYl_eHJ7Y4PYOZB36ff6u3bdz0lykd24T9wSAjwPN7OJOkKa7XqpzYMPlLLm1RxEwC0bVWYRRGDtR6K7MQ_aEnPt8pIYA"><span class="font-headline-h4 text-headline-h4 text-text-primary tracking-tight">Skillup</span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-text-primary border-b-2 border-primary-container font-headline-h4"><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="my-career-plan" href="#">My Career Plan</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="career-assets" href="#">Career Assets</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="opportunities" href="#">Opportunities</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="placement-hub" href="#">Placement Hub</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-xs py-1 rounded-full bg-surface-higher border border-border-strong text-caption-muted font-caption-muted text-text-muted"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="text-on-surface font-label-default text-label-default">Demo Mode</span></div><div class="hidden lg:flex flex-col text-right leading-none"><span class="font-label-default text-label-default text-text-primary">#STU-2026-88</span><span class="font-caption-muted text-caption-muted text-text-muted">Computer Science</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="hidden sm:inline-flex items-center justify-center px-space-sm py-1.5 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high hover:text-text-primary font-label-default text-label-default transition-all" data-path="login" href="#">Log out</a></div></div></header><main class="w-full pt-16 bg-canvas flex-1"><div class="flex flex-col w-full">
+<!-- Local Subnavigation Context & Secondary Header Bar -->
+<div class="w-full bg-surface-elevated border-b border-border-subtle">
+<div class="max-w-[1200px] mx-auto px-margin">
+<div class="flex items-center justify-between h-12">
+<!-- Subnavigation Switch -->
+<div class="flex items-center gap-space-sm text-label-default font-label-default">
+<span class="text-text-muted font-caption-muted uppercase tracking-wider text-[10px]">Opportunities Workspace</span>
+<span class="text-border-strong">/</span>
+<a class="px-space-sm py-1.5 rounded-lg bg-surface-higher text-text-primary border border-primary-container/40 flex items-center gap-1.5 font-medium transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary">search_insights</span>
+<span>Job Search &amp; Matching</span>
+</a>
+<a class="px-space-sm py-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-higher/60 flex items-center gap-1.5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">bar_chart_4_bars</span>
+<span>Skill-Demand Insights</span>
+</a>
+</div>
+<!-- Live Retrieval Provenance Indicator -->
+<div class="hidden md:flex items-center gap-2 text-caption-muted font-caption-muted text-text-muted bg-surface-container-lowest px-2.5 py-1 rounded border border-border-subtle">
+<span class="inline-block w-2 h-2 rounded-full bg-status-highlight-green"></span>
+<span>Live Retrieval</span>
+<span class="text-text-disabled">•</span>
+<span>Cached 42m ago</span>
+<span class="text-text-disabled">•</span>
+<span class="text-on-surface">3 pages bounded (28 indexed)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Stage Envelope (1200px Max Desktop Bound) -->
+<div class="w-full max-w-[1200px] mx-auto px-margin py-margin">
+<!-- Mandatory External Ingestion Disclaimer Banner -->
+<div class="mb-space-lg rounded-lg bg-surface-elevated border border-border-strong border-l-4 border-l-primary-container p-space-md flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary-fixed-dim text-[20px] shrink-0 mt-0.5">verified_user</span>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="text-label-default font-label-default text-text-primary tracking-wide uppercase text-[11px]">External Ingestion Protocol</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-[10px] text-text-muted border border-border-subtle font-mono">SERPAPI_JOBS_V2</span>
+</div>
+<p class="text-caption-muted font-caption-muted text-text-body">
+            Notice: Job listings are retrieved from external index sources via SerpApi. Skillup does not verify opening availability, employer affiliation, or guarantee hiring outcomes. External applications must be tracked separately.
+          </p>
+</div>
+</div>
+<button aria-label="Dismiss banner" class="text-text-muted hover:text-text-primary text-[18px] p-1 shrink-0">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Title and Subtitle Block -->
+<div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="text-eyebrow-kicker font-eyebrow-kicker text-primary uppercase">DOMAIN G • OPPORTUNITY CORRELATION</span>
+<span class="w-1 h-1 rounded-full bg-border-strong"></span>
+<span class="text-caption-muted font-caption-muted text-text-muted">Targeted Cohort 2026</span>
+</div>
+<h1 class="text-stage-heading font-stage-heading text-text-primary tracking-tight">Job Search &amp; Matching</h1>
+<p class="text-body-compact font-body-compact text-text-muted mt-1 max-w-2xl">
+          Discover external market openings and compare observed requirements against your verified student evidence base.
+        </p>
+</div>
+<!-- Quick Summary Metric Chip -->
+<div class="flex items-center gap-space-sm self-start md:self-auto bg-surface-elevated px-space-md py-2 rounded-xl border border-border-subtle">
+<div class="flex flex-col text-right">
+<span class="text-label-default font-label-default text-text-primary">12 Competencies</span>
+<span class="text-[11px] text-text-muted">Verified Evidence Base</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-higher flex items-center justify-center border border-border-strong text-status-highlight-green">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+</div>
+</div>
+<!-- Search & Filter Controls Surface (Domain G Form Envelope) -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-md mb-space-lg shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<!-- Keyword Input -->
+<div class="md:col-span-5 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-disabled text-[18px]">search</span>
+<input class="w-full bg-canvas text-text-primary text-body-compact font-body-compact pl-9 pr-3 py-2.5 rounded-lg border border-border-subtle focus:border-primary-container focus:outline-none transition-colors" placeholder="Role, tech stack, or keywords..." type="text" value="Junior Backend Engineer">
+</div>
+<!-- Location Input -->
+<div class="md:col-span-4 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-disabled text-[18px]">location_on</span>
+<input class="w-full bg-canvas text-text-primary text-body-compact font-body-compact pl-9 pr-3 py-2.5 rounded-lg border border-border-subtle focus:border-primary-container focus:outline-none transition-colors" placeholder="Location, city or remote..." type="text" value="Remote / Hybrid (San Francisco, CA)">
+</div>
+<!-- Search CTA -->
+<div class="md:col-span-3 flex items-center gap-2">
+<button class="w-full h-[42px] px-space-md rounded-full bg-primary-container hover:bg-primary-container/90 text-text-primary font-headline-h4 text-headline-h4 flex items-center justify-center gap-2 transition-all">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span>Search Openings</span>
+</button>
+<button class="h-[42px] px-3 rounded-lg bg-surface-higher border border-border-strong hover:bg-surface-container-high text-text-muted hover:text-text-primary flex items-center justify-center transition-colors" title="Clear and Reset Filters">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Stage Filter Pills & Scope Bar -->
+<div class="mt-space-sm pt-space-sm border-t border-border-subtle flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="text-caption-muted font-caption-muted text-text-muted mr-1">Stage Filter:</span>
+<button class="px-3 py-1 rounded-full bg-primary-container/20 border border-primary-container text-primary-fixed-dim text-caption-muted font-label-default flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Entry-Level / 0-2 Yrs</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</button>
+<button class="px-3 py-1 rounded-full bg-surface-higher border border-border-strong text-text-muted hover:text-text-primary hover:border-border-subtle text-caption-muted font-label-default flex items-center gap-1.5 transition-colors">
+<span>Internship / Co-op</span>
+</button>
+<button class="px-3 py-1 rounded-full bg-surface-higher border border-border-strong text-text-muted hover:text-text-primary hover:border-border-subtle text-caption-muted font-label-default flex items-center gap-1.5 transition-colors">
+<span>Associate Systems (2-3 Yrs)</span>
+</button>
+</div>
+<!-- Query State Pill -->
+<div class="flex items-center gap-2 text-caption-muted font-caption-muted text-text-muted">
+<span class="text-text-disabled">Active Scope:</span>
+<span class="text-on-surface">28 listings found</span>
+<span class="text-text-disabled">•</span>
+<span class="text-primary-fixed-dim">Page 1 of 3</span>
+</div>
+</div>
+</div>
+<!-- Main Two-Column Master / Detail Workstation -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- ========================================== -->
+<!-- LEFT COLUMN: Search Results & Staging (~45%) -->
+<!-- ========================================== -->
+<div class="lg:col-span-5 flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-1 mb-1">
+<span class="text-label-default font-label-default text-text-muted uppercase tracking-wider text-[11px]">Ranked Index (Match Proximity)</span>
+<span class="text-caption-muted font-caption-muted text-text-disabled">Sorted by Student Alignment</span>
+</div>
+<!-- LISTING 1 (CURRENTLY SELECTED / ACTIVE) -->
+<div class="group relative rounded-xl bg-surface-elevated border-2 border-primary-container p-space-md transition-all cursor-pointer shadow-lg shadow-primary-container/5">
+<div class="flex items-start justify-between gap-space-sm mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-primary-container/20 text-primary-fixed-dim border border-primary-container/40">Active Focus</span>
+<span class="text-caption-muted font-caption-muted text-text-disabled">2d ago</span>
+</div>
+<h2 class="text-headline-h4 font-headline-h4 text-text-primary group-hover:text-primary transition-colors leading-snug">
+                Junior Backend Engineer - Distributed Systems
+              </h2>
+<p class="text-body-compact font-body-compact text-text-body mt-0.5">CloudScale Infrastructure Inc.</p>
+</div>
+<!-- Match Score Badge -->
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/30 border border-tertiary text-status-highlight-green text-label-default font-label-default font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+                78% Match
+              </span>
+<span class="text-[10px] text-text-muted mt-1 font-caption-muted">High Concordance</span>
+</div>
+</div>
+<!-- Metadata Rows -->
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-caption-muted font-caption-muted text-text-muted mb-space-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">location_on</span>
+              Remote / San Francisco, CA
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">database</span>
+              SerpApi • Google Jobs
+            </span>
+</div>
+<!-- Stack Badges -->
+<div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">Python ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">PostgreSQL ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-secondary border border-secondary/30">Docker ⚠</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-body border border-border-strong">Redis</span>
+<span class="text-[11px] text-text-disabled ml-auto font-caption-muted">+3 more</span>
+</div>
+</div>
+<!-- LISTING 2 -->
+<div class="group rounded-xl bg-surface-elevated border border-border-subtle hover:border-border-strong hover:bg-surface-higher p-space-md transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-caption-muted font-caption-muted text-text-disabled">4d ago</span>
+<span class="text-text-disabled">•</span>
+<span class="text-caption-muted font-caption-muted text-text-disabled">ID: nex-api-440</span>
+</div>
+<h2 class="text-headline-h4 font-headline-h4 text-text-primary group-hover:text-primary transition-colors leading-snug">
+                Associate Cloud &amp; API Systems Developer
+              </h2>
+<p class="text-body-compact font-body-compact text-text-muted mt-0.5">Nexus Data Platforms</p>
+</div>
+<!-- Match Score Badge -->
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-surface-higher border border-border-strong text-primary text-label-default font-label-default flex items-center gap-1">
+                64% Match
+              </span>
+<span class="text-[10px] text-text-muted mt-1 font-caption-muted">Moderate</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-caption-muted font-caption-muted text-text-muted mb-space-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">location_city</span>
+              Hybrid • San Jose, CA
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">public</span>
+              SerpApi Verified
+            </span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">Python ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">REST APIs ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">AWS (Gap)</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">Docker</span>
+</div>
+</div>
+<!-- LISTING 3 -->
+<div class="group rounded-xl bg-surface-elevated border border-border-subtle hover:border-border-strong hover:bg-surface-higher p-space-md transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-caption-muted font-caption-muted text-text-disabled">1w ago</span>
+<span class="text-text-disabled">•</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-higher text-[10px] text-secondary border border-border-strong">Cohort Pick</span>
+</div>
+<h2 class="text-headline-h4 font-headline-h4 text-text-primary group-hover:text-primary transition-colors leading-snug">
+                Backend Software Engineer (New Grad 2026)
+              </h2>
+<p class="text-body-compact font-body-compact text-text-muted mt-0.5">FinFlow Technologies</p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-surface-higher border border-border-strong text-status-highlight-green text-label-default font-label-default flex items-center gap-1">
+                71% Match
+              </span>
+<span class="text-[10px] text-text-muted mt-1 font-caption-muted">Solid Alignment</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-caption-muted font-caption-muted text-text-muted mb-space-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">business</span>
+              San Francisco, CA (Onsite)
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">monetization_on</span>
+              $115k - $130k
+            </span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">Go (Core)</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">PostgreSQL ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-body border border-border-strong">Microservices</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">Kubernetes</span>
+</div>
+</div>
+<!-- LISTING 4 -->
+<div class="group rounded-xl bg-surface-elevated border border-border-subtle hover:border-border-strong hover:bg-surface-higher p-space-md transition-all cursor-pointer">
+<div class="flex items-start justify-between gap-space-sm mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-caption-muted font-caption-muted text-text-disabled">3d ago</span>
+</div>
+<h2 class="text-headline-h4 font-headline-h4 text-text-primary group-hover:text-primary transition-colors leading-snug">
+                Junior Data &amp; Backend Platform Engineer
+              </h2>
+<p class="text-body-compact font-body-compact text-text-muted mt-0.5">HealthPulse Analytics</p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="px-2.5 py-1 rounded-full bg-surface-higher border border-border-strong text-secondary text-label-default font-label-default flex items-center gap-1">
+                58% Match
+              </span>
+<span class="text-[10px] text-secondary mt-1 font-caption-muted">Gap in Streaming</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-caption-muted font-caption-muted text-text-muted mb-space-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">home_work</span>
+              Remote (US Only)
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-disabled">verified</span>
+              HIPAA Verified Stack
+            </span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-status-highlight-green border border-border-strong">Python ✓</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">Kafka (Gap)</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-[11px] font-mono text-text-disabled border border-border-strong">Airflow (Gap)</span>
+</div>
+</div>
+<!-- Bounded Pagination Control (Domain G Spec: Max 3 Pages) -->
+<div class="mt-space-sm bg-surface-elevated rounded-xl border border-border-subtle p-space-sm flex items-center justify-between">
+<button class="px-3 py-1.5 rounded bg-surface-higher border border-border-subtle text-text-disabled text-caption-muted font-label-default flex items-center gap-1 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span>Previous</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded bg-primary-container text-text-primary text-caption-muted font-label-default font-semibold flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded bg-surface-higher hover:bg-surface-container-high text-text-muted hover:text-text-primary text-caption-muted font-label-default flex items-center justify-center transition-colors">2</button>
+<button class="w-8 h-8 rounded bg-surface-higher hover:bg-surface-container-high text-text-muted hover:text-text-primary text-caption-muted font-label-default flex items-center justify-center transition-colors">3</button>
+</div>
+<button class="px-3 py-1.5 rounded bg-surface-higher border border-border-strong hover:bg-surface-container-high text-text-primary text-caption-muted font-label-default flex items-center gap-1 transition-colors">
+<span>Next</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- RIGHT COLUMN: Detailed Match & Handoff (~55%) -->
+<!-- ========================================== -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Selected Opening Card Header & Actions -->
+<div class="bg-surface-elevated rounded-xl border border-border-subtle p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-md mb-space-md pb-space-md border-b border-border-subtle">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted text-[11px] font-mono border border-border-strong">SERPAPI: job-dist-902</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-status-highlight-green text-[11px] font-medium border border-tertiary/40">Verified Remote Opening</span>
+</div>
+<h2 class="text-headline-h2 font-headline-h2 text-text-primary leading-tight">
+                Junior Backend Engineer - Distributed Systems
+              </h2>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md mt-2 text-body-compact font-body-compact text-text-muted">
+<span class="text-text-primary font-medium">CloudScale Infrastructure Inc.</span>
+<span>•</span>
+<span>Remote (US / Canada)</span>
+<span>•</span>
+<span>Full-time Base Level</span>
+</div>
+</div>
+<!-- External Link Anchor -->
+<a class="shrink-0 px-3 py-1.5 rounded-lg bg-surface-higher border border-border-strong hover:bg-surface-container-high text-text-primary text-caption-muted font-label-default inline-flex items-center gap-1.5 transition-colors" href="https://jobs.google.com" rel="noopener noreferrer" target="_blank">
+<span>Open Original Posting</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<!-- Quick Action Workflow Bar -->
+<div class="flex flex-wrap items-center gap-space-sm mb-space-lg">
+<!-- Primary Handoff Button -->
+<a class="h-11 px-space-md rounded-full bg-primary-container hover:bg-primary-container/90 text-text-primary font-headline-h4 text-headline-h4 flex items-center justify-center gap-2 transition-all shadow-md" data-path="career-assets" href="#">
+<span class="material-symbols-outlined text-[18px]">edit_document</span>
+<span>Enhance Resume for this Role</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<!-- Secondary Handoff Button -->
+<button class="h-11 px-space-md rounded-full bg-surface-higher border border-border-strong hover:bg-surface-container-high text-text-primary font-label-default text-label-default flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">route</span>
+<span>Hand off to My Career Plan</span>
+</button>
+<!-- Tertiary Analytics Link -->
+<button class="h-11 px-space-sm rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-higher font-label-default text-label-default flex items-center gap-1 transition-colors ml-auto">
+<span class="material-symbols-outlined text-[16px]">query_stats</span>
+<span>Inspect Market Trends</span>
+</button>
+</div>
+<!-- Overall Alignment Metric Box (Radar/Ring Representation) -->
+<div class="rounded-xl bg-surface-higher border border-border-strong p-space-md flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<!-- Inline SVG Progress Gauge -->
+<div class="relative w-20 h-20 shrink-0 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+<path class="text-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="78, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-headline-h3 font-headline-h3 text-text-primary">78%</span>
+</div>
+</div>
+<div>
+<h3 class="text-headline-h3 font-headline-h3 text-text-primary">Overall Evidence Match</h3>
+<p class="text-caption-muted font-caption-muted text-text-muted mt-0.5">
+                  Calculated against 8 required skills and 4 preferred framework proficiencies.
+                </p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-status-highlight-green text-[11px] font-medium border border-tertiary/40">5 Met Verified</span>
+<span class="px-2 py-0.5 rounded bg-secondary/10 text-secondary text-[11px] font-medium border border-secondary/30">1 Actionable Gap</span>
+<span class="px-2 py-0.5 rounded bg-surface-elevated text-text-muted text-[11px] font-mono border border-border-subtle">2 Preferred Mentions</span>
+</div>
+</div>
+</div>
+<!-- Mini Sparkline / Concordance Badge -->
+<div class="text-right shrink-0 border-t md:border-t-0 md:border-l border-border-subtle pt-2 md:pt-0 md:pl-space-md">
+<span class="text-[11px] text-text-muted font-caption-muted block">Student Transcript Sync</span>
+<span class="text-label-default font-label-default text-text-primary flex items-center gap-1 justify-end mt-0.5">
+<span class="w-2 h-2 rounded-full bg-status-highlight-green"></span>
+                CS-402, CS-330 Ingested
+              </span>
+</div>
+</div>
+<!-- Section: Detailed Requirements vs. Student Evidence Matrix -->
+<div class="mt-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="text-label-default font-label-default text-text-primary uppercase tracking-wider text-[11px]">Core Required Competencies (SerpApi Extracted)</span>
+<span class="text-caption-muted font-caption-muted text-text-disabled">Scale: 0.0 - 5.0 Depth</span>
+</div>
+<!-- Matrix Table -->
+<div class="rounded-xl border border-border-subtle overflow-hidden bg-surface-elevated">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-higher border-b border-border-subtle text-[11px] uppercase tracking-wider text-text-muted font-label-default">
+<th class="py-2.5 px-space-md">Skill Requirement</th>
+<th class="py-2.5 px-3">Role Threshold</th>
+<th class="py-2.5 px-3">Your Verified Level</th>
+<th class="py-2.5 px-space-md text-right">Alignment Outcome</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle text-body-compact font-body-compact">
+<!-- Row 1: Python -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-medium text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">check_circle</span>
+<span>Python Core Architecture</span>
+</td>
+<td class="py-3 px-3 text-text-muted font-mono text-[13px]">4.0 / 5.0</td>
+<td class="py-3 px-3 font-mono text-[13px] text-status-highlight-green">4.2 / 5.0</td>
+<td class="py-3 px-space-md text-right">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-tertiary-container/20 text-status-highlight-green border border-tertiary/30">
+                        Exceeds (+0.2)
+                      </span>
+</td>
+</tr>
+<!-- Row 2: PostgreSQL -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-medium text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">check_circle</span>
+<span>PostgreSQL &amp; Relational Schemas</span>
+</td>
+<td class="py-3 px-3 text-text-muted font-mono text-[13px]">3.5 / 5.0</td>
+<td class="py-3 px-3 font-mono text-[13px] text-text-primary">3.5 / 5.0</td>
+<td class="py-3 px-space-md text-right">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-higher text-on-surface border border-border-strong">
+                        Exact Match
+                      </span>
+</td>
+</tr>
+<!-- Row 3: RESTful API -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-medium text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">check_circle</span>
+<span>RESTful API Design &amp; OpenAPI</span>
+</td>
+<td class="py-3 px-3 text-text-muted font-mono text-[13px]">3.5 / 5.0</td>
+<td class="py-3 px-3 font-mono text-[13px] text-status-highlight-green">4.0 / 5.0</td>
+<td class="py-3 px-space-md text-right">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-tertiary-container/20 text-status-highlight-green border border-tertiary/30">
+                        Course Verified (+0.5)
+                      </span>
+</td>
+</tr>
+<!-- Row 4: Docker (THE GAP) -->
+<tr class="bg-secondary/5 hover:bg-secondary/10 transition-colors">
+<td class="py-3 px-space-md font-medium text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">warning</span>
+<span>Docker &amp; Container Lifecycle</span>
+</td>
+<td class="py-3 px-3 text-text-muted font-mono text-[13px]">3.5 / 5.0</td>
+<td class="py-3 px-3 font-mono text-[13px] text-text-disabled italic">Unassessed</td>
+<td class="py-3 px-space-md text-right">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-secondary/20 text-secondary border border-secondary/40">
+                        Actionable Gap
+                      </span>
+</td>
+</tr>
+<!-- Row 5: Git Version Control -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-medium text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">check_circle</span>
+<span>Git &amp; CI/CD Branching Models</span>
+</td>
+<td class="py-3 px-3 text-text-muted font-mono text-[13px]">3.0 / 5.0</td>
+<td class="py-3 px-3 font-mono text-[13px] text-status-highlight-green">4.0 / 5.0</td>
+<td class="py-3 px-space-md text-right">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-tertiary-container/20 text-status-highlight-green border border-tertiary/30">
+                        Exceeds (+1.0)
+                      </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Preferred Stack Mentions Accordion Style -->
+<div class="mt-space-md p-space-md rounded-xl bg-surface-higher border border-border-strong">
+<span class="text-label-default font-label-default text-text-muted uppercase tracking-wider text-[10px] block mb-2">Preferred Frameworks &amp; Electives</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex items-center justify-between p-2 rounded bg-surface-elevated border border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[16px]">change_history</span>
+<span class="text-caption-muted font-caption-muted text-text-primary">Redis &amp; Caching</span>
+</div>
+<span class="text-[11px] font-mono text-secondary">Delta: -1.0 (2.5/5)</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-elevated border border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-disabled text-[16px]">radio_button_unchecked</span>
+<span class="text-caption-muted font-caption-muted text-text-muted">Kafka Streaming</span>
+</div>
+<span class="text-[11px] font-mono text-text-disabled">Missing Evidence</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Grounded AI Alignment Summary (Consented Gemini SDK Block) -->
+<div class="rounded-xl bg-surface-elevated border border-border-strong border-l-4 border-l-primary-container p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+<span class="text-label-default font-label-default text-text-primary font-semibold">Gemini Grounded Synthesis</span>
+<span class="px-2 py-0.2 rounded bg-surface-higher text-[10px] text-text-muted font-mono border border-border-subtle">Confidence: 91.8%</span>
+</div>
+<span class="text-[11px] text-text-disabled font-mono">Consented AI Session #STU-88</span>
+</div>
+<p class="text-body-compact font-body-compact text-text-body leading-relaxed">
+            Your core academic foundations in <strong class="text-text-primary font-medium">Python</strong> and <strong class="text-text-primary font-medium">PostgreSQL</strong> strongly satisfy CloudScale's primary transactional stack requirements. However, the primary blocker for automated recruiter filtering is your <span class="text-secondary font-medium">unassessed Docker containerization competency</span>. 
+          </p>
+<div class="mt-space-sm p-3 rounded-lg bg-surface-container-lowest border border-border-strong flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">assignment_turned_in</span>
+<span class="text-caption-muted font-caption-muted text-text-primary">
+                Resolve gap: Complete Placement Hub Assessment <strong class="text-primary-fixed-dim">#DCK-101 (Docker Fundamentals)</strong> or link a GitHub Dockerfile repo.
+              </span>
+</div>
+<button class="px-3 py-1 rounded bg-surface-higher border border-border-strong hover:bg-surface-container-high text-text-primary text-caption-muted font-label-default whitespace-nowrap transition-colors">
+              Take Quiz →
+            </button>
+</div>
+</div>
+<!-- Mini Career Roadmap Handoff Preview Module -->
+<div class="rounded-xl bg-surface-elevated border border-border-subtle p-space-md">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">flag</span>
+<span class="text-label-default font-label-default text-text-primary uppercase tracking-wider text-[11px]">Targeted Role Milestones (Roadmap Link)</span>
+</div>
+<a class="text-caption-muted font-caption-muted text-primary hover:underline flex items-center gap-0.5" data-path="my-career-plan" href="#">
+<span>View Full Career Plan</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</a>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Milestone 1 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-higher border border-border-subtle">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-secondary/10 border border-secondary/40 text-secondary text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+<div>
+<h4 class="text-caption-muted font-label-default text-text-primary font-medium">Containerization Fundamentals with Docker</h4>
+<p class="text-[11px] text-text-muted font-caption-muted">Essential for CloudScale microservices deployment screening</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="px-2 py-0.5 rounded bg-secondary/10 text-secondary text-[10px] font-semibold uppercase">Priority High</span>
+<span class="text-[11px] text-text-disabled block mt-0.5">Est. 1.5 wks</span>
+</div>
+</div>
+<!-- Milestone 2 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-higher border border-border-subtle">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-surface-container border border-border-strong text-text-muted text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+<div>
+<h4 class="text-caption-muted font-label-default text-text-primary font-medium">Redis In-Memory Caching &amp; Rate Limiting</h4>
+<p class="text-[11px] text-text-muted font-caption-muted">Bridge delta gap (-1.0) before technical system design interview</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="px-2 py-0.5 rounded bg-surface-elevated text-text-muted text-[10px] font-medium uppercase border border-border-subtle">Priority Med</span>
+<span class="text-[11px] text-text-disabled block mt-0.5">Est. 2.0 wks</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-elevated border-t border-border-subtle mt-auto"><div class="max-w-[960px] mx-auto px-margin py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs font-caption-muted text-caption-muted text-text-muted"><span>© 2026 Skillup Inc.</span><span>•</span><span>Institutional Career Verification Platform</span></div><div class="flex items-center gap-space-md font-caption-muted text-caption-muted text-text-muted"><a class="hover:text-text-primary transition-colors" href="#">FERPA &amp; Compliance</a><a class="hover:text-text-primary transition-colors" href="#">Audit Logs</a><a class="hover:text-text-primary transition-colors" href="#">Support Terminal</a></div></div></footer></body></html>

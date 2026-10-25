@@ -1,0 +1,572 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary-fixed":"#94f4da","on-error":"#690005","on-background":"#e5e1e4","border-strong":"#363639","secondary-container":"#e19f00","highlight-replacement":"#FFFF00","text-primary":"#FFFFFF","error":"#ffb4ab","on-secondary":"#422c00","on-tertiary-container":"#f9fffb","tertiary-fixed-dim":"#78d8be","surface-container-low":"#1b1b1d","semantic-error":"#EB5757","secondary-fixed":"#ffdeac","surface-variant":"#353437","inverse-primary":"#6835e7","text-muted":"#9A9A9A","surface-container-highest":"#353437","border-subtle":"#202023","tertiary":"#78d8be","error-container":"#93000a","surface-container-lowest":"#0e0e10","surface-container":"#201f21","on-error-container":"#ffdad6","surface-higher":"#16161A","on-secondary-container":"#563a00","secondary":"#ffba35","inverse-on-surface":"#313032","surface-tint":"#cdbdff","text-body":"#BDBDBD","text-disabled":"#606066","on-tertiary":"#00382d","tertiary-container":"#15846e","status-highlight-green":"#55C98B","canvas":"#000000","secondary-fixed-dim":"#ffba35","outline":"#948ea1","semantic-info":"#3B82F6","on-primary":"#370095","on-primary-fixed-variant":"#5001cf","on-primary-fixed":"#20005f","inverse-surface":"#e5e1e4","primary":"#cdbdff","primary-container":"#8052ff","outline-variant":"#494455","primary-fixed-dim":"#cdbdff","surface-container-high":"#2a2a2c","on-tertiary-fixed-variant":"#005142","on-secondary-fixed-variant":"#5f4100","primary-fixed":"#e8deff","background":"#131315","on-primary-container":"#fffdff","on-secondary-fixed":"#281900","on-surface":"#e5e1e4","surface":"#131315","on-surface-variant":"#cbc3d8","surface-dim":"#131315","surface-elevated":"#0D0D0F","surface-bright":"#39393b","on-tertiary-fixed":"#002019"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.75rem","gutter-sm":"1rem","space-xs":"0.375rem","gutter":"1.5rem","margin-bottom":"3rem","margin-top":"2.25rem","space-md":"1rem","margin":"1.5rem","space-lg":"1.5rem","space-xl":"2.25rem"},"fontFamily":{"display-hero":["Inter"],"caption-muted":["Inter"],"metric-md":["Inter"],"metric-lg":["Inter"],"eyebrow-kicker":["Inter"],"headline-h4":["Inter"],"display-hero-mobile":["Inter"],"stage-heading":["Inter"],"body-default":["Inter"],"label-default":["Inter"],"body-compact":["Inter"],"headline-h3":["Inter"],"page-title-mobile":["Inter"],"page-title":["Inter"],"headline-h2":["Inter"]},"fontSize":{"display-hero":["78px",{"lineHeight":"86px","fontWeight":"600"}],"caption-muted":["12px",{"lineHeight":"20px","fontWeight":"400"}],"metric-md":["30px",{"lineHeight":"36px","fontWeight":"600"}],"metric-lg":["48px",{"lineHeight":"54px","fontWeight":"600"}],"eyebrow-kicker":["11px",{"lineHeight":"14px","letterSpacing":"2px","fontWeight":"600"}],"headline-h4":["16px",{"lineHeight":"24px","fontWeight":"600"}],"display-hero-mobile":["42px",{"lineHeight":"46px","fontWeight":"600"}],"stage-heading":["34px",{"lineHeight":"40px","fontWeight":"600"}],"body-default":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-default":["12px",{"lineHeight":"16px","fontWeight":"500"}],"body-compact":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-h3":["20px",{"lineHeight":"26px","fontWeight":"600"}],"page-title-mobile":["28px",{"lineHeight":"34px","fontWeight":"600"}],"page-title":["42px",{"lineHeight":"50px","fontWeight":"600"}],"headline-h2":["24px",{"lineHeight":"30px","fontWeight":"600"}]}}}};</script></head><body class="bg-canvas text-on-surface font-body-default text-body-default min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-elevated border-b border-border-subtle"><div class="h-16 max-w-[960px] mx-auto px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-gutter"><div class="flex items-center gap-space-xs"><img alt="Skillup Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VhwBIDzZuK9Oheb7wHTGnYlTK_L77VCS6Wyg6RwbB4xlL9UIAu-qpsZvJEc0QKHqxDxAloHAr9kuutjLzfSa5Oi3yBxtk9JDZVtjV0PImsbrUjSJrWsVL8c-T3N8FW7TocWHgd8vMir2cKOFi2Zw4ACo0rxMvYl_eHJ7Y4PYOZB36ff6u3bdz0lykd24T9wSAjwPN7OJOkKa7XqpzYMPlLLm1RxEwC0bVWYRRGDtR6K7MQ_aEnPt8pIYA"><span class="font-headline-h4 text-headline-h4 text-text-primary tracking-tight">Skillup</span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-text-primary border-b-2 border-primary-container font-headline-h4"><a aria-current="page" class="py-space-sm transition-colors text-text-primary border-b-2 border-primary-container font-headline-h4" data-path="my-career-plan" href="#">My Career Plan</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="career-assets" href="#">Career Assets</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="opportunities" href="#">Opportunities</a><a class="text-text-muted hover:text-text-primary py-space-sm font-body-compact text-body-compact transition-colors" data-path="placement-hub" href="#">Placement Hub</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-xs py-1 rounded-full bg-surface-higher border border-border-strong text-caption-muted font-caption-muted text-text-muted"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="text-on-surface font-label-default text-label-default">Demo Mode</span></div><div class="hidden lg:flex flex-col text-right leading-none"><span class="font-label-default text-label-default text-text-primary">#STU-2026-88</span><span class="font-caption-muted text-caption-muted text-text-muted">Computer Science</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="hidden sm:inline-flex items-center justify-center px-space-sm py-1.5 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high hover:text-text-primary font-label-default text-label-default transition-all" data-path="login" href="#">Log out</a></div></div></header><main class="w-full pt-16 bg-canvas flex-1"><div class="max-w-[960px] mx-auto px-margin py-margin"><div class="flex flex-col w-full">
+<!-- Top Level Context / Notice Bar -->
+<div class="flex flex-col gap-space-sm mb-space-lg">
+<!-- Header Row -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<h1 class="font-page-title text-page-title text-text-primary tracking-tight">My Career Plan</h1>
+<p class="font-body-compact text-body-compact text-text-muted mt-space-xs">
+          Map your verified evidence and competencies to target industry roles, evaluate skill gaps, and execute your deterministic roadmap.
+        </p>
+</div>
+<!-- Compact Demo Indicator -->
+<div class="flex items-center gap-space-xs self-start md:self-auto px-space-sm py-1.5 rounded-full bg-surface-higher border border-border-strong shrink-0">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-default text-label-default text-text-body">Demo preview: Synthetic profile active — read-only</span>
+</div>
+</div>
+<!-- Informational Readiness Disclaimer Banner -->
+<div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container border border-border-subtle text-caption-muted font-caption-muted text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">info</span>
+<span>
+<strong class="text-text-body font-semibold">Audit Notice:</strong> Readiness is informational guidance based on saved profile evidence and role requirements, not an automated placement guarantee or ATS certification.
+      </span>
+</div>
+</div>
+<!-- SECTION A: Student Profile & Evidence Overview -->
+<section class="flex flex-col rounded-xl bg-surface-elevated border border-border-subtle p-space-lg mb-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-md border-b border-border-subtle">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">badge</span>
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Profile Evidence &amp; Competencies</h2>
+<div class="flex flex-wrap items-center gap-x-space-md gap-y-1 font-caption-muted text-caption-muted text-text-muted mt-0.5">
+<span>Student ID: <span class="text-text-primary font-mono">STU-2026-088</span></span>
+<span>•</span>
+<span>B.Tech Computer Science &amp; Engineering <span class="text-text-body font-medium">(Class of 2027)</span></span>
+<span>•</span>
+<span class="text-status-highlight-green flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span> 6 Validated Records
+            </span>
+</div>
+</div>
+</div>
+<!-- Profile Actions -->
+<div class="flex items-center gap-space-xs shrink-0 flex-wrap">
+<button class="inline-flex items-center gap-space-xs px-space-sm py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high transition-colors font-label-default text-label-default" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+          Update profile details
+        </button>
+<button class="inline-flex items-center gap-space-xs px-space-sm py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high transition-colors font-label-default text-label-default" title="Parsed details save directly to evidence bank" type="button">
+<span class="material-symbols-outlined text-[16px]">upload_file</span>
+          Upload journey (PDF/DOCX)
+        </button>
+</div>
+</div>
+<!-- Document Pending Alert / Link -->
+<div class="my-space-md p-space-sm rounded-lg bg-surface-higher border border-secondary/30 flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">mark_email_unread</span>
+<span class="font-body-compact text-body-compact text-text-primary">
+<strong class="text-secondary font-medium">Documents to review:</strong> 1 pending private review (Fall 2025 Midterm Transcript extraction staged)
+        </span>
+</div>
+<a class="font-label-default text-label-default text-primary hover:underline whitespace-nowrap" href="#">Open private review →</a>
+</div>
+<!-- Verified Competencies Grid -->
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase tracking-wider">Indexed Competency Evidence (Scale 0.0 - 5.0)</span>
+<span class="font-caption-muted text-caption-muted text-text-muted">Unassessed competencies excluded from scoring means</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-sm">
+<!-- Python -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Python</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary-fixed font-caption-muted text-caption-muted border border-tertiary-container">Assessed</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-fixed rounded-full" style="width: 84%;"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-primary whitespace-nowrap">4.2<span class="text-text-muted">/5.0</span></span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">Institutional Assessment #PY-402</span>
+</div>
+<!-- Data Structures -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Data Structures</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-text-muted font-caption-muted text-caption-muted border border-border-strong">Coursework</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-primary whitespace-nowrap">4.0<span class="text-text-muted">/5.0</span></span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">CS-201 Grade: A (Verified)</span>
+</div>
+<!-- SQL & Databases -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">SQL &amp; Relational DB</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary-fixed font-caption-muted text-caption-muted border border-tertiary-container">Quiz</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-fixed rounded-full" style="width: 70%;"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-primary whitespace-nowrap">3.5<span class="text-text-muted">/5.0</span></span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">Placement Hub Quiz #SQL-01 (88%)</span>
+</div>
+<!-- Docker (Unknown / Not assessed) -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-muted">Docker &amp; Containers</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-secondary font-caption-muted text-caption-muted border border-border-strong">Null / Missing</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-transparent"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-disabled whitespace-nowrap">Unknown</span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">Distinct from zero • Needs assessment</span>
+</div>
+<!-- System Design -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">System Design</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-text-muted font-caption-muted text-caption-muted border border-border-strong">Self-reported</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-primary/70 rounded-full" style="width: 50%;"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-primary whitespace-nowrap">2.5<span class="text-text-muted">/5.0</span></span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">Portfolio evidence submitted</span>
+</div>
+<!-- Git & Version Control -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Git &amp; Versioning</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary-fixed font-caption-muted text-caption-muted border border-tertiary-container">Verified</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-xs">
+<div class="w-full mr-space-md">
+<div class="h-1.5 w-full bg-surface-higher rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-fixed rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+<span class="font-label-default text-label-default text-text-primary whitespace-nowrap">4.0<span class="text-text-muted">/5.0</span></span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted mt-space-xs">GitHub repository audit linked</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION B: Target Role Selection & Analysis Signature -->
+<section class="flex flex-col rounded-xl bg-surface-elevated border border-border-subtle p-space-lg mb-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Target Role Specification</h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+          Define or update the role target to generate a requirement signature for deterministic alignment analysis.
+        </p>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-tertiary-container/20 border border-tertiary-container/40 text-tertiary-fixed font-label-default text-label-default">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed"></span> Target status: Saved
+        </span>
+</div>
+</div>
+<!-- Active Target Role Form -->
+<div class="grid grid-cols-1 gap-space-md">
+<div>
+<label class="block font-label-default text-label-default text-text-muted mb-1.5">Role Title &amp; Track</label>
+<div class="relative">
+<input class="w-full bg-canvas border border-border-strong rounded-lg px-space-sm py-2.5 font-body-compact text-body-compact text-text-primary focus:outline-none focus:border-primary-container" readonly="" type="text" value="Junior Backend Engineer (Distributed Systems)">
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-text-muted">lock</span>
+</div>
+</div>
+<div>
+<label class="block font-label-default text-label-default text-text-muted mb-1.5">Parsed Role Requirements &amp; Stack Requirements</label>
+<div class="p-space-sm bg-canvas border border-border-subtle rounded-lg flex flex-col gap-space-xs font-body-compact text-body-compact">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-default text-label-default text-secondary uppercase shrink-0">Core Requirements:</span>
+<span class="text-text-primary">Python/Go, PostgreSQL, Redis, REST APIs, Microservices, Docker, Git.</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-default text-label-default text-text-muted uppercase shrink-0">Preferred:</span>
+<span class="text-text-body">Kubernetes, Kafka, CI/CD pipelines, System Design basics.</span>
+</div>
+</div>
+</div>
+<!-- Action Footer with Prerequisite Handling -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-center gap-space-xs text-caption-muted font-caption-muted text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">check_circle</span>
+<span>Signature validated: Target saved in current workspace</span>
+<span>•</span>
+<button class="text-primary hover:underline font-label-default text-label-default" type="button">Reload saved journey</button>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+<button class="px-space-md py-2.5 rounded-lg bg-surface-higher border border-border-strong text-text-disabled cursor-not-allowed font-label-default text-label-default" disabled="" type="button">
+            Save target role
+          </button>
+<button class="px-space-lg py-2.5 rounded-full bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-headline-h4 text-headline-h4 shadow-md transition-all flex items-center gap-space-xs" id="analyze-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+            Analyze alignment
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION C: Alignment & Readiness Analysis (Post-Analyze View) -->
+<section class="flex flex-col rounded-xl bg-surface-elevated border border-border-subtle p-space-lg mb-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md border-b border-border-subtle mb-space-md">
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Alignment &amp; Readiness Breakdown</h2>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+          Analysis ID: <span class="font-mono text-text-primary">ANL-2026-9921</span> • Engine: Deterministic Dictionary Matcher v2.4
+        </p>
+</div>
+<span class="px-space-sm py-1 rounded-full bg-surface-higher text-status-highlight-green border border-border-strong font-label-default text-label-default flex items-center gap-1.5 self-start sm:self-auto">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span> Evaluated 12 Competencies
+      </span>
+</div>
+<!-- 3-Column Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mb-space-lg">
+<!-- Metric 1: Role Alignment Score -->
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">Role Alignment</span>
+<span class="material-symbols-outlined text-primary text-[20px]">radar</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">76%</span>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green font-medium">+4% from last quiz</span>
+</div>
+<div class="w-full bg-surface-higher h-2 rounded-full overflow-hidden mb-space-xs">
+<div class="bg-primary-container h-full rounded-full" style="width: 76%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+          Weighted match against 12 role requirements. Informational alignment, not a placement probability.
+        </p>
+</div>
+<!-- Metric 2: Evidence Coverage -->
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">Evidence Coverage</span>
+<span class="material-symbols-outlined text-tertiary-fixed text-[20px]">verified_user</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">83%</span>
+<span class="font-caption-muted text-caption-muted text-text-muted font-medium">10 of 12 documented</span>
+</div>
+<div class="w-full bg-surface-higher h-2 rounded-full overflow-hidden mb-space-xs">
+<div class="bg-tertiary-fixed h-full rounded-full" style="width: 83.3%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+          Supported by verified academic transcripts, coursework records, or validated quiz items.
+        </p>
+</div>
+<!-- Metric 3: Analysis Confidence -->
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">Analysis Confidence</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">analytics</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-xs">
+<span class="font-metric-md text-metric-md text-text-primary tracking-tight">High <span class="font-body-default text-body-default text-text-muted font-normal">(4.2/5.0)</span></span>
+</div>
+<div class="w-full bg-surface-higher h-2 rounded-full overflow-hidden mb-space-xs">
+<div class="bg-secondary h-full rounded-full" style="width: 84%"></div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted">
+          Based on 4 primary coursework records and 2 assessed quizzes. No missing critical transcripts.
+        </p>
+</div>
+</div>
+<!-- Strengths & Gaps Comparison Panels -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md mb-space-lg">
+<!-- Strengths -->
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle">
+<div class="flex items-center gap-space-xs mb-space-sm">
+<span class="material-symbols-outlined text-status-highlight-green text-[18px]">check_circle</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Verified Strengths (Target Met)</h3>
+</div>
+<ul class="flex flex-col gap-space-xs">
+<li class="p-space-xs rounded bg-surface-higher border border-border-subtle flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">Python Programming</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Meets level 4.0/5.0 target • Assessed: 4.2/5.0</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-status-highlight-green font-caption-muted text-caption-muted font-semibold">Exceeds +0.2</span>
+</li>
+<li class="p-space-xs rounded bg-surface-higher border border-border-subtle flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">Relational Databases &amp; SQL</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Meets level 3.5/5.0 target • Assessed: 3.5/5.0</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-status-highlight-green font-caption-muted text-caption-muted font-semibold">Exact Match</span>
+</li>
+<li class="p-space-xs rounded bg-surface-higher border border-border-subtle flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">Git &amp; Version Control</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Meets level 3.0/5.0 target • Verified: 4.0/5.0</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-status-highlight-green font-caption-muted text-caption-muted font-semibold">Exceeds +1.0</span>
+</li>
+</ul>
+</div>
+<!-- Skill Gaps to Bridge -->
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle">
+<div class="flex items-center gap-space-xs mb-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">warning</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Gaps to Bridge (Actionable)</h3>
+</div>
+<ul class="flex flex-col gap-space-xs">
+<!-- Gap 1: Docker -->
+<li class="p-space-xs rounded bg-surface-higher border border-semantic-error/40 flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">Docker &amp; Containerization</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Required: 3.5/5.0 • Current: <span class="text-secondary font-semibold">Unknown / Unassessed</span></p>
+</div>
+<span class="px-2 py-0.5 rounded bg-semantic-error/20 text-semantic-error font-caption-muted text-caption-muted font-semibold">Priority: High</span>
+</li>
+<!-- Gap 2: Redis -->
+<li class="p-space-xs rounded bg-surface-higher border border-secondary/40 flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">System Architecture &amp; Caching (Redis)</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Required: 3.0/5.0 • Current: 2.0/5.0 (Delta: -1.0)</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-secondary/20 text-secondary font-caption-muted text-caption-muted font-semibold">Delta -1.0</span>
+</li>
+<!-- Gap 3: Kafka -->
+<li class="p-space-xs rounded bg-surface-higher border border-border-subtle flex items-center justify-between text-body-compact font-body-compact">
+<div>
+<span class="text-text-primary font-medium">Message Queuing (Kafka)</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">Preferred in 65% postings • Current: Missing evidence</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container text-text-muted font-caption-muted text-caption-muted font-semibold">Elective</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Grounded Gemini Guidance (Consented AI Module) -->
+<div class="rounded-lg bg-surface-higher border border-border-strong p-space-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Grounded AI Analysis Summary</span>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">lock</span> Gemini SDK Consented
+        </span>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted mb-space-sm">
+        Notice: AI Explanations consented via Gemini SDK. Grounded strictly in your uploaded profile evidence and validated role specifications.
+      </p>
+<div class="text-body-compact font-body-compact text-text-body space-y-2 bg-canvas/40 p-space-sm rounded border border-border-subtle">
+<p>
+          • <strong>Prioritization Synthesis:</strong> Your solid score in Python (4.2/5.0) and Relational Databases (3.5/5.0) provides a strong foundation. However, containerization is a hard requirement for 100% of Junior Backend listings in distributed systems.
+        </p>
+<p>
+          • <strong>Recommended Focus Order:</strong> First, complete the <em>Containerization Fundamentals with Docker</em> module (Milestone 2) and take the placement quiz to turn your unassessed status into verified evidence. Second, bridge in-memory caching gaps with Redis before attempting mock systems interviews.
+        </p>
+</div>
+</div>
+</section>
+<!-- SECTION D: Deterministic Learning Roadmap -->
+<section class="flex flex-col rounded-xl bg-surface-elevated border border-border-subtle p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md border-b border-border-subtle mb-space-lg">
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Target Roadmap: Junior Backend Engineer</h2>
+<div class="flex items-center gap-space-sm font-caption-muted text-caption-muted text-text-muted mt-0.5">
+<span class="text-secondary font-medium">Milestone 2 of 5 in progress</span>
+<span>•</span>
+<span>Total estimated duration: 6 Weeks</span>
+</div>
+</div>
+<!-- Export Actions -->
+<div class="flex items-center gap-space-xs shrink-0 flex-wrap">
+<button class="inline-flex items-center gap-space-xs px-space-sm py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high transition-colors font-label-default text-label-default" type="button">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+          Export Progress (PDF)
+          <span class="font-caption-muted text-[10px] text-text-muted">(Web only)</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-sm py-2 rounded-lg bg-surface-higher border border-border-strong text-text-primary hover:bg-surface-container-high transition-colors font-label-default text-label-default" type="button">
+<span class="material-symbols-outlined text-[16px]">summarize</span>
+          AI Plan Summary
+        </button>
+</div>
+</div>
+<!-- Sequential Milestones Timeline -->
+<div class="relative pl-6 space-y-space-lg before:content-[''] before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-border-strong">
+<!-- Milestone 1: Completed -->
+<div class="relative flex flex-col gap-space-xs">
+<div class="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-status-highlight-green flex items-center justify-center text-canvas">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-default text-label-default px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green font-mono">MS-01</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Core Persistence &amp; Database Optimization</h3>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-tertiary-container/30 text-status-highlight-green font-caption-muted text-caption-muted font-semibold self-start sm:self-auto">
+              Completed
+            </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted mb-space-sm">
+            Master indexing, query execution planning in PostgreSQL, and connection pool configuration for scalable backends.
+          </p>
+<div class="flex flex-wrap items-center gap-space-md text-caption-muted font-caption-muted text-text-muted pt-space-xs border-t border-border-subtle">
+<span class="flex items-center gap-1 text-status-highlight-green"><span class="material-symbols-outlined text-[15px]">verified</span> 3 of 3 tasks validated</span>
+<span>•</span>
+<span>SQL Assessment passed: 88%</span>
+<span>•</span>
+<span>Coursework: CS-201 verified</span>
+</div>
+</div>
+</div>
+<!-- Milestone 2: Active / In-Progress -->
+<div class="relative flex flex-col gap-space-xs">
+<div class="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-secondary flex items-center justify-center text-canvas ring-4 ring-secondary/20">
+<span class="material-symbols-outlined text-[14px] font-bold">cached</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container border border-secondary/40 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-default text-label-default px-2 py-0.5 rounded bg-secondary/20 text-secondary font-mono">MS-02</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Containerization Fundamentals with Docker</h3>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-secondary/20 text-secondary font-caption-muted text-caption-muted font-semibold self-start sm:self-auto animate-pulse">
+              Active Milestone
+            </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body mb-space-sm">
+            Learn multi-stage Docker builds, volume management, container networking, and local multi-service orchestration with Docker Compose.
+          </p>
+<!-- Resources & Actionable Steps -->
+<div class="p-space-sm rounded bg-surface-higher border border-border-strong mb-space-sm flex flex-col gap-space-xs font-caption-muted text-caption-muted">
+<div class="flex items-center justify-between text-text-primary">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px] text-primary">book</span> Assigned Learning Resource: Official Docker Compose Spec
+              </span>
+<a class="text-primary hover:underline font-label-default text-label-default" href="#">View Guide →</a>
+</div>
+<div class="flex items-center justify-between text-text-primary">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px] text-secondary">quiz</span> Assigned quiz available in Placement Hub (#DCK-101)
+              </span>
+<a class="text-secondary hover:underline font-label-default text-label-default" href="#">Start Quiz →</a>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs border-t border-border-subtle">
+<div class="flex items-center gap-space-sm text-caption-muted font-caption-muted text-text-muted">
+<span>Task Progress: 1 of 3 complete</span>
+<span>•</span>
+<span>Due: Target Week 3</span>
+</div>
+<button class="px-space-sm py-1.5 rounded bg-surface-container-high border border-border-strong text-text-primary hover:bg-surface-variant font-label-default text-label-default transition-colors" type="button">
+              Submit practice evidence
+            </button>
+</div>
+</div>
+</div>
+<!-- Milestone 3: Upcoming -->
+<div class="relative flex flex-col gap-space-xs">
+<div class="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-surface-higher border border-border-strong flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle opacity-80">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-default text-label-default px-2 py-0.5 rounded bg-surface-higher text-text-muted font-mono">MS-03</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Distributed Caching with Redis &amp; In-Memory Stores</h3>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-semibold self-start sm:self-auto">
+              Upcoming
+            </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted mb-space-sm">
+            Cache-aside patterns, invalidation strategies, Redis pub/sub, distributed locking primitives, and rate-limiting counters.
+          </p>
+<div class="flex items-center gap-space-md text-caption-muted font-caption-muted text-text-muted pt-space-xs border-t border-border-subtle">
+<span>Prerequisite: Milestone 2 completion</span>
+<span>•</span>
+<span>Estimated workload: 10 hrs</span>
+</div>
+</div>
+</div>
+<!-- Milestone 4: Upcoming -->
+<div class="relative flex flex-col gap-space-xs">
+<div class="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-surface-higher border border-border-strong flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle opacity-80">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-default text-label-default px-2 py-0.5 rounded bg-surface-higher text-text-muted font-mono">MS-04</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary">Microservice API Design &amp; Rate Limiting</h3>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-semibold self-start sm:self-auto">
+              Upcoming
+            </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted mb-space-sm">
+            RESTful API contract specifications (OpenAPI 3.1), idempotency keys, JWT revocation flows, and token bucket rate limiters.
+          </p>
+<div class="flex items-center gap-space-md text-caption-muted font-caption-muted text-text-muted pt-space-xs border-t border-border-subtle">
+<span>Prerequisite: Milestone 3 completion</span>
+<span>•</span>
+<span>Curated resources: 4</span>
+</div>
+</div>
+</div>
+<!-- Milestone 5: Locked -->
+<div class="relative flex flex-col gap-space-xs">
+<div class="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-surface-higher border border-border-strong flex items-center justify-center text-text-disabled">
+<span class="material-symbols-outlined text-[12px]">lock</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container border border-border-subtle opacity-50">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-default text-label-default px-2 py-0.5 rounded bg-surface-higher text-text-disabled font-mono">MS-05</span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-disabled">Mock Technical Interview &amp; Resume Alignment</h3>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-higher text-text-disabled font-caption-muted text-caption-muted font-semibold self-start sm:self-auto">
+              Locked
+            </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-disabled mb-space-sm">
+            Faculty-supervised distributed systems mock interview and targeted resume revision handoff to the Placement Hub.
+          </p>
+<div class="flex items-center gap-space-md text-caption-muted font-caption-muted text-text-disabled pt-space-xs border-t border-border-subtle">
+<span>Gated: Unlocks automatically when Milestone 3 &amp; 4 are verified</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Simple micro-interaction for Analyze button feedback
+  document.getElementById('analyze-btn')?.addEventListener('click', function() {
+    const originalText = this.innerHTML;
+    this.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Analyzing signature...';
+    this.disabled = true;
+    setTimeout(() => {
+      this.innerHTML = originalText;
+      this.disabled = false;
+    }, 800);
+  });
+</script></div></main><footer class="w-full bg-surface-elevated border-t border-border-subtle mt-auto"><div class="max-w-[960px] mx-auto px-margin py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs font-caption-muted text-caption-muted text-text-muted"><span>© 2026 Skillup Inc.</span><span>•</span><span>Institutional Career Verification Platform</span></div><div class="flex items-center gap-space-md font-caption-muted text-caption-muted text-text-muted"><a class="hover:text-text-primary transition-colors" href="#">FERPA &amp; Compliance</a><a class="hover:text-text-primary transition-colors" href="#">Audit Logs</a><a class="hover:text-text-primary transition-colors" href="#">Support Terminal</a></div></div></footer></body></html>

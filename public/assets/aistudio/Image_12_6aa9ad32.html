@@ -1,0 +1,566 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#94f4da", "surface": "#131315", "on-secondary-fixed": "#281900", "tertiary-container": "#15846e", "surface-container-low": "#1b1b1d", "surface-container-high": "#2a2a2c", "on-surface-variant": "#cbc3d8", "on-error-container": "#ffdad6", "text-disabled": "#606066", "surface-bright": "#39393b", "on-tertiary-fixed": "#002019", "text-muted": "#9A9A9A", "on-tertiary-fixed-variant": "#005142", "primary-fixed": "#e8deff", "surface-higher": "#16161A", "on-tertiary-container": "#f9fffb", "surface-container": "#201f21", "on-secondary-fixed-variant": "#5f4100", "surface-dim": "#131315", "surface-elevated": "#0D0D0F", "primary": "#cdbdff", "text-primary": "#FFFFFF", "error-container": "#93000a", "background": "#131315", "on-primary-fixed": "#20005f", "surface-tint": "#cdbdff", "canvas": "#000000", "on-primary-fixed-variant": "#5001cf", "secondary-fixed-dim": "#ffba35", "surface-container-highest": "#353437", "on-error": "#690005", "inverse-primary": "#6835e7", "inverse-surface": "#e5e1e4", "semantic-info": "#3B82F6", "highlight-replacement": "#FFFF00", "semantic-error": "#EB5757", "outline": "#948ea1", "text-body": "#BDBDBD", "surface-container-lowest": "#0e0e10", "primary-container": "#8052ff", "primary-fixed-dim": "#cdbdff", "on-secondary": "#422c00", "tertiary-fixed-dim": "#78d8be", "on-primary-container": "#fffdff", "secondary": "#ffba35", "on-background": "#e5e1e4", "on-tertiary": "#00382d", "on-surface": "#e5e1e4", "border-subtle": "#202023", "error": "#ffb4ab", "outline-variant": "#494455", "border-strong": "#363639", "surface-variant": "#353437", "on-secondary-container": "#563a00", "secondary-container": "#e19f00", "tertiary": "#78d8be", "status-highlight-green": "#55C98B", "on-primary": "#370095", "secondary-fixed": "#ffdeac", "inverse-on-surface": "#313032" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-sm": "0.75rem", "gutter": "1.5rem", "space-xs": "0.375rem", "space-xl": "2.25rem", "space-lg": "1.5rem", "margin-bottom": "3rem", "gutter-sm": "1rem", "margin-top": "2.25rem", "space-md": "1rem", "margin": "1.5rem" }, "fontFamily": { "metric-md": ["Inter"], "body-compact": ["Inter"], "label-default": ["Inter"], "headline-h2": ["Inter"], "metric-lg": ["Inter"], "caption-muted": ["Inter"], "stage-heading": ["Inter"], "body-default": ["Inter"], "display-hero": ["Inter"], "page-title": ["Inter"], "headline-h4": ["Inter"], "eyebrow-kicker": ["Inter"], "page-title-mobile": ["Inter"], "display-hero-mobile": ["Inter"], "headline-h3": ["Inter"] }, "fontSize": { "metric-md": ["30px", { "lineHeight": "36px", "fontWeight": "600" }], "body-compact": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-default": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "headline-h2": ["24px", { "lineHeight": "30px", "fontWeight": "600" }], "metric-lg": ["48px", { "lineHeight": "54px", "fontWeight": "600" }], "caption-muted": ["12px", { "lineHeight": "20px", "fontWeight": "400" }], "stage-heading": ["34px", { "lineHeight": "40px", "fontWeight": "600" }], "body-default": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display-hero": ["78px", { "lineHeight": "86px", "fontWeight": "600" }], "page-title": ["42px", { "lineHeight": "50px", "fontWeight": "600" }], "headline-h4": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "eyebrow-kicker": ["11px", { "lineHeight": "14px", "letterSpacing": "2px", "fontWeight": "600" }], "page-title-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }], "display-hero-mobile": ["42px", { "lineHeight": "46px", "fontWeight": "600" }], "headline-h3": ["20px", { "lineHeight": "26px", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-container-lowest font-body-default text-text-primary min-h-screen antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface-elevated"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="flex items-center justify-center w-8 h-8 rounded bg-surface-higher text-primary-container"><span class="material-symbols-outlined text-[20px]">terminal</span></span><div class="flex items-baseline gap-space-xs"><span class="font-headline-h3 text-headline-h3 tracking-tight text-text-primary">Skillup</span><span class="font-eyebrow-kicker text-eyebrow-kicker px-space-xs py-0.5 rounded bg-surface-higher text-text-muted">CONSOLE</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-surface-higher text-text-primary font-headline-h4"><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="overview" href="#">Overview</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="students" href="#">Students</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="skill-analytics" href="#">Skill Analytics</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="placement-drives" href="#">Placement Drives</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reviews-and-training" href="#">Reviews &amp; Training</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reports" href="#">Reports</a><a class="px-space-md py-1.5 rounded font-body-compact text-body-compact transition-colors bg-surface-higher text-text-primary font-headline-h4 border-b-2 border-primary-container" data-path="admin-import" href="#">Import</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs px-2.5 py-1 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-text-muted">Faculty Synthetic Cohort • Active</span></div><div class="hidden lg:flex flex-col text-right"><span class="font-label-default text-label-default text-text-primary">Prof. Sarah Jenkins</span><span class="font-caption-muted text-caption-muted text-text-muted">Placement Director • Dept: CSE • #FAC-2026-04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="flex items-center gap-1 px-space-sm py-1.5 rounded bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Log out</span></a></div></div><div class="h-12 w-full px-gutter bg-surface flex items-center justify-between text-body-compact"><div class="flex items-center gap-space-lg overflow-x-auto"><div class="flex items-center gap-space-xs text-text-primary"><span class="material-symbols-outlined text-text-muted text-[18px]">school</span><span class="font-headline-h4 text-headline-h4 text-text-primary">Class of 2026 — B.S. Computer Science</span><span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher px-1.5 py-0.5 rounded">(N=148)</span></div><div class="flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">domain</span><span>Dept: All CS</span></div><div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-status-highlight-green font-medium">Active Placement Drive</span></div><div class="hidden sm:flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">sync</span><span>Last sync: Today 09:48 AM</span></div></div><div class="flex items-center gap-space-xs"><button class="px-space-sm py-1 rounded bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">filter_list</span><span>Apply Filters</span></button><button class="p-1 rounded bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary transition-colors flex items-center justify-center" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span></button><button class="px-space-sm py-1 rounded bg-primary-container text-text-primary hover:opacity-95 font-label-default text-label-default transition-all flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">add</span><span>Create Cohort</span></button></div></div></header><main class="w-full pt-28 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- Master Container aligned with Placement Hub & Faculty Consoles (max-w: 1280px) -->
+<div class="w-full max-w-[1280px] mx-auto px-gutter py-space-md space-y-space-lg">
+<!-- FERPA & Institutional Compliance Banner -->
+<section class="bg-surface-elevated p-space-md rounded-xl relative overflow-hidden shadow-sm">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pl-space-xs">
+<div class="flex items-start gap-space-sm max-w-4xl">
+<span class="material-symbols-outlined text-primary-container text-[24px] mt-0.5 shrink-0" style="font-variation-settings: 'FILL' 1;">policy</span>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary tracking-tight">FERPA &amp; Institutional Scope Enforced: Scoped Reporting &amp; Audit Manifests</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green font-eyebrow-kicker text-[10px] tracking-wider uppercase font-semibold">IEEE P2863 AUDIT-READY</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body leading-relaxed">
+              Report generation operates strictly within the active authorized cohort scope (<span class="text-text-primary font-medium">CSE Class of 2026</span>). In accordance with FERPA and institutional statutory guidelines, all generated CSV and manifest exports preserve explicit denominators, distinguish unassessed competencies (<span class="font-mono text-secondary-fixed-dim">NULL</span>) from zero failures, log cryptographic SHA-256 signatures of exported datasets, and strictly prohibit raw unshared student drafts from downstream inclusion.
+            </p>
+</div>
+</div>
+<div class="flex sm:flex-row lg:flex-col xl:flex-row items-center gap-space-xs shrink-0 self-start lg:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors flex items-center gap-1.5 whitespace-nowrap shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px] text-text-muted">gavel</span>
+<span>Report Generation Bylaws</span>
+</button>
+<div class="flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container text-text-muted font-mono text-[11px] whitespace-nowrap">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>
+<span>TX-REP-2026-902</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Telemetry Metric Strip (4 Cards) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Metric 1 -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-xs relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider uppercase">Authorized Cohort Population</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-primary font-label-default text-[11px]">Scoped RBAC</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-md text-metric-md text-text-primary tracking-tight">148</span>
+<span class="font-body-compact text-body-compact text-text-muted">Enrolled Students</span>
+</div>
+<div class="flex items-center gap-1.5 font-caption-muted text-caption-muted text-text-muted pt-1">
+<span class="material-symbols-outlined text-[14px] text-status-highlight-green">check_circle</span>
+<span>100% CSE Roster • 0 Cross-Dept Bleed</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-xs relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider uppercase">Available Export Datasets</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-tertiary-fixed font-label-default text-[11px]">CSV &amp; Ledger Ready</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-md text-metric-md text-text-primary tracking-tight">6</span>
+<span class="font-body-compact text-body-compact text-text-muted">Structured Modules</span>
+</div>
+<div class="flex items-center gap-1.5 font-caption-muted text-caption-muted text-text-muted pt-1">
+<span class="material-symbols-outlined text-[14px] text-primary">layers</span>
+<span>Placement, Skills, Audit, Remediation</span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-xs relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider uppercase">Compliance Audit Signature</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/40 text-status-highlight-green font-label-default text-[11px]">Deterministic</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-md text-metric-md text-status-highlight-green tracking-tight font-mono text-[24px]">SHA-256</span>
+<span class="font-body-compact text-body-compact text-status-highlight-green font-medium">Valid</span>
+</div>
+<div class="flex items-center gap-1.5 font-caption-muted text-caption-muted text-text-muted pt-1 font-mono text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-muted">fingerprint</span>
+<span class="truncate">ledger.cse.internal/2026-rep-04</span>
+</div>
+</div>
+<!-- Metric 4 -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-xs relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider uppercase">Last Generated Manifest</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-secondary-fixed-dim font-label-default text-[11px]">148 Records Exported</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-h3 text-headline-h3 text-text-primary tracking-tight">Today, 08:30 AM</span>
+</div>
+<div class="flex items-center gap-1.5 font-caption-muted text-caption-muted text-text-muted pt-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-text-muted">history</span>
+<span class="truncate">Class of 2026 Fall Drive Summary</span>
+</div>
+</div>
+</section>
+<!-- Master-Detail Two Column Layout: Generator Config (60%) vs Preview & Ledger (40%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: Report Dataset Generator & Scoped Filter Config (60% ~ col-span-7) -->
+<div class="lg:col-span-7 flex flex-col space-y-space-lg">
+<!-- Dataset Configuration Card -->
+<div class="bg-surface-elevated p-space-lg rounded-xl space-y-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary tracking-tight">Institutional Report Dataset Configuration</h2>
+<p class="font-caption-muted text-caption-muted text-text-muted mt-0.5">Configure deterministic projection filters and select standard compliance schemas.</p>
+</div>
+<span class="material-symbols-outlined text-text-muted text-[22px]">tune</span>
+</div>
+<!-- Target Scope Selector Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md bg-surface-container-low p-space-md rounded-lg">
+<!-- Filter 1: Cohort -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted flex items-center gap-1">
+<span>Target Cohort Enclosure</span>
+<span class="material-symbols-outlined text-[13px] text-status-highlight-green">lock</span>
+</label>
+<div class="relative">
+<select class="w-full bg-canvas text-text-primary px-3 py-2 rounded-lg font-body-compact text-body-compact appearance-none focus:outline-none focus:ring-2 focus:ring-primary-container pr-8 cursor-pointer shadow-sm">
+<option selected="">Class of 2026 — B.S. CS (148 enrolled)</option>
+<option disabled="">Class of 2025 — B.S. CS (Archived)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 pointer-events-none text-text-muted text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Filter 2: Track -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted">Specialization Track</label>
+<div class="relative">
+<select class="w-full bg-canvas text-text-primary px-3 py-2 rounded-lg font-body-compact text-body-compact appearance-none focus:outline-none focus:ring-2 focus:ring-primary-container pr-8 cursor-pointer shadow-sm">
+<option selected="">All Tracks (Backend, Full Stack, DevOps)</option>
+<option>Junior Backend Engineering</option>
+<option>Cloud Infrastructure &amp; DevOps</option>
+<option>Full Stack Web Applications</option>
+<option>Data Engineering &amp; ML Ops</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 pointer-events-none text-text-muted text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Filter 3: Drive Association -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted">Drive Association Linkage</label>
+<div class="relative">
+<select class="w-full bg-canvas text-text-primary px-3 py-2 rounded-lg font-body-compact text-body-compact appearance-none focus:outline-none focus:ring-2 focus:ring-primary-container pr-8 cursor-pointer shadow-sm">
+<option selected="">CloudScale Infrastructure &amp; FinFlow Drives</option>
+<option>CloudScale Infrastructure Exclusive</option>
+<option>FinFlow Core Microservices Exclusive</option>
+<option>Nexus Systems Spring Fellowship</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 pointer-events-none text-text-muted text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Filter 4: Readiness -->
+<div class="space-y-1.5">
+<label class="font-label-default text-label-default text-text-muted">Readiness State Threshold</label>
+<div class="relative">
+<select class="w-full bg-canvas text-text-primary px-3 py-2 rounded-lg font-body-compact text-body-compact appearance-none focus:outline-none focus:ring-2 focus:ring-primary-container pr-8 cursor-pointer shadow-sm">
+<option selected="">All Readiness Tiers (Tier 1 ≥70%, Borderline, Unassessed)</option>
+<option>Tier 1 Candidates Only (≥ 70.0%)</option>
+<option>Borderline Pool (50.0% – 69.9%)</option>
+<option>Action Required / Pending Assessment (&lt; 50.0% or NULL)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 pointer-events-none text-text-muted text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Selectable Archetype Cards -->
+<div class="space-y-space-sm pt-space-xs">
+<label class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase tracking-wider block">Selectable Report Archetype</label>
+<!-- Card 1 (Active) -->
+<div class="p-space-md rounded-xl bg-surface-higher ring-2 ring-primary-container transition-all cursor-pointer relative shadow-sm" id="archetype-card-1">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="mt-1 w-4 h-4 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-text-primary"></span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Cohort Competency &amp; Skill Gap Audit Matrix</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary-fixed-dim font-label-default text-[10px] uppercase font-semibold">Most Requested for Accreditation</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+                      Exhaustive tabular matrix mapping every enrolled student across 6 mandatory core competencies and 3 electives. Fully preserves NULL unassessed states, separates known coursework mean from proctored quiz scores, and annotates CloudScale drive blockers.
+                    </p>
+<div class="flex items-center gap-2 pt-1.5 flex-wrap">
+<span class="font-caption-muted text-caption-muted text-text-muted">Columns:</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">student_id</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">legal_name</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">weighted_readiness_pct</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">python_score</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">docker_score</span>
+<span class="font-mono text-[11px] text-primary px-1.5 py-0.5 rounded bg-surface-container">docker_blocker_status</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">+3 more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-space-md rounded-xl bg-surface-elevated hover:bg-surface-higher transition-all cursor-pointer shadow-sm" id="archetype-card-2">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="mt-1 w-4 h-4 rounded-full bg-surface-container flex items-center justify-center shrink-0"></div>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Placement Drive Eligibility &amp; Shortlist Endorsement Report</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted font-label-default text-[10px] uppercase">Corporate Liaison</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted">
+                      Current candidate rosters for CloudScale, FinFlow, and Nexus drives. Includes eligibility criteria verification, faculty manual override memos with #FAC author keys, student application disclosure timestamps, and review approval timestamps.
+                    </p>
+<div class="flex items-center gap-2 pt-1 flex-wrap">
+<span class="font-caption-muted text-caption-muted text-text-muted">Columns:</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">drive_name</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">student_id</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">override_memo</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">faculty_author</span>
+<span class="font-mono text-[11px] text-text-muted px-1.5 py-0.5 rounded bg-surface-container">shortlist_endorsement_date</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="p-space-md rounded-xl bg-surface-elevated hover:bg-surface-higher transition-all cursor-pointer shadow-sm" id="archetype-card-3">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="mt-1 w-4 h-4 rounded-full bg-surface-container flex items-center justify-center shrink-0"></div>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Student Training, Remediation &amp; Assessment Log</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted font-label-default text-[10px] uppercase">Curricular Review</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted">
+                      Proctored assessment results for #DCK-101, #SQL-301, and #PY-204 modules. Includes attempt counts, time spent, overdue flags (48h/72h), and faculty reminder notification history.
+                    </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="p-space-md rounded-xl bg-surface-elevated hover:bg-surface-higher transition-all cursor-pointer shadow-sm" id="archetype-card-4">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="mt-1 w-4 h-4 rounded-full bg-surface-container flex items-center justify-center shrink-0"></div>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">FERPA &amp; RBAC Access Audit Manifest</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted font-label-default text-[10px] uppercase">Registrar SecOps</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted">
+                      Cryptographic compliance export tracking all faculty data views, resume review endorsements, score overrides, and cohort export events for registrar inspection.
+                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Parameter Enforcements (Checkboxes) -->
+<div class="pt-space-xs space-y-space-sm bg-surface-container-low p-space-md rounded-lg">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase tracking-wider block">Compliance Invariants &amp; Data Protections</span>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-1 w-4 h-4 rounded accent-primary-container bg-surface-elevated cursor-pointer" type="checkbox">
+<div class="space-y-0.5">
+<span class="font-body-compact text-body-compact text-text-primary font-medium block">Include Null Competency Annotations (Distinguish unassessed from zero)</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">Mandatory IEEE P2863 standard: prevents missing assessments from artificially dragging mean GPA calculations to absolute zero without notice.</span>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-1 w-4 h-4 rounded accent-primary-container bg-surface-elevated cursor-pointer" type="checkbox">
+<div class="space-y-0.5">
+<span class="font-body-compact text-body-compact text-text-primary font-medium block">Mask Non-Authorized PII (Email &amp; Student Phone) for External Reviewers</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">Replaces private identifiers with cryptographically salted hashes unless exported by an authorized Placement Officer.</span>
+</div>
+</label>
+<label class="flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-1 w-4 h-4 rounded accent-primary-container bg-surface-elevated cursor-pointer" type="checkbox">
+<div class="space-y-0.5">
+<span class="font-body-compact text-body-compact text-text-primary font-medium block">Attach Institutional Ledger Signature Block (RFC-3161 Timestamping)</span>
+<span class="font-caption-muted text-caption-muted text-text-muted block">Appends a deterministic cryptographic footer block enabling offline registrar verification.</span>
+</div>
+</label>
+</div>
+<!-- Primary Actions -->
+<div class="pt-space-xs flex flex-col sm:flex-row items-center gap-space-sm">
+<button class="w-full sm:w-auto px-6 h-12 rounded-full bg-primary-container text-text-primary hover:opacity-95 font-headline-h4 text-headline-h4 transition-all flex items-center justify-center gap-2 shadow-sm" id="btn-download-csv" type="button">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Generate &amp; Download CSV (.csv)</span>
+</button>
+<button class="w-full sm:w-auto px-5 h-11 rounded-lg bg-surface-higher text-text-primary hover:bg-surface-container font-body-compact text-body-compact transition-colors flex items-center justify-center gap-2 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-text-muted">table_view</span>
+<span>Export Formatted Excel (.xlsx)</span>
+</button>
+<button class="w-full sm:w-auto px-4 h-11 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors flex items-center justify-center gap-1.5 ml-auto" type="button">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span>Print / PDF Ledger</span>
+</button>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Live Data Preview & Schema Inspector (40% ~ col-span-5) -->
+<div class="lg:col-span-5 flex flex-col space-y-space-lg">
+<!-- Real-Time Scoped Data Preview Card -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-status-highlight-green"></span>
+<h3 class="font-headline-h4 text-headline-h4 text-text-primary tracking-tight">Real-Time Scoped Data Preview</h3>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted mt-0.5">Showing Top 5 of 148 Rows (Filtered Scoped Subset)</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-mono text-[11px]">Preview Live</span>
+</div>
+<!-- Dataset Metadata Bar -->
+<div class="px-3 py-2 rounded-lg bg-surface-higher flex items-center justify-between text-[11px] font-mono text-text-muted overflow-x-auto">
+<span>CS2026_Skill_Matrix_v2.4.csv</span>
+<span class="text-text-disabled">•</span>
+<span>148 Records</span>
+<span class="text-text-disabled">•</span>
+<span>84.2 KB</span>
+<span class="text-text-disabled">•</span>
+<span class="text-status-highlight-green">Auth Scope Valid</span>
+</div>
+<!-- Interactive High-Density Preview Table -->
+<div class="overflow-x-auto rounded-lg">
+<table class="w-full text-left font-body-compact text-body-compact border-collapse">
+<thead>
+<tr class="bg-surface-higher text-text-muted font-label-default text-label-default uppercase tracking-wider text-[11px]">
+<th class="py-2.5 px-3 font-medium">Student</th>
+<th class="py-2.5 px-2 font-medium">Readiness</th>
+<th class="py-2.5 px-2 font-medium">Py</th>
+<th class="py-2.5 px-2 font-medium">PG</th>
+<th class="py-2.5 px-2 font-medium">Docker</th>
+<th class="py-2.5 px-3 font-medium text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container text-[13px]">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-higher transition-colors group">
+<td class="py-2.5 px-3">
+<div class="font-medium text-text-primary whitespace-nowrap">Alex R. Mercer</div>
+<div class="text-[11px] text-text-muted font-mono">#STU-2026-88 • Backend</div>
+</td>
+<td class="py-2.5 px-2 font-mono text-text-primary font-medium">76.0%</td>
+<td class="py-2.5 px-2 font-mono text-text-body">4.2</td>
+<td class="py-2.5 px-2 font-mono text-text-body">3.5</td>
+<td class="py-2.5 px-2">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-secondary font-mono text-[10px] font-medium whitespace-nowrap">NULL</span>
+</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container text-secondary-fixed-dim whitespace-nowrap">
+                      Pending
+                    </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-higher transition-colors group">
+<td class="py-2.5 px-3">
+<div class="font-medium text-text-primary whitespace-nowrap">Maya Chen</div>
+<div class="text-[11px] text-text-muted font-mono">#STU-2026-112 • Cloud</div>
+</td>
+<td class="py-2.5 px-2 font-mono text-status-highlight-green font-medium">81.0%</td>
+<td class="py-2.5 px-2 font-mono text-text-body">4.5</td>
+<td class="py-2.5 px-2 font-mono text-text-body">3.8</td>
+<td class="py-2.5 px-2 font-mono text-status-highlight-green">4.8</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-tertiary-container/40 text-status-highlight-green whitespace-nowrap">
+                      Tier 1
+                    </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-higher transition-colors group">
+<td class="py-2.5 px-3">
+<div class="font-medium text-text-primary whitespace-nowrap">David K. Patel</div>
+<div class="text-[11px] text-text-muted font-mono">#STU-2026-45 • Data/ML</div>
+</td>
+<td class="py-2.5 px-2 font-mono text-secondary-fixed-dim font-medium">62.0%</td>
+<td class="py-2.5 px-2 font-mono text-text-body">3.0</td>
+<td class="py-2.5 px-2 font-mono text-text-body">4.1</td>
+<td class="py-2.5 px-2">
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-secondary font-mono text-[10px] font-medium whitespace-nowrap">NULL</span>
+</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container text-text-muted whitespace-nowrap">
+                      Borderline
+                    </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-higher transition-colors group">
+<td class="py-2.5 px-3">
+<div class="font-medium text-text-primary whitespace-nowrap">Priya Sharma</div>
+<div class="text-[11px] text-text-muted font-mono">#STU-2026-94 • Full Stack</div>
+</td>
+<td class="py-2.5 px-2 font-mono text-status-highlight-green font-medium">78.0%</td>
+<td class="py-2.5 px-2 font-mono text-text-body">4.6</td>
+<td class="py-2.5 px-2 font-mono text-text-body">4.0</td>
+<td class="py-2.5 px-2 font-mono text-text-body">3.6</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-tertiary-container/40 text-status-highlight-green whitespace-nowrap">
+                      Tier 1
+                    </span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-higher transition-colors group">
+<td class="py-2.5 px-3">
+<div class="font-medium text-text-primary whitespace-nowrap">Marcus Vance</div>
+<div class="text-[11px] text-text-muted font-mono">#STU-2026-31 • DevOps</div>
+</td>
+<td class="py-2.5 px-2 font-mono text-semantic-error font-medium">54.0%</td>
+<td class="py-2.5 px-2 font-mono text-text-body">3.9</td>
+<td class="py-2.5 px-2 font-mono text-text-body">2.8</td>
+<td class="py-2.5 px-2">
+<span class="px-1.5 py-0.5 rounded bg-error-container/40 text-semantic-error font-mono text-[10px] font-medium whitespace-nowrap">GAP</span>
+</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-error-container/30 text-semantic-error whitespace-nowrap">
+                      Gap DCK-101
+                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Calculated Deterministic Metrics Summary -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase tracking-wider">Calculated Deterministic Metrics Summary</span>
+<span class="material-symbols-outlined text-[16px] text-status-highlight-green">verified</span>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-1 text-center">
+<div class="bg-surface-higher p-2.5 rounded-lg space-y-0.5">
+<span class="font-headline-h3 text-headline-h3 text-text-primary">74.8%</span>
+<span class="font-caption-muted text-[11px] text-text-muted block leading-tight">Cohort Mean Readiness</span>
+</div>
+<div class="bg-surface-higher p-2.5 rounded-lg space-y-0.5">
+<span class="font-headline-h3 text-headline-h3 text-secondary-fixed-dim">61 <span class="text-caption-muted text-[11px] text-text-muted font-normal">(41%)</span></span>
+<span class="font-caption-muted text-[11px] text-text-muted block leading-tight">Unassessed Docker Flags</span>
+</div>
+<div class="bg-surface-higher p-2.5 rounded-lg space-y-0.5">
+<span class="font-headline-h3 text-headline-h3 text-status-highlight-green">36</span>
+<span class="font-caption-muted text-[11px] text-text-muted block leading-tight">Approved Shortlists</span>
+</div>
+</div>
+<!-- Non-Generative Assurance Callout -->
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-start gap-2 text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">info</span>
+<p class="font-caption-muted text-[11px] leading-relaxed">
+              Values in this report are sourced <strong class="text-text-primary">deterministically</strong> from verified coursework databases and proctored assessment engines. No subjective AI scores or generative predictions are included in this export.
+            </p>
+</div>
+</div>
+<!-- Recent Institutional Export Ledger -->
+<div class="bg-surface-elevated p-space-md rounded-xl space-y-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase tracking-wider">Recent Institutional Export Ledger</span>
+<a class="font-caption-muted text-caption-muted text-primary hover:underline flex items-center gap-0.5" href="#">
+<span>View Full Ledger</span>
+<span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+</a>
+</div>
+<div class="space-y-2 pt-1 font-mono text-[11px]">
+<!-- Ledger Item 1 -->
+<div class="p-2.5 rounded-lg bg-surface-higher space-y-1">
+<div class="flex items-center justify-between text-text-primary">
+<span class="font-medium text-text-primary">CS2026_Placement_Summary.csv</span>
+<span class="text-status-highlight-green">148 rows</span>
+</div>
+<div class="flex items-center justify-between text-text-muted text-[10px]">
+<span>2026-10-21 08:30:12 EST</span>
+<span>By: Prof. Sarah Jenkins</span>
+</div>
+<div class="text-[10px] text-text-disabled flex items-center gap-1 truncate pt-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span>
+<span class="truncate">SHA256: 7f8a9e22cb01b447881c31b...0a9f</span>
+</div>
+</div>
+<!-- Ledger Item 2 -->
+<div class="p-2.5 rounded-lg bg-surface-higher space-y-1">
+<div class="flex items-center justify-between text-text-primary">
+<span class="font-medium text-text-primary">DCK101_Remediation_Roster.csv</span>
+<span class="text-secondary-fixed-dim">61 rows</span>
+</div>
+<div class="flex items-center justify-between text-text-muted text-[10px]">
+<span>2026-10-20 16:45:00 EST</span>
+<span>By: Prof. Sarah Jenkins</span>
+</div>
+<div class="text-[10px] text-text-disabled flex items-center gap-1 truncate pt-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span>
+<span class="truncate">SHA256: 3a1b49089efb3190289e92f...710d</span>
+</div>
+</div>
+<!-- Ledger Item 3 -->
+<div class="p-2.5 rounded-lg bg-surface-higher space-y-1">
+<div class="flex items-center justify-between text-text-primary">
+<span class="font-medium text-text-primary">Registrar_Accreditation_Q3.csv</span>
+<span class="text-status-highlight-green">148 rows</span>
+</div>
+<div class="flex items-center justify-between text-text-muted text-[10px]">
+<span>2026-10-18 11:15:22 EST</span>
+<span>By: Prof. Sarah Jenkins</span>
+</div>
+<div class="text-[10px] text-text-disabled flex items-center gap-1 truncate pt-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span>
+<span class="truncate">SHA256: d49ce78119a00bca889817a...41fe</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Archetype Selector Script -->
+<script>
+    (function initReportArchetypeSelector() {
+      const cards = [
+        document.getElementById('archetype-card-1'),
+        document.getElementById('archetype-card-2'),
+        document.getElementById('archetype-card-3'),
+        document.getElementById('archetype-card-4')
+      ];
+
+      cards.forEach((card, idx) => {
+        if (!card) return;
+        card.addEventListener('click', () => {
+          cards.forEach((c) => {
+            if (!c) return;
+            c.classList.remove('bg-surface-higher', 'ring-2', 'ring-primary-container');
+            c.classList.add('bg-surface-elevated');
+            const bullet = c.querySelector('.rounded-full.shrink-0');
+            if (bullet) {
+              bullet.className = 'mt-1 w-4 h-4 rounded-full bg-surface-container flex items-center justify-center shrink-0';
+              bullet.innerHTML = '';
+            }
+          });
+
+          card.classList.remove('bg-surface-elevated');
+          card.classList.add('bg-surface-higher', 'ring-2', 'ring-primary-container');
+          const bullet = card.querySelector('.rounded-full.shrink-0');
+          if (bullet) {
+            bullet.className = 'mt-1 w-4 h-4 rounded-full bg-primary-container flex items-center justify-center shrink-0';
+            bullet.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-text-primary"></span>';
+          }
+        });
+      });
+
+      const dlButton = document.getElementById('btn-download-csv');
+      if (dlButton) {
+        dlButton.addEventListener('click', () => {
+          const originalText = dlButton.innerHTML;
+          dlButton.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">sync</span><span>Compiling SHA-256 Ledger...</span>';
+          setTimeout(() => {
+            dlButton.innerHTML = '<span class="material-symbols-outlined text-[20px] text-status-highlight-green">check_circle</span><span>Exported CS2026_Matrix.csv</span>';
+            setTimeout(() => {
+              dlButton.innerHTML = originalText;
+            }, 3000);
+          }, 1200);
+        });
+      }
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-elevated py-space-lg"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md text-text-muted font-caption-muted text-caption-muted"><div class="flex items-center gap-1 text-status-highlight-green"><span class="material-symbols-outlined text-[16px]">verified_user</span><span>FERPA &amp; Institutional Compliance Validated</span></div><span class="text-border-strong">•</span><span>Deterministic Provenance &amp; Scoped RBAC Active</span><span class="text-border-strong">•</span><span>AI Assistance Non-Evaluative Advisory</span></div><div class="flex items-center gap-space-lg font-caption-muted text-caption-muted"><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="audit-logs" href="#"><span class="material-symbols-outlined text-[14px]">history</span><span>Audit Logs</span></a><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="export-data" href="#"><span class="material-symbols-outlined text-[14px]">download</span><span>Export Scoped Data</span></a><span class="text-text-disabled">© 2026 Skillup Systems Inc.</span></div></div></footer></body></html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#94f4da", "surface": "#131315", "on-secondary-fixed": "#281900", "tertiary-container": "#15846e", "surface-container-low": "#1b1b1d", "surface-container-high": "#2a2a2c", "on-surface-variant": "#cbc3d8", "on-error-container": "#ffdad6", "text-disabled": "#606066", "surface-bright": "#39393b", "on-tertiary-fixed": "#002019", "text-muted": "#9A9A9A", "on-tertiary-fixed-variant": "#005142", "primary-fixed": "#e8deff", "surface-higher": "#16161A", "on-tertiary-container": "#f9fffb", "surface-container": "#201f21", "on-secondary-fixed-variant": "#5f4100", "surface-dim": "#131315", "surface-elevated": "#0D0D0F", "primary": "#cdbdff", "text-primary": "#FFFFFF", "error-container": "#93000a", "background": "#131315", "on-primary-fixed": "#20005f", "surface-tint": "#cdbdff", "canvas": "#000000", "on-primary-fixed-variant": "#5001cf", "secondary-fixed-dim": "#ffba35", "surface-container-highest": "#353437", "on-error": "#690005", "inverse-primary": "#6835e7", "inverse-surface": "#e5e1e4", "semantic-info": "#3B82F6", "highlight-replacement": "#FFFF00", "semantic-error": "#EB5757", "outline": "#948ea1", "text-body": "#BDBDBD", "surface-container-lowest": "#0e0e10", "primary-container": "#8052ff", "primary-fixed-dim": "#cdbdff", "on-secondary": "#422c00", "tertiary-fixed-dim": "#78d8be", "on-primary-container": "#fffdff", "secondary": "#ffba35", "on-background": "#e5e1e4", "on-tertiary": "#00382d", "on-surface": "#e5e1e4", "border-subtle": "#202023", "error": "#ffb4ab", "outline-variant": "#494455", "border-strong": "#363639", "surface-variant": "#353437", "on-secondary-container": "#563a00", "secondary-container": "#e19f00", "tertiary": "#78d8be", "status-highlight-green": "#55C98B", "on-primary": "#370095", "secondary-fixed": "#ffdeac", "inverse-on-surface": "#313032" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-sm": "0.75rem", "gutter": "1.5rem", "space-xs": "0.375rem", "space-xl": "2.25rem", "space-lg": "1.5rem", "margin-bottom": "3rem", "gutter-sm": "1rem", "margin-top": "2.25rem", "space-md": "1rem", "margin": "1.5rem" }, "fontFamily": { "metric-md": ["Inter"], "body-compact": ["Inter"], "label-default": ["Inter"], "headline-h2": ["Inter"], "metric-lg": ["Inter"], "caption-muted": ["Inter"], "stage-heading": ["Inter"], "body-default": ["Inter"], "display-hero": ["Inter"], "page-title": ["Inter"], "headline-h4": ["Inter"], "eyebrow-kicker": ["Inter"], "page-title-mobile": ["Inter"], "display-hero-mobile": ["Inter"], "headline-h3": ["Inter"] }, "fontSize": { "metric-md": ["30px", { "lineHeight": "36px", "fontWeight": "600" }], "body-compact": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-default": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "headline-h2": ["24px", { "lineHeight": "30px", "fontWeight": "600" }], "metric-lg": ["48px", { "lineHeight": "54px", "fontWeight": "600" }], "caption-muted": ["12px", { "lineHeight": "20px", "fontWeight": "400" }], "stage-heading": ["34px", { "lineHeight": "40px", "fontWeight": "600" }], "body-default": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display-hero": ["78px", { "lineHeight": "86px", "fontWeight": "600" }], "page-title": ["42px", { "lineHeight": "50px", "fontWeight": "600" }], "headline-h4": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "eyebrow-kicker": ["11px", { "lineHeight": "14px", "letterSpacing": "2px", "fontWeight": "600" }], "page-title-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "600" }], "display-hero-mobile": ["42px", { "lineHeight": "46px", "fontWeight": "600" }], "headline-h3": ["20px", { "lineHeight": "26px", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-container-lowest font-body-default text-text-primary min-h-screen antialiased"><header class="fixed top-0 left-0 w-full z-50 bg-surface-elevated"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="flex items-center justify-center w-8 h-8 rounded bg-surface-higher text-primary-container"><span class="material-symbols-outlined text-[20px]">terminal</span></span><div class="flex items-baseline gap-space-xs"><span class="font-headline-h3 text-headline-h3 tracking-tight text-text-primary">Skillup</span><span class="font-eyebrow-kicker text-eyebrow-kicker px-space-xs py-0.5 rounded bg-surface-higher text-text-muted">CONSOLE</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-surface-higher text-text-primary font-headline-h4"><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="overview" href="#">Overview</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="students" href="#">Students</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="skill-analytics" href="#">Skill Analytics</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="placement-drives" href="#">Placement Drives</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reviews-and-training" href="#">Reviews &amp; Training</a><a class="px-space-md py-1.5 rounded text-text-muted hover:text-text-primary hover:bg-surface-higher font-body-compact text-body-compact transition-colors" data-path="reports" href="#">Reports</a><a class="px-space-md py-1.5 rounded font-body-compact text-body-compact transition-colors bg-surface-higher text-text-primary font-headline-h4 border-b-2 border-primary-container" data-path="admin-import" href="#">Import</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs px-2.5 py-1 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-text-muted">Faculty Synthetic Cohort • Active</span></div><div class="hidden lg:flex flex-col text-right"><span class="font-label-default text-label-default text-text-primary">Prof. Sarah Jenkins</span><span class="font-caption-muted text-caption-muted text-text-muted">Placement Director • Dept: CSE • #FAC-2026-04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="flex items-center gap-1 px-space-sm py-1.5 rounded bg-surface-higher text-text-body hover:text-text-primary hover:bg-surface-container font-label-default text-label-default transition-colors" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Log out</span></a></div></div><div class="h-12 w-full px-gutter bg-surface flex items-center justify-between text-body-compact"><div class="flex items-center gap-space-lg overflow-x-auto"><div class="flex items-center gap-space-xs text-text-primary"><span class="material-symbols-outlined text-text-muted text-[18px]">school</span><span class="font-headline-h4 text-headline-h4 text-text-primary">Class of 2026 — B.S. Computer Science</span><span class="font-caption-muted text-caption-muted text-text-muted bg-surface-higher px-1.5 py-0.5 rounded">(N=148)</span></div><div class="flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">domain</span><span>Dept: All CS</span></div><div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-higher"><span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span><span class="font-caption-muted text-caption-muted text-status-highlight-green font-medium">Active Placement Drive</span></div><div class="hidden sm:flex items-center gap-space-xs text-text-muted font-caption-muted text-caption-muted"><span class="material-symbols-outlined text-[16px]">sync</span><span>Last sync: Today 09:48 AM</span></div></div><div class="flex items-center gap-space-xs"><button class="px-space-sm py-1 rounded bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default transition-colors flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">filter_list</span><span>Apply Filters</span></button><button class="p-1 rounded bg-surface-higher hover:bg-surface-container text-text-muted hover:text-text-primary transition-colors flex items-center justify-center" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span></button><button class="px-space-sm py-1 rounded bg-primary-container text-text-primary hover:opacity-95 font-label-default text-label-default transition-all flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[14px]">add</span><span>Create Cohort</span></button></div></div></header><main class="w-full pt-28 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- Container Envelope (Constrained for Admin/Cohort Ingestion per Domain L: 1180px) -->
+<div class="w-full max-w-[1240px] mx-auto px-gutter py-margin-top pb-margin-bottom space-y-space-lg">
+<!-- Top Workflow Stepper & Audit Breadcrumb -->
+<div class="w-full bg-surface-elevated rounded-xl p-space-md border border-border-subtle flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md">
+<!-- Stepper Item 1: Complete -->
+<div class="flex items-center gap-space-xs flex-1">
+<span class="w-7 h-7 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-label-default text-label-default">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-default text-label-default text-text-primary">Step 1: Upload Source</span>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green">spring_2026_cs.csv (156 rows)</span>
+</div>
+</div>
+<span class="hidden md:block w-8 h-[1px] bg-border-strong"></span>
+<!-- Stepper Item 2: Active -->
+<div class="flex items-center gap-space-xs flex-1">
+<span class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-default text-label-default ring-2 ring-primary-container/40">
+          2
+        </span>
+<div class="flex flex-col">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Step 2: Schema Mapping</span>
+<span class="font-caption-muted text-caption-muted text-primary-fixed">9 Columns Staged • Auto-Aligned</span>
+</div>
+</div>
+<span class="hidden md:block w-8 h-[1px] bg-border-strong"></span>
+<!-- Stepper Item 3: Staged Validation -->
+<div class="flex items-center gap-space-xs flex-1">
+<span class="w-7 h-7 rounded-full bg-surface-higher text-secondary flex items-center justify-center font-label-default text-label-default border border-border-strong">
+          3
+        </span>
+<div class="flex flex-col">
+<span class="font-label-default text-label-default text-text-primary">Step 3: Validation Sieve</span>
+<span class="font-caption-muted text-caption-muted text-secondary">8 Flagged (5 Warn, 3 Err)</span>
+</div>
+</div>
+<span class="hidden md:block w-8 h-[1px] bg-border-strong"></span>
+<!-- Stepper Item 4: Pending -->
+<div class="flex items-center gap-space-xs flex-1">
+<span class="w-7 h-7 rounded-full bg-surface-higher text-text-disabled flex items-center justify-center font-label-default text-label-default border border-border-subtle">
+          4
+        </span>
+<div class="flex flex-col">
+<span class="font-label-default text-label-default text-text-muted">Step 4: Atomic Commit</span>
+<span class="font-caption-muted text-caption-muted text-text-disabled">Pending Pre-flight Sign-off</span>
+</div>
+</div>
+</div>
+<!-- Institutional Compliance / FERPA Scope Banner -->
+<div class="bg-surface-elevated border border-border-strong rounded-xl p-space-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm pl-2">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary-container text-[22px] mt-0.5">policy</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">FERPA &amp; Institutional Import Scope Enforced</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted border border-border-subtle">Sandbox Ephemeral Staging</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body mt-0.5">
+              Only students enrolled within the authorized Computer Science &amp; Engineering department rosters can be provisioned. Uploaded records are staged in an ephemeral memory table prior to final atomic transaction commit. Binary records are parsed in-memory using RFC-4180 standards and are never permanently serialized to raw disk.
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end md:self-auto">
+<span class="font-caption-muted text-caption-muted text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-status-highlight-green text-[14px]">lock</span>
+            Encrypted RBAC Scope
+          </span>
+</div>
+</div>
+</div>
+<!-- Target Cohort & Staging Metadata Dual-Card Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Cohort Selector Card (5 cols) -->
+<div class="lg:col-span-5 bg-surface-elevated border border-border-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider">TARGET COHORT DESTINATION</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-status-highlight-green font-caption-muted text-caption-muted font-medium">Production Roster</span>
+</div>
+<div class="flex items-start gap-space-xs pt-1">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">hub</span>
+<div>
+<h2 class="font-headline-h3 text-headline-h3 text-text-primary">Class of 2026 — B.S. CS</h2>
+<p class="font-body-compact text-body-compact text-text-muted">Target DB ID: <span class="font-mono text-text-body">COHORT-CSE-2026-FALL</span></p>
+</div>
+</div>
+<div class="pt-2 flex items-center gap-space-md text-caption-muted text-text-body">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-text-muted">groups</span>
+              Existing: <strong class="text-text-primary">148 Students</strong>
+</span>
+<span class="text-border-strong">•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-text-muted">account_balance</span>
+              CSE Dept Only
+            </span>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex items-center gap-2">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[15px]">swap_horiz</span>
+            Switch Cohort
+          </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+            New Cohort
+          </button>
+</div>
+</div>
+<!-- File Staging Diagnostic Card (7 cols) -->
+<div class="lg:col-span-7 bg-surface-elevated border border-border-subtle rounded-xl p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted tracking-wider">STAGED PAYLOAD METADATA</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-primary font-caption-muted text-caption-muted font-mono">MD5: e4a7...98bf</span>
+</div>
+<div class="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="p-2 rounded bg-surface-higher text-primary-container">
+<span class="material-symbols-outlined text-[24px]">description</span>
+</span>
+<div>
+<span class="font-headline-h4 text-headline-h4 text-text-primary font-mono">spring_2026_cs_students_roster.csv</span>
+<p class="font-caption-muted text-caption-muted text-text-muted">428 KB • 156 rows detected • 9 header columns</p>
+</div>
+</div>
+<div class="px-2.5 py-1 rounded-full bg-tertiary-container/20 text-tertiary-fixed font-caption-muted text-caption-muted font-medium self-start sm:self-auto flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>
+              Staged for Schema Verification
+            </div>
+</div>
+<p class="font-caption-muted text-caption-muted text-text-muted mt-2">
+            Import initiator: <span class="text-text-primary">Prof. Sarah Jenkins</span> (#FAC-2026-04) • Session: Staged today at 10:14:22 EST
+          </p>
+</div>
+<div class="pt-space-md mt-space-md border-t border-border-subtle flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-2 font-caption-muted text-caption-muted text-text-muted">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-text-muted">speed</span>
+              Limits: 5,000 Rows Max
+            </span>
+<span>•</span>
+<span>40 Col Width Limit</span>
+<span>•</span>
+<span class="text-status-highlight-green font-mono">RFC-4180 Validated</span>
+</div>
+<button class="text-text-muted hover:text-text-primary font-caption-muted text-caption-muted transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">history</span>
+            Audit Parser Logs
+          </button>
+</div>
+</div>
+</div>
+<!-- Section A: Destination Column Mapping Engine -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl overflow-hidden">
+<!-- Section Header with Controls -->
+<div class="p-space-lg border-b border-border-subtle flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-h3 text-headline-h3 text-text-primary">Section A: Schema Column Mapping Engine</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-fixed font-caption-muted text-caption-muted font-semibold">9 of 9 Assessed</span>
+</div>
+<p class="font-body-compact text-body-compact text-text-muted mt-0.5">
+            Pair incoming CSV column headers to Skillup institutional canonical attributes. Ignored columns are omitted from database ingestion.
+          </p>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">auto_fix_high</span>
+            Auto-Detect All
+          </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">restart_alt</span>
+            Reset Defaults
+          </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">bookmark</span>
+            Save Template
+          </button>
+</div>
+</div>
+<!-- Mapping Table -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse font-body-compact text-body-compact">
+<thead>
+<tr class="bg-surface-higher text-text-muted font-label-default text-label-default uppercase tracking-wider border-b border-border-subtle">
+<th class="py-2.5 px-space-md">Source Column (CSV)</th>
+<th class="py-2.5 px-space-md">Sample Value (Row 1)</th>
+<th class="py-2.5 px-space-md">Destination Schema Target</th>
+<th class="py-2.5 px-space-md">Required &amp; Type</th>
+<th class="py-2.5 px-space-md text-right">Confidence</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle text-text-body">
+<!-- Row 1: student_id -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">student_id</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"STU-2026-88"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Student ID (#STU-XXXX-XX)</option>
+<option>Full Legal Name</option>
+<option>Institutional Email</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-error-container/30 text-error font-caption-muted text-caption-muted font-medium">Required Key</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">String</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  100% Auto
+                </span>
+</td>
+</tr>
+<!-- Row 2: full_name -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">full_name</td>
+<td class="py-3 px-space-md text-text-body">"Alex R. Mercer"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Full Legal Name</option>
+<option>Student ID</option>
+<option>Institutional Email</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-error-container/30 text-error font-caption-muted text-caption-muted font-medium">Required</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">String</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  100% Auto
+                </span>
+</td>
+</tr>
+<!-- Row 3: campus_email -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">campus_email</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"alex.mercer@cs.institution.edu"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Institutional Email (Unique)</option>
+<option>Personal Email</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-error-container/30 text-error font-caption-muted text-caption-muted font-medium">Required Key</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">RFC-5322</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  100% Auto
+                </span>
+</td>
+</tr>
+<!-- Row 4: academic_dept -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">academic_dept</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"CSE"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Department Code (Enum: CSE, ECE, ME)</option>
+<option>Sub-Department</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-primary font-caption-muted text-caption-muted font-medium">Department RBAC</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Enum</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  100% Auto
+                </span>
+</td>
+</tr>
+<!-- Row 5: cumulative_gpa -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">cumulative_gpa</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"3.84"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Cumulative GPA (0.00 - 4.00)</option>
+<option>Major GPA</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted">Optional</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Float</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  95% Match
+                </span>
+</td>
+</tr>
+<!-- Row 6: primary_track -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">primary_track</td>
+<td class="py-3 px-space-md text-text-body">"Junior Backend Engineer"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Specialization / Target Role Track</option>
+<option>Secondary Track</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted">Optional</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Enum</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-status-highlight-green font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  90% Match
+                </span>
+</td>
+</tr>
+<!-- Row 7: course_cs305_grade -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">course_cs305_grade</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"A"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-primary-container/80 rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">CS-305 DB Systems Grade (Evidence)</option>
+<option>General Elective Grade</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-primary font-caption-muted text-caption-muted font-medium">Competency Evid.</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Enum: A-F</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-primary font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+                  Custom Mapped
+                </span>
+</td>
+</tr>
+<!-- Row 8: docker_lab_status -->
+<tr class="hover:bg-surface-higher/50 transition-colors">
+<td class="py-3 px-space-md font-mono text-text-primary font-medium">docker_lab_status</td>
+<td class="py-3 px-space-md font-mono text-text-muted">"NULL"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-primary border border-primary-container/80 rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">Docker Competency Attestation</option>
+<option>DevOps Workshop Completion</option>
+<option>-- Ignore Column --</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted">Nullable</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Enum</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="inline-flex items-center gap-1 text-primary font-label-default text-label-default font-medium">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+                  Custom Mapped
+                </span>
+</td>
+</tr>
+<!-- Row 9: internal_notes (Ignored) -->
+<tr class="hover:bg-surface-higher/50 transition-colors opacity-75">
+<td class="py-3 px-space-md font-mono text-text-disabled line-through">internal_notes</td>
+<td class="py-3 px-space-md text-text-disabled">"Transferred from ECE"</td>
+<td class="py-3 px-space-md">
+<div class="relative w-full max-w-[280px]">
+<select class="w-full bg-canvas text-text-muted border border-border-strong rounded px-2.5 py-1.5 font-body-compact text-body-compact focus:border-primary-container focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">-- Ignore Column (Do Not Ingest) --</option>
+<option>General Notes</option>
+<option>Advising Flags</option>
+</select>
+</div>
+</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-disabled font-caption-muted text-caption-muted">Omitted</span>
+</td>
+<td class="py-3 px-space-md text-right">
+<span class="text-text-disabled font-label-default text-label-default">Ignored</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Section B: Row Pre-Validation & Issue Sieve -->
+<div class="space-y-space-md">
+<!-- Status KPI Cards (4 Grid) -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<!-- Metric 1: Valid -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">STAGED ROWS</span>
+<span class="w-2 h-2 rounded-full bg-status-highlight-green"></span>
+</div>
+<div class="my-1">
+<span class="font-metric-lg text-metric-lg text-text-primary tracking-tight">148</span>
+</div>
+<div class="flex items-center gap-1 font-caption-muted text-caption-muted text-status-highlight-green">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span>100% Valid &amp; Ready</span>
+</div>
+</div>
+<!-- Metric 2: Warnings -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">NON-BLOCKING</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<div class="my-1">
+<span class="font-metric-lg text-metric-lg text-secondary tracking-tight">5</span>
+</div>
+<div class="flex items-center gap-1 font-caption-muted text-caption-muted text-text-muted">
+<span class="material-symbols-outlined text-[14px] text-secondary">warning</span>
+<span>Coercible Format Warns</span>
+</div>
+</div>
+<!-- Metric 3: Blocking Errors -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">BLOCKING ERRORS</span>
+<span class="w-2 h-2 rounded-full bg-semantic-error"></span>
+</div>
+<div class="my-1">
+<span class="font-metric-lg text-metric-lg text-semantic-error tracking-tight">3</span>
+</div>
+<div class="flex items-center gap-1 font-caption-muted text-caption-muted text-error">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+<span>Must resolve to ingest</span>
+</div>
+</div>
+<!-- Metric 4: Duplicate Matches -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-kicker text-eyebrow-kicker text-text-muted uppercase">DUPLICATE IDS</span>
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+</div>
+<div class="my-1">
+<span class="font-metric-lg text-metric-lg text-text-body tracking-tight">12</span>
+</div>
+<div class="flex items-center gap-1 font-caption-muted text-caption-muted text-text-muted">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+<span>Match CS 2026 Roster</span>
+</div>
+</div>
+</div>
+<!-- Duplicate Handling Strategy Selector (Domain L Strict Mandate) -->
+<div class="bg-surface-elevated border border-border-strong rounded-xl p-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pb-space-sm border-b border-border-subtle">
+<div>
+<h4 class="font-headline-h4 text-headline-h4 text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">merge_type</span>
+              Deterministic Duplicate Handling Strategy
+            </h4>
+<p class="font-body-compact text-body-compact text-text-muted mt-0.5">
+              12 records in this file match existing student keys in the CSE 2026 Cohort DB. Select resolution protocol:
+            </p>
+</div>
+<span class="px-2.5 py-1 rounded bg-surface-higher text-text-primary font-caption-muted text-caption-muted border border-border-subtle shrink-0">
+            Audit Mode: Immutable Quiz Provenance
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-space-md">
+<!-- Option 1: Skip (Recommended) -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-surface-higher border-2 border-primary-container cursor-pointer transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Skip Duplicates</span>
+<input checked="" class="accent-primary-container h-4 w-4" name="dup_strategy" type="radio">
+</div>
+<span class="inline-block px-2 py-0.5 rounded bg-tertiary-container/30 text-tertiary-fixed font-caption-muted text-caption-muted font-medium">Recommended for Imports</span>
+<p class="font-body-compact text-body-compact text-text-muted pt-1">
+                Preserve existing 12 student records, verified profiles, and historical coursework evidence untouched. New records will be appended safely.
+              </p>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-disabled mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+              Zero mutation risk to active students
+            </span>
+</label>
+<!-- Option 2: Update Existing -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-canvas border border-border-subtle hover:border-border-strong cursor-pointer transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Update Matching</span>
+<input class="accent-primary-container h-4 w-4" name="dup_strategy" type="radio">
+</div>
+<span class="inline-block px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted">Profile Overwrite</span>
+<p class="font-body-compact text-body-compact text-text-muted pt-1">
+                Overwrite mutable fields (GPA, Track, Attestation) using incoming rows. Historical proctored quiz logs remain immutable.
+              </p>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-disabled mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">edit_note</span>
+              Mutates 12 student attributes
+            </span>
+</label>
+<!-- Option 3: Halt on Conflict -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-canvas border border-border-subtle hover:border-border-strong cursor-pointer transition-all">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Halt on Conflict</span>
+<input class="accent-primary-container h-4 w-4" name="dup_strategy" type="radio">
+</div>
+<span class="inline-block px-2 py-0.5 rounded bg-surface-higher text-error font-caption-muted text-caption-muted">Strict Abort</span>
+<p class="font-body-compact text-body-compact text-text-muted pt-1">
+                Abort batch ingestion completely if any existing Student ID is detected. Requires manual CSV scrubbing outside the console.
+              </p>
+</div>
+<span class="font-caption-muted text-caption-muted text-text-disabled mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">block</span>
+              Transaction rollback enforced
+            </span>
+</label>
+</div>
+</div>
+<!-- Section B: Issues Inspection Sieve Drawer / Table -->
+<div class="bg-surface-elevated border border-border-subtle rounded-xl overflow-hidden">
+<!-- Filter Pills Bar -->
+<div class="p-space-md border-b border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface">
+<div class="flex flex-wrap items-center gap-1.5">
+<button class="px-space-sm py-1 rounded-full bg-surface-higher text-text-muted hover:text-text-primary font-label-default text-label-default border border-border-subtle transition-colors" type="button">
+              All Staged Rows (156)
+            </button>
+<button class="px-space-sm py-1 rounded-full bg-surface-higher text-text-muted hover:text-text-primary font-label-default text-label-default border border-border-subtle transition-colors" type="button">
+              Valid (148)
+            </button>
+<button class="px-space-sm py-1 rounded-full bg-surface-higher text-secondary border border-secondary/40 font-label-default text-label-default transition-colors flex items-center gap-1" type="button">
+<span>Warnings</span>
+<span class="w-4 h-4 rounded-full bg-secondary text-on-secondary font-mono text-[10px] flex items-center justify-center font-bold">5</span>
+</button>
+<button class="px-space-sm py-1 rounded-full bg-error-container/30 text-error border border-error/40 font-label-default text-label-default transition-colors flex items-center gap-1" type="button">
+<span>Blocking Errors</span>
+<span class="w-4 h-4 rounded-full bg-semantic-error text-text-primary font-mono text-[10px] flex items-center justify-center font-bold">3</span>
+</button>
+<button class="px-space-sm py-1 rounded-full bg-surface-higher text-text-muted hover:text-text-primary font-label-default text-label-default border border-border-subtle transition-colors" type="button">
+              Duplicates (12)
+            </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-caption-muted text-caption-muted text-text-muted">Showing 4 staged triage items</span>
+</div>
+</div>
+<!-- Issue Rows Detail -->
+<div class="divide-y divide-border-subtle">
+<!-- Row 14 Warning -->
+<div class="p-space-md hover:bg-surface-higher/40 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-secondary border border-secondary/30 font-caption-muted text-caption-muted font-mono shrink-0 mt-0.5">
+                Row 14
+              </span>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Marcus Vance</span>
+<span class="font-mono text-caption-muted text-caption-muted text-text-muted">#STU-2026-14</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-secondary font-caption-muted text-caption-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">warning</span>
+                    Data Type Advisory
+                  </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+                  Field <code class="font-mono text-text-primary bg-surface-higher px-1 py-0.5 rounded">docker_lab_status</code> = <span class="text-secondary font-mono">"Pending Lab"</span>.
+                  Unrecognized enum token for attestation field.
+                </p>
+<span class="font-caption-muted text-caption-muted text-text-muted">Will import attribute as deterministic <code class="font-mono text-text-primary">NULL</code> (unassessed).</span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end lg:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-surface-container text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">auto_fix_normal</span>
+                Coerce to NULL
+              </button>
+</div>
+</div>
+<!-- Row 42 Duplicate Conflict -->
+<div class="p-space-md hover:bg-surface-higher/40 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted border border-border-strong font-caption-muted text-caption-muted font-mono shrink-0 mt-0.5">
+                Row 42
+              </span>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">David K. Patel</span>
+<span class="font-mono text-caption-muted text-caption-muted text-text-muted">#STU-2026-45</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-higher text-text-body font-caption-muted text-caption-muted flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">content_copy</span>
+                    Existing Record Match
+                  </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+                  Incoming ID matches registered active student in CS 2026 cohort (<span class="font-mono text-text-primary">david.patel@cs.institution.edu</span>).
+                </p>
+<span class="font-caption-muted text-caption-muted text-status-highlight-green flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">done</span>
+                  Handled via selected strategy: "Skip Duplicates" (Original preserved)
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end lg:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher text-text-disabled font-label-default text-label-default border border-border-subtle cursor-default" type="button">
+                Preserved
+              </button>
+</div>
+</div>
+<!-- Row 89 Blocking Error: Out of bounds GPA -->
+<div class="p-space-md bg-error-container/10 hover:bg-error-container/15 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-caption-muted text-caption-muted font-mono shrink-0 mt-0.5 font-bold">
+                Row 89
+              </span>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Elena Rostova</span>
+<span class="font-mono text-caption-muted text-caption-muted text-text-muted">#STU-2026-89</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-muted text-caption-muted flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                    Blocking Validation Error
+                  </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+                  Field <code class="font-mono text-text-primary bg-surface-higher px-1 py-0.5 rounded">cumulative_gpa</code> = <span class="text-error font-mono font-bold">"4.82"</span>.
+                  Value exceeds maximum institutional academic scale limit (4.000 max).
+                </p>
+<span class="font-caption-muted text-caption-muted text-error">Row cannot be written to database in current state.</span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end lg:self-center">
+<div class="flex items-center gap-1 bg-canvas border border-border-strong rounded px-2 py-1">
+<span class="font-caption-muted text-caption-muted text-text-muted">Fix to:</span>
+<input class="w-16 bg-transparent text-text-primary font-mono text-body-compact text-center focus:outline-none focus:ring-1 focus:ring-primary-container rounded" type="text" value="3.82">
+</div>
+<button class="px-space-sm py-1.5 rounded-lg bg-primary-container text-text-primary font-label-default text-label-default hover:opacity-90 transition-opacity" type="button">
+                Apply Edit
+              </button>
+</div>
+</div>
+<!-- Row 103 Blocking Error: Missing Required Key -->
+<div class="p-space-md bg-error-container/10 hover:bg-error-container/15 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-caption-muted text-caption-muted font-mono shrink-0 mt-0.5 font-bold">
+                Row 103
+              </span>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-h4 text-headline-h4 text-text-disabled italic">Missing Record Name</span>
+<span class="font-mono text-caption-muted text-caption-muted text-error">[NO_KEY]</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-muted text-caption-muted flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                    Missing Primary Key
+                  </span>
+</div>
+<p class="font-body-compact text-body-compact text-text-body">
+                  Field <code class="font-mono text-text-primary bg-surface-higher px-1 py-0.5 rounded">student_id</code> is null or empty. Primary key is strictly mandatory for institutional tracking.
+                </p>
+<span class="font-caption-muted text-caption-muted text-text-muted">Row will be excluded from final batch staging unless key is manually assigned.</span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-end lg:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-higher hover:bg-error-container/30 text-error font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+                Exclude Row
+              </button>
+</div>
+</div>
+</div>
+<!-- Issue Table Footer -->
+<div class="p-space-sm px-space-md bg-surface-higher/60 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<span class="font-caption-muted text-caption-muted text-text-muted">
+            All issue triage modifications are logged into the institutional ingest audit journal.
+          </span>
+<button class="text-primary hover:text-text-primary font-caption-muted text-caption-muted transition-colors flex items-center gap-1 self-start sm:self-auto" type="button">
+<span class="material-symbols-outlined text-[14px]">checklist</span>
+            Batch Coerce All 5 Warnings
+          </button>
+</div>
+</div>
+</div>
+<!-- Section C: Deterministic Pre-Flight Summary & Confirmation Bar -->
+<div class="sticky bottom-4 z-40 bg-surface-elevated/95 backdrop-blur-md border-2 border-primary-container/60 rounded-xl p-space-md shadow-2xl">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<!-- Preflight Execution Breakdown -->
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-status-highlight-green text-surface">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</span>
+<span class="font-headline-h4 text-headline-h4 text-text-primary">Pre-Flight Deterministic Ingestion Ready</span>
+<span class="px-2 py-0.5 rounded bg-surface-higher text-text-muted font-caption-muted text-caption-muted font-mono">Tx ID: TX-IN-90812</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-space-md gap-y-1 text-body-compact font-body-compact text-text-muted">
+<span class="text-status-highlight-green font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-highlight-green"></span>
+<strong>148 Valid New Students</strong>
+</span>
+<span>•</span>
+<span class="text-text-body">12 Existing Records Skipped</span>
+<span>•</span>
+<span class="text-secondary font-medium">5 Warnings Coerced</span>
+<span>•</span>
+<span class="text-text-muted">3 Blocking Rows Excluded</span>
+<span>•</span>
+<span class="text-status-highlight-green">0 Unmapped Schema Keys</span>
+</div>
+</div>
+<!-- Action Buttons & RBAC Lock -->
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<button class="px-space-md py-2.5 rounded-xl bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+            Export Error Log (.csv)
+          </button>
+<button class="px-space-md py-2.5 rounded-xl bg-surface-higher hover:bg-surface-container text-text-body hover:text-text-primary font-label-default text-label-default border border-border-strong transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+            Revalidate
+          </button>
+<button class="px-space-lg py-2.5 rounded-full bg-primary-container text-text-primary font-headline-h4 text-headline-h4 hover:opacity-95 active:bg-primary-container/90 transition-all flex items-center gap-2 shadow-lg shadow-primary-container/20" id="confirm-ingest-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Confirm &amp; Ingest 148 Records</span>
+</button>
+</div>
+</div>
+<!-- Execution Auth Signature Sub-shelf -->
+<div class="mt-2 pt-2 border-t border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between text-caption-muted font-caption-muted text-text-disabled gap-1">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">verified</span>
+<span>Authorized by Faculty Key: <strong>Prof. Sarah Jenkins (#FAC-2026-04)</strong></span>
+<span class="text-border-strong">•</span>
+<span>Target Schema: Skillup Canonical v2.4 (CSE Scope)</span>
+</div>
+<div class="flex items-center gap-2">
+<span>Atomic Ingest: Zero-Downtime Rollback Enabled</span>
+</div>
+</div>
+</div>
+<!-- Ephemeral Notice Postscript Modal/Drawer Container (Inline interactive micro-feedback) -->
+<div class="hidden fixed bottom-24 right-8 z-50 bg-surface-higher border border-status-highlight-green rounded-xl p-space-md shadow-2xl max-w-md animate-fade-in" id="ingest-notification">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-status-highlight-green text-[24px]">task_alt</span>
+<div class="space-y-1">
+<h5 class="font-headline-h4 text-headline-h4 text-text-primary">Atomic Batch Ingest Initiated</h5>
+<p class="font-body-compact text-body-compact text-text-body">
+            Writing 148 validated student entities to <strong>Class of 2026 — B.S. CS</strong>. Student credentials generated via scoped institutional single-sign-on tokens.
+          </p>
+<div class="w-full bg-surface rounded-full h-1.5 mt-2 overflow-hidden">
+<div class="bg-status-highlight-green h-full w-3/4 animate-pulse"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+    // Micro-interactions for Faculty Cohort Ingest UI
+    const confirmBtn = document.getElementById('confirm-ingest-btn');
+    const notification = document.getElementById('ingest-notification');
+
+    if (confirmBtn && notification) {
+      confirmBtn.addEventListener('click', () => {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>Executing Atomic Transaction...</span>';
+        notification.classList.remove('hidden');
+
+        setTimeout(() => {
+          confirmBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">verified</span><span>148 Students Ingested</span>';
+          confirmBtn.classList.remove('bg-primary-container');
+          confirmBtn.classList.add('bg-tertiary-container');
+        }, 2200);
+      });
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-elevated py-space-lg"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md text-text-muted font-caption-muted text-caption-muted"><div class="flex items-center gap-1 text-status-highlight-green"><span class="material-symbols-outlined text-[16px]">verified_user</span><span>FERPA &amp; Institutional Compliance Validated</span></div><span class="text-border-strong">•</span><span>Deterministic Provenance &amp; Scoped RBAC Active</span><span class="text-border-strong">•</span><span>AI Assistance Non-Evaluative Advisory</span></div><div class="flex items-center gap-space-lg font-caption-muted text-caption-muted"><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="audit-logs" href="#"><span class="material-symbols-outlined text-[14px]">history</span><span>Audit Logs</span></a><a class="text-text-muted hover:text-text-primary transition-colors flex items-center gap-1" data-path="export-data" href="#"><span class="material-symbols-outlined text-[14px]">download</span><span>Export Scoped Data</span></a><span class="text-text-disabled">© 2026 Skillup Systems Inc.</span></div></div></footer></body></html>
