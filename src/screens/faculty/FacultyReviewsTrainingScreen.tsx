@@ -5,12 +5,14 @@ interface FacultyReviewsTrainingScreenProps {
   onNavigate?: (screen: string) => void;
   onShowToast?: (msg: string, type?: 'success' | 'info' | 'warning') => void;
   extraWorkshops?: Array<{ id: string; title: string; cohort: string; deadline: string; studentCount: number }>;
+  facultyName?: string;
 }
 
 export default function FacultyReviewsTrainingScreen({
   onNavigate,
   onShowToast,
   extraWorkshops = [],
+  facultyName = 'Dr. S. Soundararajan (CDC Director)',
 }: FacultyReviewsTrainingScreenProps) {
   const [reviews, setReviews] = useState(initialSharedReviews);
   const [activeTab, setActiveTab] = useState<'reviews' | 'remediation'>('reviews');
@@ -39,7 +41,7 @@ export default function FacultyReviewsTrainingScreen({
             <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#8052ff]/10 text-[#8052ff] border border-[#8052ff]/30">
               FACULTY OVERSIGHT & ACCREDITATION
             </span>
-            <span className="text-xs text-[#8B8B93] font-mono">Prof. Sarah Jenkins (#FAC-2026-04)</span>
+            <span className="text-xs text-[#8B8B93] font-mono">{facultyName}</span>
           </div>
           <h1 className="text-xl font-bold text-white mt-1">Reviews & Institutional Training Hub</h1>
           <p className="text-xs text-[#8B8B93] mt-0.5">

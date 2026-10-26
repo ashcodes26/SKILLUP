@@ -1,0 +1,17 @@
+Section,Category / Role,Organization / Topic,Duration / Year,Details,Technologies / Tools / URL
+Personal Info,Full Name,SHIRIVARSHINI A,,,
+Personal Info,Contact Information,shirivarshinia2008@gmail.com | +91-7550328878 | Chennai, India,,,
+Personal Info,Profiles,LinkedIn | GitHub,,,
+Summary,Summary,First-year B.Tech CSE (AI/ML) student at SRM IST with a 9.745 CGPA, hands-on experience in Python and data analysis, and a completed EDA project on a 100K-record cybersecurity dataset. Currently building ML classification models on the same dataset and contributing to open source as a GSSoC 2026 participant. Fast learner who enjoys working at the intersection of data and real-world problems.,,,
+Education,B.Tech — Computer Science & Engineering (AI/ML Specialization),SRM Institute of Science and Technology, Chennai,2025 – 2029,"CGPA: 9.745 / 10.0; Relevant coursework: Data Structures & Algorithms, OOP, DBMS, Operating Systems, Discrete Mathematics, Probability & Statistics",
+Technical Skills,Languages,"Python, C, C++, Java (in progress)",,,
+Technical Skills,Data Science & ML,"NumPy, Pandas, Scikit-learn, Matplotlib, Seaborn, TensorFlow, PyTorch (learning)",,,
+Technical Skills,Tools & Platforms,"Git, GitHub, Linux (Ubuntu), Docker, Google Cloud Platform",,,
+Technical Skills,DSA,"Arrays, Linked Lists, Stacks, Queues, Trees, Recursion",,"40+ LeetCode problems",
+Projects,Cyber Attack Data Analysis — EDA & ML,,June 2026,"• Performed Exploratory Data Analysis (EDA) on a cyber attack dataset (~100K records) by loading the data, checking for missing values and duplicates, generating summary statistics, and validating data types using Pandas.
+• Created visualizations including attack type distribution, protocol distribution, duration histogram, and packet count vs. source bytes scatter plot to analyze network traffic patterns and extract meaningful insights.
+• Preprocessed the dataset using Label Encoding and trained Logistic Regression, Decision Tree, Random Forest, and K-Nearest Neighbors (KNN) classifiers. Compared model performance using accuracy, classification reports, and confusion matrices, with the Decision Tree Classifier achieving the highest accuracy.","Python, Pandas, Scikit-learn, Matplotlib, Seaborn | github.com/Shirivarshini/Cyber-Attack-Data-Analysis"
+Open Source Contributions,GSSoC Contributor — GirlScript Summer of Code 2026,GirlScript Foundation (Remote),June 2026 – August 2026,"• Contributing to Python and data-focused open-source repositories — writing code, resolving issues, improving documentation, and raising PRs through the full open-source workflow.
+• Gained real experience writing cleaner, reviewer-ready code by working in public repositories with active maintainer feedback.",
+Achievements,Academic Ranking,SRM Institute of Science and Technology,Year One,Ranked among the top performers in the B.Tech CSE batch at SRM IST with a 9.745 CGPA in year one.,
+Achievements,Problem Solving & Goals,,,"Solved 40+ LeetCode problems (arrays, trees, recursion, DP); self-studying TensorFlow, PyTorch, and Java to build toward deep learning projects and Google SWE internship targets.",

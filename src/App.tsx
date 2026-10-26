@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StudentProfileData, UserRole, UserSession } from './types';
-import { INITIAL_STUDENT_PROFILE, alexMercerSession, sarahJenkinsSession } from './data/mockData';
+import { INITIAL_STUDENT_PROFILE, DEMO_STUDENT_PROFILE, CLEAN_STUDENT_PROFILE, CLEAN_USER_SESSION, alexMercerSession, sarahJenkinsSession } from './data/mockData';
 import StudentHeader from './components/StudentHeader';
 import FacultyHeader from './components/FacultyHeader';
 import Footer from './components/Footer';
@@ -14,6 +14,8 @@ import JobSearchScreen from './screens/student/JobSearchScreen';
 import SkillDemandScreen from './screens/student/SkillDemandScreen';
 import PlacementHubScreen from './screens/student/PlacementHubScreen';
 import InterviewRoomScreen from './screens/student/InterviewRoomScreen';
+import SemesterAssessmentScreen from './screens/student/SemesterAssessmentScreen';
+import { SemesterAssessmentResult } from './types';
 
 import FacultyOverviewScreen from './screens/faculty/FacultyOverviewScreen';
 import FacultyStudentsScreen from './screens/faculty/FacultyStudentsScreen';
@@ -26,8 +28,26 @@ import FacultyImportScreen from './screens/faculty/FacultyImportScreen';
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(alexMercerSession);
   const [currentScreen, setCurrentScreen] = useState<string>('career-plan');
-  const [studentProfile, setStudentProfile] = useState<StudentProfileData>(INITIAL_STUDENT_PROFILE);
+  const [studentProfile, setStudentProfile] = useState<StudentProfileData>(CLEAN_STUDENT_PROFILE);
+  const [dataMode, setDataMode] = useState<'demo' | 'custom' | 'clean'>('clean');
   const [dockerQuizCompleted, setDockerQuizCompleted] = useState<boolean>(false);
+
+  // Sync currentUser with studentProfile when updated
+  React.useEffect(() => {
+    if (currentUser?.role === 'student' && studentProfile.name && studentProfile.name !== currentUser.name) {
+      setCurrentUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: studentProfile.name,
+              id: studentProfile.id || studentProfile.registerNumber || prev.id,
+              email: studentProfile.email || prev.email,
+              department: studentProfile.department || prev.department,
+            }
+          : null
+      );
+    }
+  }, [studentProfile.name, studentProfile.id, studentProfile.email, studentProfile.department]);
   const [copilotQuizSkillId, setCopilotQuizSkillId] = useState<string | null>(null);
   const [customRoadmapTasks, setCustomRoadmapTasks] = useState<
     Array<{ id: string; title: string; skillId?: string; time: string; objective: string }>
@@ -49,6 +69,9 @@ export default function App() {
 
   // Role-aware navigation helper so jumping between student & faculty screens never renders blank
   const handleNavigate = (screen: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     if (screen === 'login') {
       setCurrentScreen('login');
       return;
@@ -67,33 +90,92 @@ export default function App() {
   };
 
   const handleRoleSwitch = (newRole: UserRole) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     if (newRole === 'faculty') {
       setCurrentUser(sarahJenkinsSession);
       setCurrentScreen('admin-overview');
-      showToast('Switched to Faculty Placement Director console (Prof. Sarah Jenkins)', 'info');
+      showToast('Switched to Faculty Placement Director console (Dr. S. Soundararajan)', 'info');
     } else {
       setCurrentUser(alexMercerSession);
       setCurrentScreen('career-plan');
-      showToast('Switched to Student Candidate view (Alex R. Mercer)', 'info');
+      showToast('Switched to Student Candidate view (Aravind R. • RA2211003010482)', 'info');
     }
   };
 
   const handleLoginDemo = (role: UserRole) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     if (role === 'student') {
-      setCurrentUser(alexMercerSession);
+      handleLoadDemoData();
       setCurrentScreen('career-plan');
-      showToast('Authenticated as Student Candidate (Alex R. Mercer #STU-2026-88)', 'success');
     } else {
       setCurrentUser(sarahJenkinsSession);
       setCurrentScreen('admin-overview');
-      showToast('Authenticated as Placement Director (Prof. Sarah Jenkins #FAC-2026-04)', 'success');
+      showToast('Authenticated as Placement Director (Dr. S. Soundararajan • CDC)', 'success');
     }
   };
 
   const handleLogout = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     setCurrentUser(null);
     setCurrentScreen('login');
     showToast('Signed out of placement console session.', 'info');
+  };
+
+    const handleLoadDemoData = () => {
+    setStudentProfile(DEMO_STUDENT_PROFILE);
+    setCurrentUser(alexMercerSession);
+    setDataMode('demo');
+    showToast('⚡ Demo mode active (Aravind R. • 8.74 CGPA)', 'success');
+  };
+
+  const handleResetCleanState = () => {
+    setStudentProfile(CLEAN_STUDENT_PROFILE);
+    setCurrentUser(CLEAN_USER_SESSION);
+    setDataMode('clean');
+    showToast('Reset to clean state. Ready for fresh file upload.', 'info');
+  };
+
+  const handleSemesterAssessmentCompleted = (result: SemesterAssessmentResult) => {
+    setStudentProfile((prev) => ({
+      ...prev,
+      competencies: prev.competencies.map((c) => {
+        const lower = c.name.toLowerCase();
+        if (
+          c.id === 'comp-sql' ||
+          lower.includes('sql') ||
+          lower.includes('postgres') ||
+          lower.includes('database')
+        ) {
+          return {
+            ...c,
+            proficiency: 4.2,
+            evidenceSource: 'verified_assessment' as const,
+            evidenceLabel: `Semester Assessment (${result.percentageScore}%) • Verified (4.2/5.0)`,
+          };
+        }
+        if (
+          c.id === 'comp-sys' ||
+          lower.includes('system') ||
+          lower.includes('os') ||
+          lower.includes('network')
+        ) {
+          return {
+            ...c,
+            proficiency: 4.0,
+            evidenceSource: 'verified_assessment' as const,
+            evidenceLabel: `Semester Assessment (${result.percentageScore}%) • Verified (4.0/5.0)`,
+          };
+        }
+        return c;
+      }),
+    }));
+    showToast(`Semester Assessment completed! Score: ${result.percentageScore}% recorded to profile.`, 'success');
   };
 
   const handleDockerQuizFinished = () => {
@@ -149,9 +231,14 @@ export default function App() {
           currentPath={currentScreen}
           onNavigate={handleNavigate}
           onRoleSwitch={handleRoleSwitch}
-          studentId={currentUser.id}
-          studentName={currentUser.name}
+          studentId={studentProfile.registerNumber || studentProfile.id || ''}
+          studentName={studentProfile.name || ''}
+          studentCgpa={studentProfile.cgpa}
           onLogout={handleLogout}
+          dataMode={dataMode}
+          onLoadDemoData={handleLoadDemoData}
+          onResetCleanState={handleResetCleanState}
+          onUploadClick={() => handleNavigate('career-plan')}
         />
       ) : (
         <FacultyHeader
@@ -173,12 +260,23 @@ export default function App() {
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
                 profile={studentProfile}
-                onUpdateProfile={setStudentProfile}
+                onUpdateProfile={(updater) => {
+                  setStudentProfile((prev) => {
+                    const next = typeof updater === 'function' ? updater(prev) : updater;
+                    if (next.name && next.name !== 'Aravind R. (Alex Mercer)') {
+                      setDataMode('custom');
+                    }
+                    return next;
+                  });
+                }}
                 dockerScore={dockerCompScore}
                 onDockerQuizCompleted={handleDockerQuizFinished}
                 externalQuizSkillId={copilotQuizSkillId}
                 onClearExternalQuizSkillId={() => setCopilotQuizSkillId(null)}
                 customRoadmapTasks={customRoadmapTasks}
+                onLoadDemoData={handleLoadDemoData}
+                onResetCleanState={handleResetCleanState}
+                dataMode={dataMode}
               />
             )}
             {(currentScreen === 'resume-analyzer' ||
@@ -190,6 +288,7 @@ export default function App() {
                 onShowToast={showToast}
                 initialWorkspaceTab="resume"
                 targetRole={studentProfile.targetRole}
+                profile={studentProfile}
               />
             )}
             {(currentScreen === 'linkedin-optimizer' || currentScreen === 'linkedin_optimizer') && (
@@ -213,6 +312,10 @@ export default function App() {
                 onShowToast={showToast}
                 profile={studentProfile}
                 dockerScore={dockerCompScore}
+                onLaunchQuiz={(skillId) => {
+                  setCopilotQuizSkillId(skillId);
+                  handleNavigate('career-plan');
+                }}
               />
             )}
             {(currentScreen === 'placement-hub' || currentScreen === 'placement_hub') && (
@@ -228,6 +331,14 @@ export default function App() {
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
                 profile={studentProfile}
+              />
+            )}
+            {(currentScreen === 'assessment' || currentScreen === 'semester-assessment' || currentScreen === 'semester_assessment') && (
+              <SemesterAssessmentScreen
+                profile={studentProfile}
+                onNavigate={handleNavigate}
+                onShowToast={showToast}
+                onCompleteAssessment={handleSemesterAssessmentCompleted}
               />
             )}
           </>
@@ -262,6 +373,7 @@ export default function App() {
                 onNavigate={handleNavigate}
                 onShowToast={showToast}
                 extraWorkshops={facultyWorkshops}
+                facultyName={currentUser.role === 'faculty' ? currentUser.name : 'Dr. S. Soundararajan (CDC Director)'}
               />
             )}
             {(currentScreen === 'admin/reports' || currentScreen === 'admin-reports') && (

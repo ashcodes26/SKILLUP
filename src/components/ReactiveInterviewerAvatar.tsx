@@ -375,31 +375,21 @@ export default function ReactiveInterviewerAvatar({
                 </g>
               )}
 
-              {/* Dynamic Organic Mouth Overlay (Morphs dynamically during speech, seamless when resting) */}
-              {mouthOpen > 0.08 && (
+              {/* Dynamic Organic Mouth Overlay (Precisely calibrated to character lips at X:252, Y:305) */}
+              {mouthOpen > 0.06 && (
                 <g
                   id="organic-speech-mouth"
                   filter="url(#softLipEdge)"
-                  opacity={Math.min(1, (mouthOpen - 0.08) * 4)}
+                  opacity={Math.min(1, (mouthOpen - 0.06) * 3.5)}
                 >
-                  {/* Surrounding Skin Tone Patch for Flawless Blending */}
-                  <ellipse
-                    cx="246"
-                    cy="295"
-                    rx={38 + mouthSpread * 5}
-                    ry={14 + mouthOpen * 12}
-                    fill="#a86e70"
-                    opacity={0.4}
-                  />
-
-                  {/* Inner Oral Cavity & Teeth */}
+                  {/* Inner Oral Cavity & Subtle Teeth */}
                   {(() => {
-                    const cx = 246;
-                    const cy = 293;
-                    const hw = 28 + mouthSpread * 6; // half-width
-                    const openH = 4 + mouthOpen * 18; // opening height
-                    const topY = cy - openH * 0.35;
-                    const botY = cy + openH * 0.65;
+                    const cx = 252;
+                    const cy = 305;
+                    const hw = 19 + mouthSpread * 3; // calibrated realistic half-width
+                    const openH = Math.min(7, mouthOpen * 7.5); // subtle realistic speech opening
+                    const topY = cy - openH * 0.4;
+                    const botY = cy + openH * 0.6;
 
                     return (
                       <>
@@ -410,37 +400,26 @@ export default function ReactiveInterviewerAvatar({
                         />
 
                         {/* Upper Teeth Ridge Glimpse */}
-                        {mouthOpen > 0.22 && (
+                        {mouthOpen > 0.25 && (
                           <path
-                            d={`M ${cx - hw * 0.65} ${cy - 1} Q ${cx} ${topY + 1} ${cx + hw * 0.65} ${cy - 1} Q ${cx} ${cy + Math.min(4, mouthOpen * 4)} ${cx - hw * 0.65} ${cy - 1} Z`}
-                            fill="#f4f5f7"
-                            opacity={0.95}
+                            d={`M ${cx - hw * 0.55} ${cy} Q ${cx} ${topY + 0.5} ${cx + hw * 0.55} ${cy} Q ${cx} ${cy + Math.min(2.5, mouthOpen * 2.5)} ${cx - hw * 0.55} ${cy} Z`}
+                            fill="#f8f9fa"
+                            opacity={0.9}
                           />
                         )}
 
-                        {/* Tongue Depth Glimpse */}
-                        {mouthOpen > 0.45 && (
-                          <path
-                            d={`M ${cx - hw * 0.5} ${botY - 2} Q ${cx} ${botY - openH * 0.3} ${cx + hw * 0.5} ${botY - 2} Q ${cx} ${botY} ${cx - hw * 0.5} ${botY - 2} Z`}
-                            fill="#a8434d"
-                            opacity={0.85}
-                          />
-                        )}
-
-                        {/* Upper Lip Contour */}
+                        {/* Subtle Lip Shading Contours Matching Real Lip Vermillion */}
                         <path
-                          d={`M ${cx - hw - 2} ${cy} Q ${cx} ${topY - 1} ${cx + hw + 2} ${cy} Q ${cx} ${topY + 2} ${cx - hw - 2} ${cy} Z`}
+                          d={`M ${cx - hw - 1} ${cy} Q ${cx} ${topY - 0.8} ${cx + hw + 1} ${cy} Q ${cx} ${topY + 1} ${cx - hw - 1} ${cy} Z`}
                           fill="url(#lipGrad)"
-                          stroke="#7a3e42"
-                          strokeWidth="0.8"
+                          stroke="#6b3538"
+                          strokeWidth="0.6"
                         />
-
-                        {/* Lower Lip Contour */}
                         <path
-                          d={`M ${cx - hw} ${cy} Q ${cx} ${botY} ${cx + hw} ${cy} Q ${cx} ${botY + 3.5} ${cx - hw} ${cy} Z`}
+                          d={`M ${cx - hw} ${cy} Q ${cx} ${botY} ${cx + hw} ${cy} Q ${cx} ${botY + 2} ${cx - hw} ${cy} Z`}
                           fill="url(#lipGrad)"
-                          stroke="#7a3e42"
-                          strokeWidth="0.8"
+                          stroke="#6b3538"
+                          strokeWidth="0.6"
                         />
                       </>
                     );

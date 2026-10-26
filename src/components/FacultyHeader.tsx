@@ -39,26 +39,21 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-[#0D0D0F]">
+    <header className="fixed top-0 left-0 w-full z-50 bg-[#09090b]/90 backdrop-blur-md">
       {/* Top Main Navigation Bar */}
-      <div className="h-16 w-full px-4 md:px-6 flex items-center justify-between border-b border-[#202023]">
+      <div className="h-14 w-full px-4 md:px-6 flex items-center justify-between border-b border-[#27272a]">
         <div className="flex items-center gap-6">
           <button
             onClick={() => onNavigate('admin-overview')}
             className="flex items-center gap-2.5 cursor-pointer group text-left"
           >
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#16161A] text-[#ffba35] border border-[#ffba35]/40 group-hover:border-[#ffba35] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">shield</span>
+            <span className="flex items-center justify-center w-7 h-7 rounded-md bg-[#18181b] text-[#ffba35] border border-[#ffba35]/40 group-hover:border-[#ffba35] transition-colors">
+              <span className="material-symbols-outlined text-[17px]">shield</span>
             </span>
-            <div className="flex flex-col">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold tracking-tight text-white">Skillup</span>
-                <span className="text-[10px] font-mono font-bold tracking-widest px-1.5 py-0.5 rounded bg-[#ffba35]/20 text-[#ffba35] border border-[#ffba35]/30">
-                  CDC CONSOLE
-                </span>
-              </div>
-              <span className="text-[9px] font-mono text-[#9A9A9A] tracking-wider hidden xl:block leading-none">
-                Directorate of Career Centre (CDC) — SRMIST Kattankulathur
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold tracking-tight text-white">Skillup</span>
+              <span className="text-[10px] font-mono font-medium tracking-wide px-1.5 py-0.5 rounded bg-[#ffba35]/15 text-[#ffba35] border border-[#ffba35]/30">
+                CDC CONSOLE
               </span>
             </div>
           </button>
@@ -209,7 +204,7 @@ export const FacultyHeader: React.FC<FacultyHeaderProps> = ({
 
           <div className="hidden lg:flex flex-col text-right leading-none">
             <span className="text-xs font-semibold text-white">Dr. S. Soundararajan</span>
-            <span className="text-[11px] text-[#ffba35]">Directorate of Career Centre (CDC) • SRMIST Kattankulathur</span>
+            <span className="text-[11px] text-[#ffba35]">Directorate of Career Centre (CDC) • SRMIST</span>
           </div>
 
           <div className="w-8 h-8 rounded-full bg-[#ffba35]/20 border border-[#ffba35]/40 text-[#ffba35] flex items-center justify-center font-bold text-xs shrink-0">

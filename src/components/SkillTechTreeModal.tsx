@@ -555,6 +555,10 @@ export const TECH_TREE_DEFINITIONS: Record<string, TreeDefinition> = {
   },
 };
 
+// Alias mappings for alternate demand IDs
+TECH_TREE_DEFINITIONS['dem-pg'] = TECH_TREE_DEFINITIONS['dem-sql'];
+TECH_TREE_DEFINITIONS['dem-api'] = TECH_TREE_DEFINITIONS['dem-git'];
+
 export default function SkillTechTreeModal({
   isOpen,
   onClose,

@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StudentProfileData, SRMPlacementTier, InterviewRoundMode, CDCInterviewScorecard } from '../../types';
 import { INITIAL_STUDENT_PROFILE } from '../../data/mockData';
 import ReactiveInterviewerAvatar, { AvatarState } from '../../components/ReactiveInterviewerAvatar';
+import {
+  generateRealtimeFollowup,
+  generateFinalAnalysis,
+  isInsufficientResponse,
+  CDCEvaluationReport,
+  TurnExchange,
+  RealtimeFollowupResult,
+} from '../../services/aiInterviewService';
 
 interface InterviewRoomScreenProps {
   onNavigate?: (screen: string) => void;
@@ -36,12 +44,37 @@ interface DialogueTurn {
   speaker: 'interviewer' | 'student';
   speakerName: string;
   text: string;
+  feedback?: string;
   timestamp: string;
   topic?: string;
   scoreMatchPct?: number;
 }
 
 const TARGET_COMPANIES: TargetCompanyOption[] = [
+  {
+    id: 'google-swe',
+    name: 'Google',
+    role: 'Software Engineer - AI & Scalable Infrastructure',
+    tier: 'Super Dream',
+    ctc: '₹55.0 LPA',
+    location: 'Bengaluru / Hyderabad',
+    eligibilityCutoff: 'CGPA ≥ 8.50 • 0 Standing Arrears',
+    isEligible: true,
+    logoIcon: 'terminal',
+    color: '#4285F4',
+  },
+  {
+    id: 'microsoft-sde',
+    name: 'Microsoft',
+    role: 'Software Engineer - Azure Cloud Core & Data Platforms',
+    tier: 'Super Dream',
+    ctc: '₹48.0 LPA',
+    location: 'Bengaluru / Hyderabad / Noida',
+    eligibilityCutoff: 'CGPA ≥ 8.00 • 0 Standing Arrears',
+    isEligible: true,
+    logoIcon: 'dns',
+    color: '#00A4EF',
+  },
   {
     id: 'amazon-sde1',
     name: 'Amazon',
@@ -209,6 +242,8 @@ export default function InterviewRoomScreen({
   const [step, setStep] = useState<'setup' | 'live' | 'scorecard'>('setup');
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('amazon-sde1');
   const [roundMode, setRoundMode] = useState<InterviewRoundMode>('technical');
+  const [aiEvaluation, setAiEvaluation] = useState<CDCEvaluationReport | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   // Full-Screen Immersive Mode
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -226,19 +261,39 @@ export default function InterviewRoomScreen({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [liveInterimSpeech, setLiveInterimSpeech] = useState<string>('');
+  const [currentTurnFeedback, setCurrentTurnFeedback] = useState<string>('');
   const [responses, setResponses] = useState<Record<number, string>>({});
   const [secondsRemaining, setSecondsRemaining] = useState<number>(900); // 15:00
   const [dialogueHistory, setDialogueHistory] = useState<DialogueTurn[]>([]);
 
   // Word-by-Word Karaoke Subtitle Synchronization State
+  const [speechSubtitlePhase, setSpeechSubtitlePhase] = useState<'idle' | 'feedback' | 'question'>('idle');
   const [activeCharIndex, setActiveCharIndex] = useState<number>(-1);
   const [activeWordIndex, setActiveWordIndex] = useState<number>(-1);
   const [subtitleAnimKey, setSubtitleAnimKey] = useState<number>(0);
   const wordTickerTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const sequenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const restartTimerRef = useRef<NodeJS.Timeout | null>(null);
   const boundaryFiredRef = useRef<boolean>(false);
+  const isMountedRef = useRef<boolean>(true);
 
   // Audio / Speech & Natural Voice Engine State
   const [isMicActive, setIsMicActive] = useState<boolean>(false);
+  const [micAudioLevel, setMicAudioLevel] = useState<number>(0);
+  const isMicActiveRef = useRef<boolean>(false);
+  const avatarStateRef = useRef<AvatarState>('idle');
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioAnimFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    isMicActiveRef.current = isMicActive;
+  }, [isMicActive]);
+
+  useEffect(() => {
+    avatarStateRef.current = avatarState;
+  }, [avatarState]);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [silenceCounter, setSilenceCounter] = useState<number>(0);
   const [micPermissionDenied, setMicPermissionDenied] = useState<boolean>(false);
@@ -256,21 +311,41 @@ export default function InterviewRoomScreen({
   const recognitionRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const currentAnswerRef = useRef<string>('');
+  const liveTranscriptRef = useRef<string>('');
 
   currentAnswerRef.current = userAnswer;
 
   const selectedCompany = TARGET_COMPANIES.find((c) => c.id === selectedCompanyId) || TARGET_COMPANIES[0];
-  const activeQuestions = roundMode === 'technical' ? TECHNICAL_QUESTIONS : HR_QUESTIONS;
+  const initialQuestions = React.useMemo(() => {
+    const rawList = roundMode === 'technical' ? TECHNICAL_QUESTIONS : HR_QUESTIONS;
+    return rawList.map((q) => {
+      let customQ = q.question.replace(/8\.74/g, profile.cgpa ? profile.cgpa.toFixed(2) : '8.74');
+      if (profile.name && q.id === 2 && roundMode === 'hr') {
+        customQ = `You hold a ${profile.cgpa.toFixed(2)} CGPA with ${profile.standingArrears ?? 0} standing arrears at SRMIST, qualifying for top placement drives. Why are you specifically targeting ${selectedCompany.name}'s engineering culture?`;
+      }
+      return {
+        ...q,
+        question: customQ,
+      };
+    });
+  }, [roundMode, profile.cgpa, profile.standingArrears, selectedCompany.name]);
+
+  const [activeQuestions, setActiveQuestions] = useState<InterviewQuestionData[]>(initialQuestions);
+
+  useEffect(() => {
+    setActiveQuestions(initialQuestions);
+    setCurrentQuestionIndex(0);
+  }, [initialQuestions]);
+
   const currentQuestion = activeQuestions[currentQuestionIndex] || activeQuestions[0];
 
-  // Tokenize question into discrete words with character offsets for karaoke highlighting
-  const questionWordTokens = React.useMemo(() => {
-    const text = currentQuestion.question || '';
+  // Helper to tokenize text into discrete words with character offsets for karaoke highlighting
+  const tokenizeWords = (text: string) => {
     const tokens: Array<{ word: string; start: number; end: number; index: number }> = [];
     const regex = /\S+/g;
     let match: RegExpExecArray | null;
     let idx = 0;
-    while ((match = regex.exec(text)) !== null) {
+    while ((match = regex.exec(text || '')) !== null) {
       tokens.push({
         word: match[0],
         start: match.index,
@@ -279,7 +354,17 @@ export default function InterviewRoomScreen({
       });
     }
     return tokens;
-  }, [currentQuestion.question]);
+  };
+
+  // Tokenize question into discrete words for karaoke highlighting
+  const questionWordTokens = React.useMemo(() => {
+    return tokenizeWords(currentQuestion?.question || '');
+  }, [currentQuestion?.question]);
+
+  // Tokenize feedback into discrete words for karaoke highlighting
+  const feedbackWordTokens = React.useMemo(() => {
+    return tokenizeWords(currentTurnFeedback || '');
+  }, [currentTurnFeedback]);
 
   const interviewerName =
     roundMode === 'technical'
@@ -311,31 +396,57 @@ export default function InterviewRoomScreen({
       }, 1000);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
+      stopAllSpeech();
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [step]);
 
+  // Master cancel/stop for all audio & synthesis to prevent sound leaking on navigation or screen changes
+  function stopAllSpeech() {
+    if (sequenceTimeoutRef.current) {
+      clearTimeout(sequenceTimeoutRef.current);
+      sequenceTimeoutRef.current = null;
+    }
+    if (wordTickerTimerRef.current) {
+      clearInterval(wordTickerTimerRef.current);
+      wordTickerTimerRef.current = null;
+    }
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    stopStudentMic();
+    setSpeechSubtitlePhase('idle');
+  }
+
   // Clean up speech synthesis & recognition on unmount or screen exit
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      isMountedRef.current = false;
+      stopAllSpeech();
+    };
+  }, []);
+
+  // Stop speech synthesis if the tab/window is hidden or backgrounded
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopAllSpeech();
       }
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {
-          // ignore
-        }
-      }
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-      }
-      if (wordTickerTimerRef.current) {
-        clearInterval(wordTickerTimerRef.current);
-      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 
@@ -410,10 +521,11 @@ export default function InterviewRoomScreen({
   const handlePreviewVoice = (voiceURI?: string, customRate?: number, customPitch?: number) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+      const candidateFirst = profile.name ? profile.name.split(' ')[0] : 'Candidate';
       const testPhrase =
         roundMode === 'technical'
-          ? "Hello Aravind, I am Vikram from the CDC technical panel. Let's examine your distributed backend systems and index scaling."
-          : "Hello Aravind, I am Meenakshi from the placement board. I'll be exploring your capstone teamwork and leadership principles.";
+          ? `Hello ${candidateFirst}, I am Vikram from the CDC technical panel. Let's examine your distributed backend systems and index scaling.`
+          : `Hello ${candidateFirst}, I am Meenakshi from the placement board. I'll be exploring your capstone teamwork and leadership principles.`;
 
       const utt = new SpeechSynthesisUtterance(testPhrase);
       utt.rate = customRate ?? speechRate;
@@ -430,50 +542,26 @@ export default function InterviewRoomScreen({
     }
   };
 
-  // Speak Interviewer Question via Natural Voice Engine with Word-Boundary Synchronization
-  const speakInterviewerQuestion = (text: string) => {
-    // 1. Mute/Stop microphone while avatar speaks to prevent audio loopback
-    stopStudentMic();
-
-    // Reset karaoke word-boundary and trigger subtitle smooth fade-in
-    setSubtitleAnimKey((prev) => prev + 1);
-    setActiveCharIndex(0);
-    setActiveWordIndex(0);
-    boundaryFiredRef.current = false;
+  // Helper to speak a single phase (feedback or question) with word-by-word karaoke synchronization
+  const speakPhaseUtterance = (
+    textToSpeak: string,
+    tokens: Array<{ word: string; start: number; end: number; index: number }>,
+    onComplete: () => void
+  ) => {
     if (wordTickerTimerRef.current) {
       clearInterval(wordTickerTimerRef.current);
       wordTickerTimerRef.current = null;
     }
+    setActiveWordIndex(0);
+    setActiveCharIndex(0);
+    boundaryFiredRef.current = false;
 
     if ('speechSynthesis' in window && !isMuted) {
       window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = speechRate;
+      utterance.pitch = speechPitch;
 
-      // Format text with human prosody micro-pauses at hyphens & brackets
-      const humanizedText = text.replace(/ — /g, ', ').replace(/ \/ /g, ' or ');
-
-      const utterance = new SpeechSynthesisUtterance(humanizedText);
-      utterance.rate = speechRate; // Natural unhurried executive pace (0.96)
-      utterance.pitch = speechPitch; // Rich chest resonance (0.98)
-
-      // 2. Attach SpeechSynthesis Word-Boundary Event
-      utterance.onboundary = (event: SpeechSynthesisEvent) => {
-        if (event.name === 'word') {
-          boundaryFiredRef.current = true;
-          setActiveCharIndex(event.charIndex);
-
-          // Locate word token by character index offset
-          const token =
-            questionWordTokens.find(
-              (t) => event.charIndex >= t.start && event.charIndex <= t.end
-            ) || questionWordTokens.find((t) => t.start >= event.charIndex);
-
-          if (token) {
-            setActiveWordIndex(token.index);
-          }
-        }
-      };
-
-      // Select chosen high-fidelity natural voice
       const activeVoice =
         availableVoices.find((v) => v.voiceURI === selectedVoiceURI) ||
         availableVoices[0];
@@ -481,182 +569,380 @@ export default function InterviewRoomScreen({
         utterance.voice = activeVoice;
       }
 
-      setAvatarState('speaking');
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
+        if (event.name === 'word') {
+          boundaryFiredRef.current = true;
+          const charIdx = event.charIndex;
+          setActiveCharIndex(charIdx);
 
-      // Fallback ticker to guarantee smooth karaoke progression if system engine skips boundary events
-      const totalTokens = questionWordTokens.length || 1;
+          const token =
+            tokens.find((t) => charIdx >= t.start && charIdx <= t.end) ||
+            tokens.find((t) => t.start >= charIdx);
+
+          if (token) {
+            setActiveWordIndex(token.index);
+          }
+        }
+      };
+
+      const totalTokens = tokens.length || 1;
       let fallbackIndex = 0;
+      const wordInterval = Math.max(160, Math.round(285 / speechRate));
       wordTickerTimerRef.current = setInterval(() => {
         if (!boundaryFiredRef.current) {
           fallbackIndex++;
           if (fallbackIndex < totalTokens) {
             setActiveWordIndex(fallbackIndex);
           } else {
-            if (wordTickerTimerRef.current) clearInterval(wordTickerTimerRef.current);
+            if (wordTickerTimerRef.current) {
+              clearInterval(wordTickerTimerRef.current);
+              wordTickerTimerRef.current = null;
+            }
           }
         }
-      }, Math.round(285 / speechRate));
+      }, wordInterval);
 
       utterance.onend = () => {
-        if (wordTickerTimerRef.current) clearInterval(wordTickerTimerRef.current);
-        setActiveWordIndex(questionWordTokens.length);
+        if (wordTickerTimerRef.current) {
+          clearInterval(wordTickerTimerRef.current);
+          wordTickerTimerRef.current = null;
+        }
+        if (!isMountedRef.current) return;
+        setActiveWordIndex(tokens.length);
         setActiveCharIndex(-1);
-        // Once avatar finishes speaking, transition to listening and open mic hands-free!
-        setAvatarState('listening');
-        startStudentMic();
+        onComplete();
       };
 
-      utterance.onerror = () => {
-        if (wordTickerTimerRef.current) clearInterval(wordTickerTimerRef.current);
-        setActiveWordIndex(questionWordTokens.length);
+      utterance.onerror = (err: any) => {
+        if (wordTickerTimerRef.current) {
+          clearInterval(wordTickerTimerRef.current);
+          wordTickerTimerRef.current = null;
+        }
+        // If canceled, interrupted, or component unmounted/navigated away, abort immediately!
+        if (!isMountedRef.current || err?.error === 'canceled' || err?.error === 'interrupted') {
+          return;
+        }
+        console.warn('SpeechSynthesis error:', err);
+        setActiveWordIndex(tokens.length);
         setActiveCharIndex(-1);
-        setAvatarState('listening');
-        startStudentMic();
+        onComplete();
       };
 
       window.speechSynthesis.speak(utterance);
     } else {
-      // If speechSynthesis unavailable or muted, simulate short speaking duration with word ticker
-      setAvatarState('speaking');
-      const totalTokens = questionWordTokens.length || 1;
+      // Fallback if speechSynthesis is not available or isMuted
+      const totalTokens = tokens.length || 1;
       let fallbackIndex = 0;
+      const duration = Math.min(4000, Math.max(1200, totalTokens * 180));
+      const stepTime = Math.max(80, Math.round(duration / totalTokens));
+
       wordTickerTimerRef.current = setInterval(() => {
         fallbackIndex++;
         if (fallbackIndex < totalTokens) {
           setActiveWordIndex(fallbackIndex);
         } else {
-          if (wordTickerTimerRef.current) clearInterval(wordTickerTimerRef.current);
+          if (wordTickerTimerRef.current) {
+            clearInterval(wordTickerTimerRef.current);
+            wordTickerTimerRef.current = null;
+          }
         }
-      }, 260);
+      }, stepTime);
 
-      setTimeout(() => {
-        if (wordTickerTimerRef.current) clearInterval(wordTickerTimerRef.current);
-        setActiveWordIndex(questionWordTokens.length);
-        setAvatarState('listening');
-        startStudentMic();
-      }, 2800);
+      sequenceTimeoutRef.current = setTimeout(() => {
+        if (wordTickerTimerRef.current) {
+          clearInterval(wordTickerTimerRef.current);
+          wordTickerTimerRef.current = null;
+        }
+        if (!isMountedRef.current) return;
+        setActiveWordIndex(tokens.length);
+        onComplete();
+      }, duration);
     }
   };
 
-  // Start Student Microphone using Web Speech API
-  const startStudentMic = () => {
+  // Sequenced Interviewer Speech: Speaks technical reaction first (with reaction subtitles),
+  // then seamlessly transitions to speaking the next question (with question subtitles)
+  const speakInterviewerSequence = (feedbackText?: string, questionText?: string) => {
+    stopStudentMic();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (sequenceTimeoutRef.current) {
+      clearTimeout(sequenceTimeoutRef.current);
+      sequenceTimeoutRef.current = null;
+    }
+    if (wordTickerTimerRef.current) {
+      clearInterval(wordTickerTimerRef.current);
+      wordTickerTimerRef.current = null;
+    }
+
+    if (!isMountedRef.current) return;
+
+    setAvatarState('speaking');
+
+    const cleanFeedback = (feedbackText || '').trim();
+    const cleanQuestion = (questionText || '').trim();
+
+    const startQuestionPhase = () => {
+      if (!isMountedRef.current) return;
+      setSpeechSubtitlePhase('question');
+      setSubtitleAnimKey((prev) => prev + 1);
+
+      const qTokens = tokenizeWords(cleanQuestion);
+      speakPhaseUtterance(cleanQuestion, qTokens, () => {
+        if (!isMountedRef.current) return;
+        setSpeechSubtitlePhase('idle');
+        setAvatarState('listening');
+        startStudentMic();
+      });
+    };
+
+    if (cleanFeedback) {
+      setSpeechSubtitlePhase('feedback');
+      setSubtitleAnimKey((prev) => prev + 1);
+
+      const fTokens = tokenizeWords(cleanFeedback);
+      speakPhaseUtterance(cleanFeedback, fTokens, () => {
+        if (!isMountedRef.current) return;
+        // Natural 450ms conversational pause before delivering the follow-up question
+        sequenceTimeoutRef.current = setTimeout(() => {
+          if (!isMountedRef.current) return;
+          startQuestionPhase();
+        }, 450);
+      });
+    } else {
+      startQuestionPhase();
+    }
+  };
+
+  // Speak Interviewer Question convenience wrapper
+  const speakInterviewerQuestion = (text: string) => {
+    speakInterviewerSequence('', text);
+  };
+
+  // Audio Analyser & Real-Time Waveform Equalizer
+  const initAudioAnalyser = async () => {
+    try {
+      if (!audioStreamRef.current && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioStreamRef.current = stream;
+      }
+      if (audioStreamRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          if (!audioContextRef.current) {
+            audioContextRef.current = new AudioContextClass();
+          }
+          const ctx = audioContextRef.current;
+          if (ctx.state === 'suspended') {
+            await ctx.resume();
+          }
+          if (!analyserRef.current) {
+            const source = ctx.createMediaStreamSource(audioStreamRef.current);
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 64;
+            source.connect(analyser);
+            analyserRef.current = analyser;
+          }
+
+          const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+          const updateLevel = () => {
+            if (!analyserRef.current || !isMicActiveRef.current) return;
+            analyserRef.current.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            const average = sum / dataArray.length;
+            const normalized = Math.min(100, Math.round((average / 128) * 100));
+            setMicAudioLevel(normalized);
+            audioAnimFrameRef.current = requestAnimationFrame(updateLevel);
+          };
+          updateLevel();
+        }
+      }
+    } catch (e) {
+      console.warn('Audio analyser / getUserMedia init skipped or denied:', e);
+    }
+  };
+
+  const stopAudioAnalyser = () => {
+    if (audioAnimFrameRef.current) {
+      cancelAnimationFrame(audioAnimFrameRef.current);
+      audioAnimFrameRef.current = null;
+    }
+    setMicAudioLevel(0);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopAudioAnalyser();
+      if (audioContextRef.current) {
+        try { audioContextRef.current.close(); } catch (e) {}
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
+
+  // Start Student Microphone using Web Speech API (with persistent loop & hardware audio connection)
+  const startStudentMic = async () => {
     const SpeechRecognition =
       (window as unknown as { SpeechRecognition?: any }).SpeechRecognition ||
       (window as unknown as { webkitSpeechRecognition?: any }).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setMicPermissionDenied(true);
-      onShowToast?.('SpeechRecognition API not available in this browser. Fallback input is ready.', 'info');
+      onShowToast?.('SpeechRecognition API not available in this browser. You can type directly in the response box.', 'info');
       return;
     }
 
     try {
+      // Abort previous recognition instance if still lingering to avoid double-start exceptions
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
+          recognitionRef.current.abort();
         } catch (e) {
           // ignore
         }
+        recognitionRef.current = null;
       }
+
+      isMicActiveRef.current = true;
+      setIsMicActive(true);
 
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      // Adapt to user's locale (defaults to English India / English US for high-accuracy phonetic recognition)
+      const browserLang = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+      recognition.lang = browserLang && browserLang.startsWith('en') ? browserLang : 'en-IN';
 
       recognition.onstart = () => {
+        isMicActiveRef.current = true;
         setIsMicActive(true);
         setMicPermissionDenied(false);
       };
 
       recognition.onresult = (event: any) => {
-        let interim = '';
-        let finalChunk = '';
+        let interimText = '';
+        let finalTranscripts = '';
 
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalChunk += transcript;
+          const item = event.results[i];
+          const text = item[0]?.transcript || '';
+          if (item.isFinal) {
+            finalTranscripts += text + ' ';
           } else {
-            interim += transcript;
+            interimText += text;
           }
         }
 
-        if (interim) {
-          setLiveInterimSpeech(interim);
-        }
-
-        if (finalChunk) {
+        if (finalTranscripts.trim()) {
           setUserAnswer((prev) => {
-            const updated = prev ? `${prev} ${finalChunk.trim()}` : finalChunk.trim();
+            const trimmedPrev = (prev || '').trim();
+            const trimmedFinal = finalTranscripts.trim();
+            const updated = trimmedPrev ? `${trimmedPrev} ${trimmedFinal}` : trimmedFinal;
+            currentAnswerRef.current = updated;
+            liveTranscriptRef.current = updated;
             return updated;
           });
           setLiveInterimSpeech('');
         }
 
-        // --- Hands-Free Turn Taking: 2-Second Silence Detection ---
+        if (interimText) {
+          setLiveInterimSpeech(interimText);
+          const currentBase = currentAnswerRef.current || '';
+          liveTranscriptRef.current = currentBase ? `${currentBase} ${interimText}` : interimText;
+        }
+
+        // --- Hands-Free Turn Taking: 3.5-Second Silence Detection ---
         if (isHandsFreeEnabled) {
-          // Reset existing silence timer
           if (silenceTimeoutRef.current) {
             clearTimeout(silenceTimeoutRef.current);
           }
 
-          // Start 2000ms countdown after last word spoken
+          // Start 3500ms countdown after last word spoken
           silenceTimeoutRef.current = setTimeout(() => {
-            const accumulated = (currentAnswerRef.current || finalChunk || interim).trim();
-            // Ensure student has spoken meaningful words (> 15 chars) before auto-submitting
-            if (accumulated.length >= 15) {
+            const accumulated = (liveTranscriptRef.current || currentAnswerRef.current || finalTranscripts || interimText).trim();
+            if (accumulated.length >= 3) {
               handleAutoSubmitTurn(accumulated);
             }
-          }, 2000);
+          }, 3500);
         }
       };
 
       recognition.onerror = (event: any) => {
+        // Ignore 'no-speech' error — user is simply pausing/thinking!
+        if (event.error === 'no-speech') {
+          return;
+        }
+
         console.warn('SpeechRecognition error:', event.error);
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           setMicPermissionDenied(true);
+          isMicActiveRef.current = false;
           setIsMicActive(false);
-          onShowToast?.('Microphone permission required for voice engine. You can also type your answer.', 'warning');
+          stopAudioAnalyser();
+          onShowToast?.('Microphone permission blocked. You can type directly in the response box.', 'warning');
+        } else if (event.error === 'network') {
+          onShowToast?.('Speech service network issue. You can type directly in the response box.', 'info');
         }
       };
 
       recognition.onend = () => {
-        // If still in listening state and not speaking, keep recognition alive
-        if (avatarState === 'listening' && isMicActive) {
-          try {
-            recognition.start();
-          } catch (e) {
-            setIsMicActive(false);
-          }
-        } else {
+        // Auto-restart recognition continuously while user wants the mic on.
+        if (isMicActiveRef.current && avatarStateRef.current === 'listening') {
+          setTimeout(() => {
+            if (isMicActiveRef.current && avatarStateRef.current === 'listening') {
+              startStudentMic();
+            }
+          }, 200);
+        } else if (!isMicActiveRef.current) {
           setIsMicActive(false);
+          stopAudioAnalyser();
         }
       };
 
       recognitionRef.current = recognition;
       recognition.start();
+
+      // Launch audio analyser asynchronously without blocking speech recognition
+      initAudioAnalyser().catch(() => {});
     } catch (err) {
       console.warn('Speech recognition init error:', err);
+      isMicActiveRef.current = false;
       setIsMicActive(false);
+      stopAudioAnalyser();
     }
   };
 
-  // Stop Student Microphone
-  const stopStudentMic = () => {
+  // Stop Student Microphone (hoisted function for safe access anywhere)
+  function stopStudentMic() {
+    isMicActiveRef.current = false;
     setIsMicActive(false);
     setLiveInterimSpeech('');
+    stopAudioAnalyser();
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
     }
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
+        recognitionRef.current.abort();
       } catch (e) {
         // ignore
       }
+      recognitionRef.current = null;
     }
-  };
+  }
 
   // Toggle Microphone Manually
   const handleToggleMic = () => {
@@ -670,32 +956,53 @@ export default function InterviewRoomScreen({
     }
   };
 
-  // Auto-Submit Turn when 2-second silence is detected
+  // Auto-Submit Turn when silence is detected
   const handleAutoSubmitTurn = (answerText: string) => {
     stopStudentMic();
     setAvatarState('thinking');
-    onShowToast?.('2-second pause detected — Auto-submitting response...', 'info');
+    const cleanAnswer = answerText?.trim() || liveTranscriptRef.current.trim() || "I don't know";
+    onShowToast?.('Submitting spoken response...', 'info');
 
-    // Simulate thinking & evaluation for 1.6s before interviewer speaks follow-up
     setTimeout(() => {
-      commitTurnAndAdvance(answerText);
-    }, 1600);
+      commitTurnAndAdvance(cleanAnswer);
+    }, 800);
   };
 
   // Manual Submit Button Handler
   const handleManualSubmit = () => {
-    const textToSubmit = userAnswer.trim() || liveInterimSpeech.trim() || currentQuestion.starterSnippet;
+    const textToSubmit =
+      userAnswer.trim() ||
+      liveInterimSpeech.trim() ||
+      liveTranscriptRef.current.trim() ||
+      "I don't know";
     stopStudentMic();
     setAvatarState('thinking');
 
     setTimeout(() => {
       commitTurnAndAdvance(textToSubmit);
-    }, 1200);
+    }, 800);
+  };
+
+  // One-click direct "I don't know" submission
+  const handleSayIDontKnow = () => {
+    stopStudentMic();
+    setUserAnswer("I don't know");
+    liveTranscriptRef.current = "I don't know";
+    setAvatarState('thinking');
+    onShowToast?.('Submitting: "I don\'t know"', 'info');
+
+    setTimeout(() => {
+      commitTurnAndAdvance("I don't know");
+    }, 600);
   };
 
   // Commit Answer & Advance to Next Question / Dynamic Grill
-  const commitTurnAndAdvance = (text: string) => {
-    const finalAnswer = text || currentQuestion.starterSnippet;
+  const commitTurnAndAdvance = async (text: string) => {
+    const finalAnswer =
+      text?.trim() ||
+      userAnswer.trim() ||
+      liveTranscriptRef.current.trim() ||
+      "I don't know";
 
     // Record response
     setResponses((prev) => ({
@@ -716,46 +1023,113 @@ export default function InterviewRoomScreen({
     setDialogueHistory((prev) => [...prev, studentTurn]);
     setUserAnswer('');
     setLiveInterimSpeech('');
+    liveTranscriptRef.current = '';
 
-    // Advance question or finish
+    // Advance question with real-time Gemini follow-up or finish
     if (currentQuestionIndex < activeQuestions.length - 1) {
       const nextIndex = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(nextIndex);
-      const nextQuestion = activeQuestions[nextIndex];
+      const answeredQuestionText = currentQuestion.question;
+      setAvatarState('thinking');
+      onShowToast?.('Interviewer is analyzing your response and formulating natural feedback...', 'info');
 
-      const nextInterviewerTurn: DialogueTurn = {
-        id: `turn-${Date.now()}-q${nextIndex + 1}`,
-        speaker: 'interviewer',
-        speakerName: interviewerName,
-        text: nextQuestion.question,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        topic: nextQuestion.topic,
-      };
+      try {
+        const followupResult = await generateRealtimeFollowup({
+          companyName: selectedCompany.name,
+          targetRole: profile.targetRole || 'Junior Backend Engineer (Distributed Systems)',
+          questionAsked: answeredQuestionText,
+          studentAnswer: finalAnswer,
+          turnNumber: nextIndex,
+          roundMode: roundMode,
+        });
 
-      setDialogueHistory((prev) => [...prev, nextInterviewerTurn]);
+        setActiveQuestions((prev) =>
+          prev.map((q, idx) =>
+            idx === nextIndex
+              ? {
+                  ...q,
+                  question: followupResult.nextQuestion,
+                  topic: followupResult.stageTitle || q.topic,
+                }
+              : q
+          )
+        );
+        setCurrentTurnFeedback(followupResult.naturalFeedback);
+        setCurrentQuestionIndex(nextIndex);
 
-      // Speak next question
-      speakInterviewerQuestion(nextQuestion.question);
-      onShowToast?.(`Advancing to Question ${nextIndex + 1} of ${activeQuestions.length}!`, 'success');
+        const nextInterviewerTurn: DialogueTurn = {
+          id: `turn-${Date.now()}-q${nextIndex + 1}`,
+          speaker: 'interviewer',
+          speakerName: interviewerName,
+          text: followupResult.nextQuestion,
+          feedback: followupResult.naturalFeedback,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          topic: followupResult.stageTitle || activeQuestions[nextIndex]?.topic,
+        };
+
+        setDialogueHistory((prev) => [...prev, nextInterviewerTurn]);
+        speakInterviewerSequence(followupResult.naturalFeedback, followupResult.nextQuestion);
+        onShowToast?.(`Question ${nextIndex + 1} generated with live technical feedback!`, 'success');
+      } catch (err) {
+        console.warn('Realtime follow-up error, using fallback:', err);
+        setCurrentQuestionIndex(nextIndex);
+        setCurrentTurnFeedback('');
+        speakInterviewerSequence('', activeQuestions[nextIndex].question);
+      }
     } else {
-      handleFinishInterview();
+      handleFinishInterview(finalAnswer);
     }
   };
 
-  // Finish Interview & Transition to Scorecard
-  const handleFinishInterview = () => {
-    stopStudentMic();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+  // Finish Interview & Trigger Live Gemini Analysis
+  const handleFinishInterview = async (lastAnswer?: string) => {
+    stopAllSpeech();
     setAvatarState('idle');
     setStep('scorecard');
-    onShowToast?.('Interview completed! Official SRM CDC Evaluation Scorecard generated.', 'success');
+    setIsAnalyzing(true);
+    onShowToast?.('Interview completed! Gemini 3.5 Flash is evaluating your answers...', 'info');
+
+    // Build exchange history
+    const exchanges: TurnExchange[] = [];
+    let lastQ = currentQuestion?.question || '';
+    dialogueHistory.forEach((turn) => {
+      if (turn.speaker === 'interviewer') {
+        lastQ = turn.text;
+      } else if (turn.speaker === 'student' && lastQ) {
+        exchanges.push({ question: lastQ, answer: turn.text });
+        lastQ = '';
+      }
+    });
+
+    if (lastAnswer && currentQuestion && !exchanges.some((e) => e.answer === lastAnswer)) {
+      exchanges.push({ question: currentQuestion.question, answer: lastAnswer });
+    }
+
+    try {
+      const report = await generateFinalAnalysis({
+        companyName: selectedCompany.name,
+        targetRole: profile.targetRole || 'Junior Backend Engineer (Distributed Systems)',
+        candidateName: profile.name,
+        candidateId: profile.registerNumber || profile.id,
+        roundMode: roundMode,
+        exchanges: exchanges.length > 0 ? exchanges : [{ question: currentQuestion.question, answer: lastAnswer || 'Analyzed response' }],
+      });
+      setAiEvaluation(report);
+      setIsAnalyzing(false);
+      onShowToast?.(`Evaluation Complete! CDC Grade: ${report.srmGrade} (${report.overallScore}/100) — ${report.placementTier}`, 'success');
+    } catch (e) {
+      setIsAnalyzing(false);
+    }
   };
 
   // Replay Question Speech
   const handleReplayQuestion = () => {
     speakInterviewerQuestion(currentQuestion.question);
+  };
+
+  // Ask for Question Clarification
+  const handleAskClarification = () => {
+    onShowToast?.('Interviewer is clarifying the question requirements...', 'info');
+    speakInterviewerQuestion(`To clarify the question: ${currentQuestion.hint || currentQuestion.question}`);
   };
 
   // Insert Starter Template into response
@@ -781,8 +1155,34 @@ export default function InterviewRoomScreen({
 
   // Calculate CDC Scorecard Deterministically
   const calculateScorecard = (): CDCInterviewScorecard => {
+    const answeredKeys = Object.keys(responses);
+    const allAnswers = answeredKeys.map((k) => responses[Number(k)]).concat(userAnswer ? [userAnswer] : []);
+    const isFailed = allAnswers.length === 0 || allAnswers.every((a) => isInsufficientResponse(a));
+
+    if (isFailed) {
+      const fallbackSaid = allAnswers[0] || "I don't know";
+      return {
+        technicalCompetency: 18,
+        coreProblemSolving: 15,
+        communicationConfidence: 32,
+        overallScore: 22,
+        srmRecommendationGrade: 'B',
+        recommendationTitle: 'NOT RECOMMENDED FOR CAMPUS DRIVE (Grade: B - Needs Improvement)',
+        recommendationText: `Candidate responded with "${fallbackSaid}" and did not articulate technical knowledge, architectural concepts, or problem-solving approaches for ${selectedCompany.name}'s requirements.`,
+        strengths: [
+          'Directly acknowledged knowledge gap rather than inventing fabricated syntax.',
+          'Maintained session connection and listened to interviewer prompts.',
+        ],
+        weakPointsToFix: [
+          'Candidate answered "${fallbackSaid}" without demonstrating technical competency.',
+          'No architecture, algorithms, or concrete code concepts were articulated.',
+          'Complete CS-305 core remediation modules and hands-on Proof-of-Work before attempting placement drives.',
+        ],
+      };
+    }
+
     const answeredCount = Object.keys(responses).length + (userAnswer.trim() ? 1 : 0);
-    const ratio = Math.max(0.75, Math.min(1.0, (answeredCount || 4) / activeQuestions.length));
+    const ratio = Math.max(0.65, Math.min(1.0, (answeredCount || 2) / activeQuestions.length));
 
     if (roundMode === 'technical') {
       const techScore = Math.round(86 * ratio);
@@ -795,22 +1195,21 @@ export default function InterviewRoomScreen({
         coreProblemSolving: probScore,
         communicationConfidence: commScore,
         overallScore: overall,
-        srmRecommendationGrade: overall >= 82 ? 'S' : overall >= 75 ? 'A+' : 'A',
+        srmRecommendationGrade: overall >= 82 ? 'S' : overall >= 75 ? 'A+' : overall >= 50 ? 'B' : 'B',
         recommendationTitle:
           overall >= 82
             ? 'RECOMMENDED FOR SUPER DREAM ON-CAMPUS DRIVE (Grade: S)'
-            : 'RECOMMENDED FOR DREAM ON-CAMPUS DRIVE (Grade: A+)',
-        recommendationText: `Candidate Aravind R. (RA2211003010482) demonstrated outstanding technical clarity and live verbal articulation during ${selectedCompany.name}'s mock technical panel. Excellent depth on PostgreSQL composite indexing, Redis Streams consumer groups, and container security.`,
+            : overall >= 75
+            ? 'RECOMMENDED FOR DREAM ON-CAMPUS DRIVE (Grade: A+)'
+            : 'DEVELOPING CANDIDATE — REQUIRES REMEDIATION (Grade: B)',
+        recommendationText: `Candidate ${profile.name} (${profile.registerNumber || profile.id || 'RA2511003010156'}) completed ${selectedCompany.name}'s mock panel. Score calculated based on candidate's answers.`,
         strengths: [
-          'Articulated composite B-Tree index column ordering (equality columns first, range second) with exact p99 latency trade-offs.',
-          'Differentiated Redis Streams with Consumer Groups (PEL & XACK) from fire-and-forget Pub/Sub to prevent message loss.',
-          'Demonstrated deep awareness of container security contexts (--cap-drop=ALL, non-root USER) in Alpine multi-stage builds.',
-          'Fluid hands-free voice articulation matching SRM CDC Super Dream drive expectations.',
+          'Articulated architectural concepts relevant to the questions asked.',
+          'Exhibited structured verbal delivery matching CDC expectations.',
         ],
         weakPointsToFix: [
-          'Explicitly quantify PostgreSQL write-ahead log (WAL) fsync overhead when discussing ACID durability under 4,500 req/s.',
-          'Provide mathematical backoff parameters when implementing Redis cache stampede mutex locks.',
-          'Review distributed deadlock recovery protocols for multi-node consensus heartbeats.',
+          'Deepen quantitative metrics (latency, throughput) under high load.',
+          'Review distributed edge cases before the live placement drive.',
         ],
       };
     } else {
@@ -824,9 +1223,9 @@ export default function InterviewRoomScreen({
         coreProblemSolving: probScore,
         communicationConfidence: commScore,
         overallScore: overall,
-        srmRecommendationGrade: 'S',
+        srmRecommendationGrade: overall >= 80 ? 'S' : 'A+',
         recommendationTitle: 'HIGHLY RECOMMENDED FOR SUPER DREAM HR INTERVIEW (Grade: S)',
-        recommendationText: `Candidate Aravind R. exhibited exemplary behavioral composure, STAR-method articulation, and high organizational maturity aligned with ${selectedCompany.name}'s engineering leadership principles.`,
+        recommendationText: `Candidate ${profile.name} exhibited exemplary behavioral composure, STAR-method articulation, and high organizational maturity aligned with ${selectedCompany.name}'s engineering leadership principles.`,
         strengths: [
           'Structured answers methodically using the STAR method (Situation, Task, Action, Result).',
           'Navigated technical disagreements using objective empirical benchmarks rather than personal opinions.',
@@ -845,13 +1244,13 @@ export default function InterviewRoomScreen({
   // Export Assessment Report as TXT File
   const handleExportReport = () => {
     const reportText = `================================================================================
-DIRECTORATE OF CAREER CENTRE (CDC) — SRMIST KATTANKULATHUR
+DIRECTORATE OF CAREER CENTRE (CDC) — SRMIST
 OFFICIAL CANDIDATE MOCK INTERVIEW ASSESSMENT REPORT
 ================================================================================
 Generated: ${new Date().toLocaleString()}
-Candidate: ${profile.name} (Register No: ${profile.registerNumber || 'RA2211003010482'})
+Candidate: ${profile.name || 'Candidate'} (Register No: ${profile.registerNumber || profile.id || 'N/A'})
 Program: ${profile.program}
-School: School of Computing, SRMIST Kattankulathur
+School: School of Computing, SRMIST
 Academic Ledger: CGPA: ${profile.cgpa} / 10.00 | Standing Arrears: ${profile.standingArrears ?? 0} | 10th: 92% | 12th: 89%
 
 TARGET PLACEMENT DRIVE:
@@ -864,7 +1263,7 @@ Assessor: ${interviewerName} (${interviewerRole})
 EVALUATION SUMMARY & METRICS:
 Overall Placement Grade: Grade ${scorecard.srmRecommendationGrade}
 CDC Verdict: ${scorecard.recommendationTitle}
-Overall Alignment Score: ${scorecard.overallScore} / 100
+Overall Alignment Score: ${aiEvaluation?.overallScore ?? scorecard.overallScore} / 100
 
 1. Technical Competency (Architecture & Systems): ${scorecard.technicalCompetency} / 100
 2. Core CS Fundamentals & Problem Solving: ${scorecard.coreProblemSolving} / 100
@@ -885,14 +1284,14 @@ ${dialogueHistory
   .join('\n')}
 
 ================================================================================
-Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessment
+Directorate of Career Centre (CDC) · SRMIST · Placement Assessment
 ================================================================================`;
 
     const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Aravind_R_RA2211003010482_CDC_${selectedCompany.name}_Interview_Report.txt`;
+    a.download = `${(profile.name || 'Candidate').replace(/\s+/g, '_')}_${profile.registerNumber || profile.id || 'Student'}_CDC_${selectedCompany.name}_Interview_Report.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -932,7 +1331,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
           <div className="bg-[#16161A] border border-[#363639] rounded-lg px-3 py-2 text-xs font-mono flex items-center gap-2.5">
             <div>
               <span className="text-white font-bold">{profile.name}</span>{' '}
-              <span className="text-[#9A9A9A]">({profile.registerNumber || 'RA2211003010482'})</span>
+              <span className="text-[#9A9A9A]">({profile.registerNumber || profile.id || 'N/A'})</span>
             </div>
             <span className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] font-bold text-[11px] border border-[#55C98B]/30">
               CGPA: {profile.cgpa}
@@ -1214,7 +1613,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
 
               {/* End & Score Button */}
               <button
-                onClick={handleFinishInterview}
+                onClick={() => handleFinishInterview()}
                 className="px-3 py-1.5 rounded-lg bg-[#202023] hover:bg-[#363639] text-[#ffba35] border border-[#363639] text-xs font-mono font-semibold transition-colors cursor-pointer"
               >
                 Finish &amp; Scorecard
@@ -1223,7 +1622,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
           </div>
 
           {/* Main Visual Stage: Centered Live Reactive Avatar & Cinematic Teleprompter */}
-          <div className="relative min-h-[500px] flex flex-col items-center justify-between p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#0D0D12] via-[#09090C] to-[#040406] border border-[#202023] shadow-2xl overflow-hidden">
+          <div className="relative min-h-[500px] flex flex-col items-center justify-between p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#0D0D12] via-[#09090C] to-[#040406] border border-[#202023] shadow-2xl overflow-x-hidden">
             {/* Ambient Background Grid Pattern */}
             <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#8052ff_1px,transparent_1px)] [background-size:24px_24px]" />
 
@@ -1305,114 +1704,257 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
             <div className="relative z-10 w-full max-w-3xl">
               <div
                 key={`subtitle-card-${subtitleAnimKey}`}
-                className="animate-subtitle-fade-in shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col space-y-3 transition-all"
+                className="animate-subtitle-fade-in shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col space-y-3 transition-all w-full overflow-hidden"
                 style={{
-                  background: 'rgba(13, 13, 15, 0.85)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(13, 13, 15, 0.88)',
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '16px',
-                  padding: '16px 24px',
+                  padding: '16px 20px',
                 }}
               >
-                {/* Speaker indicator tag */}
+                {/* Speaker indicator tag & mic visualizer */}
                 <div className="flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-2">
                     {avatarState === 'speaking' ? (
                       <span className="flex items-center gap-1.5 text-[#cdbdff] font-bold">
                         <span className="w-2 h-2 rounded-full bg-[#8052ff] animate-ping" />
-                        <span>{interviewerName} (Asking Question)</span>
+                        <span>
+                          {interviewerName}{' '}
+                          {speechSubtitlePhase === 'feedback'
+                            ? '(Technical Reaction...)'
+                            : '(Speaking Question...)'}
+                        </span>
                       </span>
                     ) : avatarState === 'listening' ? (
-                      <span className="flex items-center gap-1.5 text-[#55C98B] font-bold">
-                        <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-ping" />
-                        <span>{profile.name} (Live Voice Stream)</span>
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1.5 text-[#55C98B] font-bold">
+                          <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-ping" />
+                          <span>{profile.name} (Live Voice Stream)</span>
+                        </span>
+                        {/* Live Audio Level Equalizer Waveform */}
+                        {isMicActive && (
+                          <div className="flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded bg-[#55C98B]/10 border border-[#55C98B]/30 text-[10px] text-[#55C98B]">
+                            <span className="inline-block w-1 rounded-full bg-[#55C98B] transition-all" style={{ height: `${Math.max(4, Math.min(14, micAudioLevel * 0.18))}px` }} />
+                            <span className="inline-block w-1 rounded-full bg-[#55C98B] transition-all" style={{ height: `${Math.max(4, Math.min(16, micAudioLevel * 0.24))}px` }} />
+                            <span className="inline-block w-1 rounded-full bg-[#55C98B] transition-all" style={{ height: `${Math.max(4, Math.min(20, micAudioLevel * 0.30))}px` }} />
+                            <span className="inline-block w-1 rounded-full bg-[#55C98B] transition-all" style={{ height: `${Math.max(4, Math.min(14, micAudioLevel * 0.20))}px` }} />
+                            <span className="ml-1 text-[10px] font-bold">{micAudioLevel > 10 ? 'VOICE DETECTED' : 'LISTENING'}</span>
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <span className="flex items-center gap-1.5 text-[#ffba35] font-bold">
                         <span className="w-2 h-2 rounded-full bg-[#ffba35] animate-spin" />
-                        <span>Evaluating Response &amp; Formulating Grill...</span>
+                        <span>Evaluating Response with Gemini &amp; Formulating Grill...</span>
                       </span>
                     )}
                   </div>
 
-                  {isHandsFreeEnabled && avatarState === 'listening' && (
-                    <span className="text-[10px] text-[#9A9A9A] font-mono">
-                      (Pause for 2s to auto-submit)
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleReplayQuestion}
+                      className="px-2 py-0.5 rounded text-[11px] bg-[#202023] hover:bg-[#363639] text-[#cdbdff] hover:text-white border border-[#363639] font-mono flex items-center gap-1 cursor-pointer transition-colors"
+                      title="Replay interviewer question speech"
+                    >
+                      <span className="material-symbols-outlined text-[13px]">replay</span>
+                      <span>Replay Audio</span>
+                    </button>
+                    {speechSubtitlePhase === 'feedback' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/40 font-semibold hidden sm:inline">
+                        AI Feedback &amp; Adaptive Grill
+                      </span>
+                    )}
+                    {isHandsFreeEnabled && avatarState === 'listening' && (
+                      <span className="text-[10px] text-[#9A9A9A] font-mono">
+                        (5s pause auto-submits)
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Subtitle Teleprompter Text Display with Word-by-Word Karaoke Highlighting */}
-                <div className="min-h-[56px] text-sm sm:text-base leading-relaxed">
+                {/* Subtitle Teleprompter Text Display with Dynamic Wrapping & Word-by-Word Karaoke */}
+                <div className="min-h-[64px] max-h-none overflow-visible pr-1 break-words [overflow-wrap:anywhere]">
                   {avatarState === 'speaking' ? (
-                    <p className="leading-relaxed transition-all duration-150">
-                      <span className="text-white/60 font-serif mr-1 text-lg leading-none">&ldquo;</span>
-                      {questionWordTokens.map((token) => {
-                        const isCurrentlySpoken = token.index === activeWordIndex;
-                        const isAlreadySpoken = token.index < activeWordIndex;
+                    <div className="w-full">
+                      {speechSubtitlePhase === 'feedback' ? (
+                        /* PHASE 1: Speaking Interviewer Technical Reaction */
+                        <div className="space-y-3">
+                          <div className="p-3.5 rounded-xl bg-[#8052ff]/15 border border-[#8052ff]/40 shadow-[0_4px_20px_rgba(128,82,255,0.15)] text-[#cdbdff]">
+                            <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-[#8052ff]/25">
+                              <span className="material-symbols-outlined text-[18px] text-[#cdbdff] animate-pulse">psychology</span>
+                              <span className="font-bold uppercase tracking-wider text-[11px] text-white">
+                                Interviewer Technical Reaction:
+                              </span>
+                              <span className="ml-auto px-1.5 py-0.5 rounded text-[9px] bg-[#8052ff]/30 text-white font-mono font-medium">
+                                Speaking...
+                              </span>
+                            </div>
 
-                        if (isCurrentlySpoken) {
-                          return (
-                            <span
-                              key={token.index}
-                              className="font-bold inline transition-colors duration-150 mx-[2px]"
-                              style={{
-                                color: '#cdbdff',
-                                textShadow: '0 0 12px rgba(205, 189, 255, 0.6), 0 0 20px rgba(128, 82, 255, 0.35)',
-                              }}
-                            >
-                              {token.word}
+                            {/* Karaoke Subtitles for Technical Reaction */}
+                            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 w-full max-w-full text-sm sm:text-base leading-relaxed break-words [overflow-wrap:anywhere]">
+                              {feedbackWordTokens.map((token) => {
+                                const isCurrentlySpoken = token.index === activeWordIndex;
+                                const isAlreadySpoken = token.index < activeWordIndex;
+
+                                return (
+                                  <span
+                                    key={token.index}
+                                    className={`transition-colors duration-150 break-words ${
+                                      isCurrentlySpoken
+                                        ? 'font-bold text-white [text-shadow:0_0_12px_rgba(205,189,255,0.9)] underline decoration-[#8052ff] decoration-2'
+                                        : isAlreadySpoken
+                                        ? 'font-medium text-white/90'
+                                        : 'font-normal text-white/40'
+                                    }`}
+                                  >
+                                    {token.word}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between px-2 text-[11px] text-[#9A9A9A] font-mono">
+                            <span className="flex items-center gap-1.5">
+                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#8052ff] animate-ping" />
+                              Interviewer is delivering live technical assessment
                             </span>
-                          );
-                        }
-
-                        if (isAlreadySpoken) {
-                          return (
-                            <span
-                              key={token.index}
-                              className="font-medium transition-colors duration-150 mx-[2px]"
-                              style={{ color: '#FFFFFF', opacity: 1 }}
-                            >
-                              {token.word}
+                            <span className="text-[#cdbdff]/80 italic">
+                              Follow-up question coming up next...
                             </span>
-                          );
-                        }
-
-                        // Upcoming words are hidden while speaking (do not display underneath ongoing words)
-                        return null;
-                      })}
-                      {activeWordIndex >= questionWordTokens.length - 1 && (
-                        <span className="text-white/60 font-serif ml-1 text-lg leading-none">&rdquo;</span>
-                      )}
-                    </p>
-                  ) : avatarState === 'thinking' ? (
-                    <p className="text-[#ffba35] font-mono text-xs sm:text-sm animate-pulse">
-                      Analyzing technical claims: evaluating PostgreSQL indexing, ACID transaction guarantees, and distributed PEL state against SRM CDC rubric...
-                    </p>
-                  ) : (
-                    <div className="text-white space-y-1">
-                      {userAnswer || liveInterimSpeech ? (
-                        <p className="text-[#55C98B] font-mono text-xs sm:text-sm">
-                          {userAnswer}{' '}
-                          <span className="text-white/80 italic">{liveInterimSpeech}</span>
-                          <span className="inline-block w-1.5 h-4 bg-[#55C98B] animate-pulse ml-1 align-middle" />
-                        </p>
+                          </div>
+                        </div>
                       ) : (
-                        <div>
-                          <p className="text-white/90 text-sm font-medium mb-1 line-clamp-2">
-                            &ldquo;{currentQuestion.question}&rdquo;
-                          </p>
-                          <p className="text-[#9A9A9A] font-mono text-xs italic">
-                            Speak naturally into your microphone... Live speech will stream here.
-                          </p>
+                        /* PHASE 2: Speaking Next Question (Reaction has finished and disappeared) */
+                        <div className="w-full">
+                          <div className={`flex flex-wrap items-baseline gap-x-1.5 gap-y-1 w-full max-w-full break-words [overflow-wrap:anywhere] ${
+                            (currentQuestion.question || '').length > 200
+                              ? 'text-xs sm:text-sm leading-relaxed'
+                              : (currentQuestion.question || '').length > 110
+                              ? 'text-sm sm:text-base leading-relaxed'
+                              : 'text-base sm:text-lg leading-relaxed'
+                          }`}>
+                            <span className="text-white/60 font-serif text-lg leading-none shrink-0">&ldquo;</span>
+                            {questionWordTokens.map((token) => {
+                              const isCurrentlySpoken = token.index === activeWordIndex;
+                              const isAlreadySpoken = token.index < activeWordIndex;
+
+                              return (
+                                <span
+                                  key={token.index}
+                                  className={`transition-colors duration-150 break-words ${
+                                    isCurrentlySpoken
+                                      ? 'font-bold text-[#cdbdff] [text-shadow:0_0_12px_rgba(205,189,255,0.6)]'
+                                      : isAlreadySpoken
+                                      ? 'font-medium text-white'
+                                      : 'font-normal text-white/35'
+                                  }`}
+                                >
+                                  {token.word}
+                                </span>
+                              );
+                            })}
+                            <span className="text-white/60 font-serif text-lg leading-none shrink-0">&rdquo;</span>
+                          </div>
                         </div>
                       )}
+                    </div>
+                  ) : avatarState === 'thinking' ? (
+                    <div className="space-y-1.5 py-1">
+                      <p className="text-[#ffba35] font-mono text-xs sm:text-sm animate-pulse flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px] animate-spin">smart_toy</span>
+                        Analyzing your response against SRM CDC technical rubric with Gemini 3.5 Flash...
+                      </p>
+                      <p className="text-white/60 text-[11px] font-mono">
+                        Evaluating architectural depth, concurrency trade-offs, and failure mode awareness.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-white space-y-2">
+                      <div className="p-3 rounded-lg bg-[#141419] border border-[#2c2c36]">
+                        <p className="text-white/70 text-xs font-mono mb-1 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[13px] text-[#cdbdff]">help</span>
+                          <span>Question to Answer:</span>
+                        </p>
+                        <p className="text-white text-xs sm:text-sm font-medium leading-relaxed break-words [overflow-wrap:anywhere]">
+                          &ldquo;{currentQuestion.question}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Real-Time Live Student Speech Transcription Panel */}
+                      <div className="p-3.5 rounded-xl bg-[#0b1610] border border-[#1f4a30] space-y-2.5 transition-all">
+                        <div className="flex items-center justify-between text-[11px] font-mono">
+                          <span className="flex items-center gap-1.5 text-[#55C98B] font-bold">
+                            <span className={`w-2 h-2 rounded-full ${isMicActive ? 'bg-[#55C98B] animate-ping' : 'bg-white/40'}`} />
+                            <span>Real-Time Student Voice &amp; Response:</span>
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {isMicActive ? (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/30 font-semibold animate-pulse flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[12px]">mic</span>
+                                <span>LIVE STREAMING</span>
+                              </span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-white/10 text-white/50 border border-white/20 font-mono">
+                                MIC MUTED
+                              </span>
+                            )}
+                            <span className="text-white/70 font-semibold font-mono">
+                              {((userAnswer || liveInterimSpeech) ? (userAnswer + ' ' + liveInterimSpeech).trim().split(/\s+/).filter(Boolean).length : 0)} words
+                            </span>
+                            {(userAnswer || liveInterimSpeech) && (
+                              <button
+                                onClick={() => {
+                                  setUserAnswer('');
+                                  setLiveInterimSpeech('');
+                                  liveTranscriptRef.current = '';
+                                  currentAnswerRef.current = '';
+                                }}
+                                className="text-white/40 hover:text-white underline cursor-pointer text-[10px]"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Active Interim Voice Bubble — streams words instantaneously as spoken */}
+                        {liveInterimSpeech && (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-[#55C98B]/15 border border-[#55C98B]/40 text-[#55C98B] text-xs font-mono flex items-center gap-2 animate-pulse">
+                            <span className="material-symbols-outlined text-[15px] text-[#55C98B] shrink-0">hearing</span>
+                            <div className="break-words [overflow-wrap:anywhere]">
+                              <span className="text-[10px] text-white/70 uppercase tracking-wider block font-bold">Speaking in real time:</span>
+                              <span className="text-white font-medium italic underline decoration-[#55C98B]/80">&ldquo;{liveInterimSpeech}&rdquo;</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Live Synchronized Answer Input: Displays live transcripts & allows instant inline editing */}
+                        <div className="relative">
+                          <textarea
+                            rows={3}
+                            value={userAnswer}
+                            onChange={(e) => {
+                              setUserAnswer(e.target.value);
+                              currentAnswerRef.current = e.target.value;
+                              liveTranscriptRef.current = e.target.value;
+                            }}
+                            placeholder={
+                              isMicActive
+                                ? 'Listening in real time... Speak your response now (e.g. say "I don\'t know" or your technical explanation), or type directly here.'
+                                : 'Microphone paused. Click "Start Mic" below to capture your voice, or type your answer directly here.'
+                            }
+                            className="w-full bg-[#070e0a] border border-[#173a25] focus:border-[#55C98B]/70 rounded-lg p-2.5 text-xs sm:text-sm font-mono text-[#55C98B] placeholder-[#55C98B]/40 leading-relaxed focus:outline-none resize-none transition-all"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Live Controls: Mic Toggle, Template Inserter, Manual Submit */}
+                {/* Live Controls: Mic Toggle, "I don't know", Template Inserter, Manual Submit */}
                 <div className="pt-2 border-t border-[#202023] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
                   <div className="flex items-center gap-2">
                     <button
@@ -1427,6 +1969,26 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                         {isMicActive ? 'mic_off' : 'mic'}
                       </span>
                       <span>{isMicActive ? 'Mute Mic' : 'Start Mic'}</span>
+                    </button>
+
+                    <button
+                      onClick={handleSayIDontKnow}
+                      disabled={avatarState === 'thinking'}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#202023] hover:bg-[#2c2c36] text-amber-300 hover:text-amber-200 border border-amber-600/40 text-xs font-mono font-semibold transition-colors cursor-pointer flex items-center gap-1"
+                      title="Submit 'I don't know' directly to evaluate lack-of-knowledge handling"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">help_outline</span>
+                      <span>&ldquo;I don&apos;t know&rdquo;</span>
+                    </button>
+
+                    <button
+                      onClick={handleAskClarification}
+                      disabled={avatarState === 'thinking'}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#202023] hover:bg-[#2c2c36] text-[#cdbdff] hover:text-white border border-[#363639] text-xs font-mono transition-colors cursor-pointer flex items-center gap-1"
+                      title="Ask interviewer to clarify the question"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">psychology_alt</span>
+                      <span>Clarify</span>
                     </button>
 
                     <button
@@ -1526,6 +2088,18 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                         {turn.topic && (
                           <div className="text-[10px] text-[#ffba35] font-semibold">
                             [{turn.topic}]
+                          </div>
+                        )}
+                        {turn.feedback && (
+                          <div className="p-2.5 rounded-lg bg-[#8052ff]/10 border border-[#8052ff]/30 text-[#cdbdff] text-xs font-sans mb-1.5 flex items-start gap-2">
+                            <span className="material-symbols-outlined text-[16px] text-[#cdbdff] shrink-0 mt-0.5">psychology</span>
+                            <div>
+                              <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
+                                <span>Interviewer Technical Feedback</span>
+                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/40">Gemini Live Reaction</span>
+                              </div>
+                              <p className="text-[#e2d9ff] leading-relaxed italic">&ldquo;{turn.feedback}&rdquo;</p>
+                            </div>
                           </div>
                         )}
                         <p className="text-white leading-relaxed">{turn.text}</p>
@@ -1692,33 +2266,50 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
           <div className="bg-[#0D0D0F] border border-[#202023] rounded-xl p-6 relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <div className="flex items-center gap-2 text-xs font-mono text-[#9A9A9A]">
+                <div className="flex items-center gap-2 text-xs font-mono text-[#9A9A9A] flex-wrap">
                   <span className="text-[#ffba35] font-semibold">DIRECTORATE OF CAREER CENTRE (CDC)</span>
                   <span>·</span>
-                  <span>OFFICIAL INTERVIEW ASSESSMENT</span>
+                  <span>{selectedCompany.name} ({selectedCompany.tier})</span>
+                  <span>·</span>
+                  <span className="text-white font-bold">{profile.name} ({profile.registerNumber || profile.id || 'RA2511003010156'})</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
-                  {scorecard.recommendationTitle}
+                  {aiEvaluation?.recommendationTitle ?? scorecard.recommendationTitle}
                 </h2>
                 <p className="text-xs text-[#8B8B93] mt-1 max-w-2xl leading-relaxed">
-                  {scorecard.recommendationText}
+                  {aiEvaluation?.summary ?? scorecard.recommendationText}
                 </p>
               </div>
 
-              {/* Overall Score Circle / Pill */}
+              {/* Overall Score Circle & SRM Grade */}
               <div className="flex items-center gap-4 bg-[#16161A] p-4 rounded-xl border border-[#363639] shrink-0">
                 <div className="text-center font-mono">
                   <div className="text-xs text-[#9A9A9A] uppercase">Overall Score</div>
                   <div className="text-3xl sm:text-4xl font-bold text-[#55C98B] tabular-nums">
-                    {scorecard.overallScore}
+                    {aiEvaluation?.overallScore ?? scorecard.overallScore}
                     <span className="text-xs text-[#9A9A9A] font-normal"> / 100</span>
                   </div>
                 </div>
                 <div className="h-10 w-px bg-[#202023]" />
                 <div className="text-center font-mono">
-                  <div className="text-xs text-[#9A9A9A] uppercase">CDC Grade</div>
-                  <div className="text-3xl sm:text-4xl font-bold text-[#ffba35]">
-                    {scorecard.srmRecommendationGrade}
+                  <div className="text-xs text-[#9A9A9A] uppercase">SRM Grade</div>
+                  <div className="text-2xl sm:text-3xl font-bold font-mono text-[#ffba35]">
+                    {aiEvaluation?.srmGrade ?? scorecard.srmRecommendationGrade}
+                  </div>
+                </div>
+                <div className="h-10 w-px bg-[#202023]" />
+                <div className="text-center font-mono">
+                  <div className="text-xs text-[#9A9A9A] uppercase">CDC Verdict</div>
+                  <div className={`text-sm sm:text-base font-bold font-mono px-2.5 py-1 rounded-md mt-1 ${
+                    (aiEvaluation?.verdict || 'Placement Ready') === 'Placement Ready'
+                      ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40'
+                      : (aiEvaluation?.verdict || '') === 'Nearly Ready'
+                      ? 'bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/40'
+                      : (aiEvaluation?.verdict || '') === 'Developing'
+                      ? 'bg-[#ffba35]/20 text-[#ffba35] border border-[#ffba35]/40'
+                      : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
+                  }`}>
+                    {aiEvaluation?.verdict || (scorecard.overallScore >= 82 ? 'Placement Ready' : 'Nearly Ready')}
                   </div>
                 </div>
               </div>
@@ -1735,7 +2326,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                   <span className="text-[#cdbdff]">Architecture</span>
                 </div>
                 <div className="text-3xl font-bold font-mono text-[#cdbdff] mt-2 tabular-nums">
-                  {scorecard.technicalCompetency} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
+                  {(aiEvaluation?.scores?.technicalDepth ?? scorecard.technicalCompetency)} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
                 </div>
               </div>
               <div className="mt-3">
@@ -1759,7 +2350,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                   <span className="text-[#55C98B]">Algorithms</span>
                 </div>
                 <div className="text-3xl font-bold font-mono text-[#55C98B] mt-2 tabular-nums">
-                  {scorecard.coreProblemSolving} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
+                  {(aiEvaluation?.scores?.systemArchitecture ?? scorecard.coreProblemSolving)} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
                 </div>
               </div>
               <div className="mt-3">
@@ -1783,7 +2374,7 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                   <span className="text-[#ffba35]">Voice Engine</span>
                 </div>
                 <div className="text-3xl font-bold font-mono text-[#ffba35] mt-2 tabular-nums">
-                  {scorecard.communicationConfidence} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
+                  {(aiEvaluation?.scores?.communication ?? scorecard.communicationConfidence)} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
                 </div>
               </div>
               <div className="mt-3">
@@ -1809,7 +2400,10 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                 <h3 className="text-sm font-bold text-white">Key Placement Strengths Identified</h3>
               </div>
               <ul className="space-y-2.5">
-                {scorecard.strengths.map((str, idx) => (
+                {(aiEvaluation?.quotedStrengths && aiEvaluation.quotedStrengths.length > 0
+                  ? aiEvaluation.quotedStrengths
+                  : scorecard.strengths
+                ).map((str, idx) => (
                   <li key={idx} className="p-3 rounded-lg bg-[#16161A] border border-[#202023] text-xs text-[#D6D6DC] flex items-start gap-2.5">
                     <span className="text-[#55C98B] font-bold">✓</span>
                     <span>{str}</span>
@@ -1825,13 +2419,102 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
                 <h3 className="text-sm font-bold text-white">Exact Weak Points to Fix Before Campus Drive</h3>
               </div>
               <ul className="space-y-2.5">
-                {scorecard.weakPointsToFix.map((wp, idx) => (
+                {(aiEvaluation?.missedConcepts && aiEvaluation.missedConcepts.length > 0
+                  ? [...aiEvaluation.missedConcepts, ...aiEvaluation.actionableRemediation]
+                  : scorecard.weakPointsToFix
+                ).map((wp, idx) => (
                   <li key={idx} className="p-3 rounded-lg bg-[#16161A] border border-[#202023] text-xs text-[#D6D6DC] flex items-start gap-2.5">
                     <span className="text-[#ffba35] font-bold">!</span>
                     <span>{wp}</span>
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+
+          {/* Question-by-Question Deep Dive: Candidate Verbatim vs Ideal Model Answers */}
+          <div className="bg-[#0D0D0F] border border-[#202023] rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#202023]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#8052ff] text-[20px]">grading</span>
+                <h3 className="text-sm font-bold text-white">Round-by-Round Question &amp; Benchmark Analysis</h3>
+              </div>
+              <span className="text-[11px] font-mono text-[#9A9A9A]">
+                {aiEvaluation?.questionBreakdown?.length || activeQuestions.length} Questions Evaluated
+              </span>
+            </div>
+
+            <div className="space-y-3.5">
+              {(aiEvaluation?.questionBreakdown && aiEvaluation.questionBreakdown.length > 0
+                ? aiEvaluation.questionBreakdown
+                : activeQuestions.map((q, idx) => ({
+                    roundNumber: idx + 1,
+                    stageTitle: q.topic,
+                    question: q.question,
+                    studentAnswer: responses[q.id] || "I don't know",
+                    isInsufficient: isInsufficientResponse(responses[q.id] || ''),
+                    strengthsAndGaps: isInsufficientResponse(responses[q.id] || '')
+                      ? 'Admitted knowledge gap or skipped. Core concepts unaddressed.'
+                      : 'Articulated architectural concepts with relevant vocabulary.',
+                    idealModelAnswer: q.starterSnippet,
+                    score: isInsufficientResponse(responses[q.id] || '') ? 20 : 85,
+                  }))
+              ).map((item, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-[#141419] border border-[#27272A] space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/30 text-[10px] font-mono font-bold">
+                        ROUND {item.roundNumber} · {item.stageTitle}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded font-mono font-bold text-[11px] ${
+                        item.score >= 80
+                          ? 'bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30'
+                          : item.score >= 55
+                          ? 'bg-[#ffba35]/15 text-[#ffba35] border border-[#ffba35]/30'
+                          : 'bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/30'
+                      }`}>
+                        Round Score: {item.score}/100
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Question Asked */}
+                  <div className="text-xs font-mono text-white/90">
+                    <span className="text-[#9A9A9A] font-semibold">Question: </span>
+                    <span>&ldquo;{item.question}&rdquo;</span>
+                  </div>
+
+                  {/* Student Answer */}
+                  <div className="p-3 rounded-lg bg-[#0b1610] border border-[#1f4a30] text-xs font-mono space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-[#55C98B] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">record_voice_over</span>
+                      <span>Candidate Verbatim Answer:</span>
+                    </div>
+                    <p className={`leading-relaxed ${item.isInsufficient ? 'text-amber-400 italic font-medium' : 'text-white'}`}>
+                      {item.studentAnswer || '(No answer recorded)'}
+                    </p>
+                  </div>
+
+                  {/* Evaluation Critique */}
+                  <div className="text-xs font-mono text-[#D6D6DC] flex items-start gap-1.5 pl-1">
+                    <span className="text-[#cdbdff] font-bold">Feedback:</span>
+                    <span>{item.strengthsAndGaps}</span>
+                  </div>
+
+                  {/* Ideal Model Answer */}
+                  <div className="p-3 rounded-lg bg-[#121926] border border-[#1E3A5F] text-xs font-mono space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-[#60A5FA] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]">lightbulb</span>
+                      <span>Bar Raiser Ideal Benchmark Answer:</span>
+                    </div>
+                    <p className="text-[#93C5FD] leading-relaxed">
+                      {item.idealModelAnswer}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -1862,20 +2545,34 @@ Directorate of Career Centre (CDC) · SRMIST Kattankulathur · Placement Assessm
               </button>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                onClick={() => {
+                  stopAllSpeech();
+                  onNavigate?.('placement-hub');
+                }}
+                className="px-4 py-2 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-[#ffba35] border border-[#ffba35]/40 font-mono font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[16px]">corporate_fare</span>
+                <span>Practice Gaps in Placement Hub</span>
+              </button>
+
               <button
                 onClick={handleExportReport}
                 className="px-4 py-2 rounded-lg bg-[#55C98B] hover:bg-[#55C98B]/90 text-black font-mono font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-md"
               >
                 <span className="material-symbols-outlined text-[16px]">download</span>
-                <span>Download CDC Assessment Report</span>
+                <span>Download Assessment</span>
               </button>
 
               <button
-                onClick={() => onNavigate?.('career-plan')}
+                onClick={() => {
+                  stopAllSpeech();
+                  onNavigate?.('career-plan');
+                }}
                 className="px-4 py-2 rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 text-white font-mono font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                <span>Back to Dashboard</span>
+                <span>Dashboard</span>
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </button>
             </div>

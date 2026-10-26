@@ -194,3 +194,39 @@ export interface CDCInterviewScorecard {
 }
 
 
+
+export interface AssessmentQuestion {
+  id: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  question: string;
+  codeSnippet?: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface SemesterAssessmentResult {
+  totalQuestions: number;
+  correctAnswers: number;
+  percentageScore: number;
+  timeSpentSeconds: number;
+  subjectScores: {
+    subject: string;
+    total: number;
+    correct: number;
+    percentage: number;
+  }[];
+  answers: Record<string, number>;
+  reviewedQuestions: AssessmentQuestion[];
+  completedAt: string;
+}
+
+export interface SemesterCurriculumSubject {
+  id: string;
+  name: string;
+  code: string;
+  topics: string[];
+  skillsTrained: string[];
+}

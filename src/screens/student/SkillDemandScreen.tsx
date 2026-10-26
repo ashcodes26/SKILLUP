@@ -8,6 +8,8 @@ interface SkillDemandScreenProps {
   onShowToast?: (msg: string, type?: 'success' | 'info' | 'warning') => void;
   profile?: StudentProfileData;
   dockerScore?: number | null;
+  isUserInputMode?: boolean;
+  onLaunchQuiz?: (skillId: string) => void;
 }
 
 const ACTION_WEIGHTS: Record<'Learn' | 'Assess' | 'Maintain', number> = {
@@ -19,9 +21,11 @@ const ACTION_WEIGHTS: Record<'Learn' | 'Assess' | 'Maintain', number> = {
 const DEMAND_TO_COMP_ID: Record<string, string> = {
   'dem-py': 'comp-py',
   'dem-sql': 'comp-sql',
+  'dem-pg': 'comp-sql',
   'dem-dck': 'comp-docker',
   'dem-red': 'comp-redis',
   'dem-git': 'comp-git',
+  'dem-api': 'comp-git',
   'dem-kaf': 'comp-kafka',
 };
 
@@ -30,6 +34,8 @@ export default function SkillDemandScreen({
   onShowToast,
   profile = INITIAL_STUDENT_PROFILE,
   dockerScore,
+  isUserInputMode = false,
+  onLaunchQuiz,
 }: SkillDemandScreenProps) {
   // Multi-role comparison state (compare 1, 2, or 3 target roles simultaneously)
   const [selectedTracks, setSelectedTracks] = useState<('backend' | 'devops' | 'data')[]>(['backend', 'devops']);
@@ -55,6 +61,8 @@ export default function SkillDemandScreen({
       ? matchingComp.proficiency
       : isDockerVerified
       ? dockerScore
+      : profile.competencies.length === 0
+      ? null
       : skill.verifiedDepth;
 
     const actionType: 'Learn' | 'Assess' | 'Maintain' =
@@ -62,6 +70,8 @@ export default function SkillDemandScreen({
         ? compId === 'comp-sql' || compId === 'comp-docker'
           ? 'Assess'
           : 'Learn'
+        : verifiedDepth < 3.0
+        ? 'Learn'
         : verifiedDepth < 3.5
         ? 'Assess'
         : 'Maintain';
@@ -138,25 +148,25 @@ export default function SkillDemandScreen({
   return (
     <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Top Banner & Multi-Role Selector */}
-      <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#9A9A9A]">
-            <span className="text-[#8052ff] font-semibold">INDUSTRY SKILL DEMAND &amp; MARKET RADAR</span>
+            <span className="text-[#8052ff] font-medium">Market Radar</span>
             <span>·</span>
-            <span>Sample: 86 Regional Postings Analyzed</span>
+            <span>86 regional postings analyzed</span>
           </div>
           <h1 className="text-xl font-bold text-white mt-1">
-            Multi-Role Market Intelligence &amp; Priority Engine
+            Skill Demand &amp; Priority Engine
           </h1>
           <p className="text-xs text-[#8B8B93] mt-0.5">
-            Compare student evidenced proficiency (0–100%) against market demand frequency across up to 3 target roles simultaneously.
+            Compare verified proficiency against market demand across up to 3 target roles simultaneously.
           </p>
         </div>
 
         {/* Multi-Role Comparison Toggle */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <span className="text-xs font-mono text-[#9A9A9A] whitespace-nowrap">Compare Roles (1–3):</span>
-          <div className="flex items-center gap-1.5 bg-[#16161A] p-1.5 rounded-lg border border-[#202023]">
+          <div className="flex items-center gap-1.5 bg-[#16161A] p-1.5 rounded-lg border border-[#27272a]">
             <button
               onClick={() => toggleTrack('backend')}
               className={`px-3 py-1.5 rounded text-xs font-mono transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
@@ -194,8 +204,8 @@ export default function SkillDemandScreen({
       {/* Grid: Multi-Role Radar Visualization + Recommendation Priority Engine */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Radar Chart (5 Cols) */}
-        <div className="lg:col-span-5 bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 flex flex-col items-center justify-between">
-          <div className="w-full flex flex-col gap-2 pb-3 border-b border-[#202023]">
+        <div className="lg:col-span-5 bg-[#121214] border border-[#27272a] rounded-lg p-5 flex flex-col items-center justify-between">
+          <div className="w-full flex flex-col gap-2 pb-3 border-b border-[#27272a]">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-white">Multi-Role Radar Comparison (0–100%)</h2>
               <span className="text-[11px] font-mono text-[#9A9A9A]">
@@ -230,7 +240,12 @@ export default function SkillDemandScreen({
 
           {/* SVG Radar */}
           <div className="py-4 relative flex items-center justify-center">
-            <svg width="320" height="320" className="overflow-visible">
+            <svg
+              role="img"
+              aria-label="Skill Radar Multi-Track Comparison Chart"
+              viewBox="0 0 320 320"
+              className="w-full max-w-[320px] aspect-square overflow-visible"
+            >
               {/* Concentric grid circles (20%, 40%, 60%, 80%, 100%) */}
               {[20, 40, 60, 80, 100].map((pct) => {
                 const r = (pct / 100) * maxR;
@@ -331,7 +346,7 @@ export default function SkillDemandScreen({
             </svg>
           </div>
 
-          <div className="w-full bg-[#16161A] p-2.5 rounded border border-[#202023] text-xs text-[#8B8B93] flex items-center justify-between">
+          <div className="w-full bg-[#16161A] p-2.5 rounded border border-[#27272a] text-xs text-[#8B8B93] flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-[11px] text-[#cdbdff]">
               <span className="material-symbols-outlined text-[14px]">account_tree</span>
               <span>Click any skill on radar to inspect RPG Tech-Tree</span>
@@ -346,38 +361,33 @@ export default function SkillDemandScreen({
         </div>
 
         {/* Right: Recommendation Priority Engine (7 Cols) */}
-        <div className="lg:col-span-7 bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#202023]">
-            <div>
-              <h2 className="text-sm font-semibold text-white">Deterministic Recommendation Priority Engine</h2>
-              <p className="text-xs text-[#8B8B93] font-mono mt-0.5">
-                Rank = demand_fraction × (1 + 0.5 × required_fraction) × action_weight
-              </p>
-            </div>
-            <div className="text-[11px] font-mono text-[#9A9A9A]">
-              Weights: Learn=2.0 · Assess=1.5 · Maintain=0.25
-            </div>
+        <div className="lg:col-span-7 bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-4">
+          <div className="pb-3 border-b border-[#27272a]">
+            <h2 className="text-base font-semibold text-white">Deterministic Recommendation Priority Engine</h2>
           </div>
 
           <div className="space-y-3">
             {prioritizedSkills.map((skill, index) => (
               <div
                 key={skill.id}
-                className="p-3.5 bg-[#16161A] border border-[#202023] rounded-lg hover:border-[#363639] transition-all"
+                className="p-3.5 bg-[#16161A] border border-[#27272a] rounded-lg hover:border-[#363639] transition-all"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#cdbdff] font-bold">#{index + 1}</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[#cdbdff] font-bold text-sm sm:text-base">#{index + 1}</span>
                     <button
                       onClick={() => setTechTreeSkillKey(skill.id)}
-                      className="font-bold text-white hover:text-[#cdbdff] hover:underline cursor-pointer flex items-center gap-1 text-left"
+                      className="font-bold text-white hover:text-[#cdbdff] hover:underline cursor-pointer text-sm sm:text-base text-left transition-colors"
                       title="Inspect Skill Tech-Tree"
                     >
                       {skill.name}
-                      <span className="material-symbols-outlined text-[13px] text-[#8052ff]">account_tree</span>
                     </button>
-                    <span className="text-[#9A9A9A]">· {skill.mentionType}</span>
-                    <span className="text-[#9A9A9A]">· {skill.provenance}</span>
+                    {isUserInputMode && (
+                      <>
+                        <span className="text-[#9A9A9A]">· {skill.mentionType}</span>
+                        <span className="text-[#9A9A9A]">· {skill.provenance}</span>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -396,35 +406,85 @@ export default function SkillDemandScreen({
                   </div>
                 </div>
 
-                {/* Comparison Bars: Student Evidenced Proficiency (%) vs Market Demand (%) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] font-mono">
-                  <div>
-                    <div className="flex justify-between text-[#9A9A9A] mb-1">
-                      <span>Market Demand ({skill.jobCount}/{skill.totalSample} jobs)</span>
-                      <span className="text-[#8052ff] font-bold tabular-nums">{skill.demandPercentage}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-black rounded-full overflow-hidden">
-                      <div className="h-full bg-[#8052ff] rounded-full" style={{ width: `${skill.demandPercentage}%` }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-[#9A9A9A] mb-1">
-                      <span>Student Evidenced Proficiency</span>
-                      <span className="text-white font-bold tabular-nums">
-                        {skill.studentProficiencyPct === null
-                          ? 'null (Unverified)'
-                          : `${skill.studentProficiencyPct}% (${skill.verifiedDepth?.toFixed(1)}/5.0)`}
+                {/* Multi-Layer Comparison Bar: Evidenced Proficiency (Green) vs Market Demand (Red) */}
+                <div className="text-[11px] font-mono">
+                  <div className="flex flex-wrap items-center justify-between text-[#9A9A9A] mb-1.5 gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
+                        <span>Market Demand ({skill.jobCount}/{skill.totalSample} jobs):</span>
+                        <span className="text-[#EF4444] font-bold tabular-nums">{skill.demandPercentage}%</span>
+                      </span>
+                      <span className="text-[#404040]">·</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#55C98B]" />
+                        <span>Evidenced Proficiency:</span>
+                        <span
+                          className={`font-bold tabular-nums ${
+                            skill.studentProficiencyPct === null ? 'text-[#ffba35]' : 'text-[#55C98B]'
+                          }`}
+                        >
+                          {skill.studentProficiencyPct === null
+                            ? 'null (Unverified)'
+                            : `${skill.studentProficiencyPct}% (${skill.verifiedDepth?.toFixed(1)}/5.0)`}
+                        </span>
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-black rounded-full overflow-hidden">
-                      {skill.studentProficiencyPct !== null && (
+
+                    <span className="text-[10px] text-[#A0A0A0]">
+                      {skill.studentProficiencyPct === null ? (
+                        <span className="text-[#ffba35]">Gap: +{skill.demandPercentage}% (Unassessed)</span>
+                      ) : skill.demandPercentage > skill.studentProficiencyPct ? (
+                        <span className="text-[#EF4444]">Gap: +{skill.demandPercentage - skill.studentProficiencyPct}%</span>
+                      ) : (
+                        <span className="text-[#55C98B]">Met (+{skill.studentProficiencyPct - skill.demandPercentage}% surplus)</span>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Progress Bar Container with Marker & Tooltip */}
+                  <div className="relative w-full h-2.5">
+                    {/* Inner Track (clips rounded bar fills) */}
+                    <div className="w-full h-full bg-black rounded-full overflow-hidden relative border border-[#27272a]/60">
+                      {/* Layer 1: Evidenced Proficiency (GREEN) */}
+                      {skill.studentProficiencyPct !== null ? (
                         <div
-                          className="h-full bg-[#55C98B] rounded-full"
+                          className="absolute left-0 top-0 h-full bg-[#55C98B] rounded-full transition-all duration-500 z-10"
                           style={{ width: `${skill.studentProficiencyPct}%` }}
                         />
+                      ) : (
+                        <div
+                          className="absolute left-0 top-0 h-full w-1.5 bg-[#55C98B] rounded-l-full z-10 opacity-75"
+                          title="Evidenced Proficiency: 0% (Unverified)"
+                        />
                       )}
+
+                      {/* Layer 2: Market Demand (RED) */}
+                      <div
+                        className="absolute left-0 top-0 h-full bg-[#EF4444] rounded-full transition-all duration-500 z-0"
+                        style={{ width: `${skill.demandPercentage}%` }}
+                      />
                     </div>
+
+                    {/* Red Marker when Proficiency >= Demand (visible on top of Green bar with hover balloon) */}
+                    {skill.studentProficiencyPct !== null && skill.studentProficiencyPct >= skill.demandPercentage && (
+                      <div
+                        className="group/marker absolute -top-1 -bottom-1 w-1 bg-[#EF4444] z-30 cursor-pointer -translate-x-1/2 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.9)]"
+                        style={{ left: `${skill.demandPercentage}%` }}
+                      >
+                        {/* Expanded hover hit area */}
+                        <div className="absolute -inset-x-2 -inset-y-1" />
+
+                        {/* Message Balloon Tooltip */}
+                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/marker:flex flex-col items-center z-50 whitespace-nowrap">
+                          <div className="bg-[#18181b] text-white border border-[#EF4444]/80 text-[11px] font-sans font-medium px-2.5 py-1 rounded shadow-2xl flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse" />
+                            <span>required proficiency ({skill.demandPercentage}%)</span>
+                          </div>
+                          <div className="w-2 h-2 bg-[#18181b] border-r border-b border-[#EF4444]/80 rotate-45 -mt-1" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -434,8 +494,8 @@ export default function SkillDemandScreen({
       </div>
 
       {/* Multi-Role & Classification Comparison Table */}
-      <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-[#202023] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-[#121214] border border-[#27272a] rounded-lg overflow-hidden">
+        <div className="p-4 border-b border-[#27272a] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-white">
               Multi-Role Demand Frequency &amp; Classification Matrix
@@ -446,7 +506,7 @@ export default function SkillDemandScreen({
           </div>
 
           {/* Filter by Mention Classification */}
-          <div className="flex items-center gap-1.5 bg-[#16161A] p-1 rounded-lg border border-[#202023] text-xs font-mono">
+          <div className="flex items-center gap-1.5 bg-[#16161A] p-1 rounded-lg border border-[#27272a] text-xs font-mono">
             {(['all', 'Required', 'Preferred', 'Mentioned'] as const).map((f) => (
               <button
                 key={f}
@@ -463,7 +523,7 @@ export default function SkillDemandScreen({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-[#16161A] text-[#8B8B93] text-[11px] border-b border-[#202023]">
+            <thead className="bg-[#16161A] text-[#8B8B93] text-[11px] border-b border-[#27272a]">
               <tr>
                 <th className="py-3 px-4">Skill &amp; Provenance</th>
                 <th className="py-3 px-4">Classification</th>
@@ -515,7 +575,14 @@ export default function SkillDemandScreen({
                   <td className="py-3 px-4 text-right">
                     {row.isGap ? (
                       <button
-                        onClick={() => onNavigate?.('career-plan')}
+                        onClick={() => {
+                          const targetCompId = DEMAND_TO_COMP_ID[row.id];
+                          if (onLaunchQuiz && (targetCompId === 'comp-sql' || targetCompId === 'comp-docker')) {
+                            onLaunchQuiz(targetCompId);
+                          } else {
+                            onNavigate?.('career-plan');
+                          }
+                        }}
                         className="px-2.5 py-1 bg-[#8052ff] hover:bg-[#8052ff]/90 text-white rounded text-[11px] transition-colors cursor-pointer"
                       >
                         {row.actionType} Now →
@@ -526,6 +593,13 @@ export default function SkillDemandScreen({
                   </td>
                 </tr>
               ))}
+              {filteredTableSkills.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-[#9A9A9A] font-mono text-xs">
+                    No skills matching &ldquo;{mentionFilter}&rdquo; classification for the active role tracks.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

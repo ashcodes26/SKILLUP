@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { initialJobs, initialSharedReviews } from '../../data/mockData';
-import { ResumeSuggestionDiff } from '../../types';
+import { ResumeSuggestionDiff, StudentProfileData, CompetencyItem } from '../../types';
 
 interface ResumeAnalyzerScreenProps {
   onNavigate?: (screen: string) => void;
   onShowToast?: (msg: string, type?: 'success' | 'info' | 'warning') => void;
   initialWorkspaceTab?: 'resume' | 'linkedin';
   targetRole?: string;
+  profile?: StudentProfileData;
 }
 
 export interface ExtendedResumeSuggestionDiff extends ResumeSuggestionDiff {
@@ -19,7 +20,7 @@ Register No: RA2211003010482 | ra2211003010482@srmist.edu.in | +91 98401 29384 |
 
 EDUCATION
 B.Tech in Computer Science and Engineering (School of Computing) | Batch 2022–2026
-SRM Institute of Science and Technology (SRMIST Kattankulathur)
+SRM Institute of Science and Technology (SRMIST)
 Directorate of Career Centre (CDC) Verified | Cumulative CGPA: 8.74 / 10.00 | Standing Arrears: 0 (Cleared)
 Academic Record: 10th Standard: 92% • 12th Standard: 89% • 7th Semester Active
 Relevant Coursework: Distributed Systems, Database Management Systems, Network Protocols, Algorithms
@@ -39,6 +40,38 @@ Backend Engineering Intern | Distributed Ledger Lab (Jun 2025 – Present)
 Autonomous Routing Mesh | Capstone Project (Jan 2025 – May 2025)
 • Built Python-based gRPC routing daemon handling inter-service heartbeat verification across 24 nodes.
 • Containerized services using Docker multi-stage builds to minimize runtime attack surface and image size.`;
+
+
+export function buildDynamicResumeText(profile?: StudentProfileData): string {
+  if (!profile || !profile.name) {
+    return `# UPLOAD RESUME OR PROFILE
+Please upload your student profile CSV or resume PDF in My Career Plan to view full ATS metrics.`;
+  }
+  const skillsStr = profile.competencies
+    .map((comp: CompetencyItem) => `${comp.name}${comp.proficiency ? ` (${comp.proficiency}/5.0)` : ''}`)
+    .join(', ');
+
+  const projectLines = profile.competencies
+    .filter((comp: CompetencyItem) => comp.evidenceSource === 'project' || comp.evidenceSource === 'verified_assessment')
+    .map((comp: CompetencyItem) => `• ${comp.name}: ${comp.evidenceLabel}`)
+    .join('\n');
+
+  return `${profile.name.toUpperCase()}
+Register No: ${profile.registerNumber || 'N/A'} | ${profile.email || 'student@srmist.edu.in'} | Chennai, India
+
+TARGET ROLE: ${profile.targetRole || 'Software Development Engineer'}
+
+EDUCATION
+${profile.program || 'B.Tech'} in ${profile.department || 'Computer Science & Engineering'}
+Specialization: ${profile.specialization || 'Core'} | Current: ${profile.semester || 'Semester 6'}
+Cumulative CGPA: ${profile.cgpa > 0 ? profile.cgpa.toFixed(2) : 'N/A'} / 10.00 | Batch: ${profile.graduationYear || '2026'}
+
+TECHNICAL COMPETENCIES
+${skillsStr || 'Skills to be populated from uploaded profile.'}
+
+PROJECTS & EVIDENCE
+${projectLines || '• Core academic coursework and verified assessment proof.'}`;
+}
 
 const INITIAL_SUGGESTIONS: ExtendedResumeSuggestionDiff[] = [
   {
@@ -90,6 +123,7 @@ export default function ResumeAnalyzerScreen({
   onShowToast,
   initialWorkspaceTab = 'resume',
   targetRole = 'Junior Backend Engineer (Distributed Systems)',
+  profile,
 }: ResumeAnalyzerScreenProps) {
   const [workspaceTab, setWorkspaceTab] = useState<'resume' | 'linkedin'>(initialWorkspaceTab);
 
@@ -104,6 +138,60 @@ export default function ResumeAnalyzerScreen({
   const [customRoleTitle, setCustomRoleTitle] = useState<string>('');
   const [viewMode, setViewMode] = useState<'side-by-side' | 'single-draft'>('side-by-side');
   const [editorMode, setEditorMode] = useState<'editable' | 'preview'>('editable');
+  const [showToolsDropdown, setShowToolsDropdown] = useState<boolean>(false);
+
+  // Dynamic Text Editor Sizing by Dragging
+  const [editorHeight, setEditorHeight] = useState<number>(560);
+  const [, setIsDraggingHeight] = useState<boolean>(false);
+  const [splitRatio, setSplitRatio] = useState<number>(50); // percentage for left split pane in side-by-side mode
+  const [, setIsDraggingSplit] = useState<boolean>(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+
+  // Drag handlers for vertical height
+  const startHeightDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingHeight(true);
+    const startY = e.clientY;
+    const startH = editorHeight;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaY = moveEvent.clientY - startY;
+      const newH = Math.max(340, Math.min(1100, startH + deltaY));
+      setEditorHeight(newH);
+    };
+
+    const onMouseUp = () => {
+      setIsDraggingHeight(false);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  // Drag handlers for horizontal split panes
+  const startSplitDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingSplit(true);
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const offsetX = moveEvent.clientX - rect.left;
+      const pct = Math.max(20, Math.min(80, (offsetX / rect.width) * 100));
+      setSplitRatio(pct);
+    };
+
+    const onMouseUp = () => {
+      setIsDraggingSplit(false);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 
   // Interactive AI Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -241,7 +329,7 @@ export default function ResumeAnalyzerScreen({
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'Aravind_R_SRMIST_Resume.txt';
+      link.download = `${(profile?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.txt`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -252,7 +340,7 @@ export default function ResumeAnalyzerScreen({
 <html>
 <head>
 <meta charset="utf-8">
-<title>Aravind R. SRMIST Resume - Backend Engineer</title>
+<title>${profile?.name || 'Candidate'} Resume - ${profile?.targetRole || targetRole}</title>
 <style>
 body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; margin: 30px; }
 pre { font-family: Calibri, Arial, sans-serif; white-space: pre-wrap; font-size: 11pt; }
@@ -266,7 +354,7 @@ pre { font-family: Calibri, Arial, sans-serif; white-space: pre-wrap; font-size:
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'Aravind_R_SRMIST_Resume.docx';
+      link.download = `${(profile?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.docx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -277,7 +365,7 @@ pre { font-family: Calibri, Arial, sans-serif; white-space: pre-wrap; font-size:
 <html>
 <head>
 <meta charset="utf-8">
-<title>Aravind R. SRMIST Resume - Backend Engineer</title>
+<title>${profile?.name || 'Candidate'} Resume - ${profile?.targetRole || targetRole}</title>
 <style>
 @page { margin: 15mm; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.5; color: #111; max-width: 820px; margin: 0 auto; padding: 24px; }
@@ -292,7 +380,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'Aravind_R_SRMIST_Resume.pdf';
+      link.download = `${(profile?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -339,12 +427,11 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
 
   // Render highlighted text preview with glowing emerald marks for accepted passages
   const renderHighlightedPreview = () => {
-    let rendered = workingDraft;
     const acceptedList = suggestions.filter((s) => s.status === 'accepted');
 
     if (acceptedList.length === 0) {
       return (
-        <div className="font-mono text-xs leading-relaxed text-[#D6D6DC] whitespace-pre-wrap select-text">
+        <div className="font-sans text-[13.5px] sm:text-sm leading-relaxed text-zinc-200 whitespace-pre-wrap select-text">
           {workingDraft}
         </div>
       );
@@ -353,25 +440,25 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
     // Split text by lines to highlight accepted bullets
     const lines = workingDraft.split('\n');
     return (
-      <div className="font-mono text-xs leading-relaxed space-y-1 select-text">
+      <div className="font-sans text-[13.5px] sm:text-sm leading-relaxed space-y-1.5 select-text">
         {lines.map((line, idx) => {
           const matchingAccepted = acceptedList.find((s) => s.proposedPassage.trim() === line.trim());
           if (matchingAccepted) {
             return (
               <div
                 key={idx}
-                className="bg-[#55C98B]/20 text-[#55C98B] border-l-2 border-[#55C98B] px-2 py-1 rounded-r font-bold transition-all shadow-sm"
+                className="bg-[#55C98B]/15 text-emerald-300 border-l-2 border-[#55C98B] px-3 py-1.5 rounded-r font-medium transition-all shadow-sm"
               >
-                <div className="text-[10px] text-[#55C98B] uppercase tracking-wider font-sans flex items-center gap-1 mb-0.5">
-                  <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                <div className="text-[11px] text-[#55C98B] uppercase tracking-wider font-sans font-semibold flex items-center gap-1 mb-0.5">
+                  <span className="material-symbols-outlined text-[14px]">check_circle</span>
                   <span>Applied {matchingAccepted.skillTarget} Revision</span>
                 </div>
-                <div>{line}</div>
+                <div className="leading-relaxed">{line}</div>
               </div>
             );
           }
           return (
-            <div key={idx} className="text-[#D6D6DC]">
+            <div key={idx} className="text-zinc-200">
               {line || <span className="opacity-0">blank</span>}
             </div>
           );
@@ -381,378 +468,346 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
   };
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Top Header & Navigation Switcher */}
-      <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-[#9A9A9A]">
-            <span className="text-[#8052ff] font-semibold">CAREER ASSETS &amp; PUBLIC PROFILES</span>
-            <span>·</span>
-            <span>Factual Integrity Guard Active</span>
-            <span>·</span>
-            <span className="text-[#55C98B] font-mono">Last Scan: {lastAnalyzedAt}</span>
+    <div className="flex-1 w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Unified Header & ATS Alignment Overview (Optimized Vertical Space) */}
+      <div className="bg-[#121214] border border-[#27272a] rounded-lg p-4 space-y-3.5">
+        {/* Top Controls Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#27272a]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#9A9A9A]">
+                <span className="text-[#8052ff] font-medium">Career Assets</span>
+                <span>·</span>
+                <span className="text-[#10b981] font-mono">Scan: {lastAnalyzedAt}</span>
+              </div>
+              <h1 className="text-lg font-bold text-white tracking-tight mt-0.5">
+                {workspaceTab === 'resume' ? 'Resume Analyzer & Diff Workspace' : 'LinkedIn Profile Optimizer'}
+              </h1>
+            </div>
+
+            {/* Unified Target Role Dropdown (Single element like Career Plan) */}
+            {workspaceTab === 'resume' && (
+              <div className="relative inline-flex items-center">
+                <span className="w-2 h-2 rounded-full bg-[#55C98B] absolute left-2.5 pointer-events-none z-10 animate-pulse" />
+                <select
+                  value={selectedRoleTarget}
+                  onChange={(e) => setSelectedRoleTarget(e.target.value)}
+                  className="bg-[#8052ff]/15 hover:bg-[#8052ff]/25 text-[#cdbdff] hover:text-white border border-[#8052ff]/40 rounded-full pl-6 pr-7 py-1 text-xs font-mono font-medium focus:outline-none focus:border-[#8052ff] cursor-pointer appearance-none transition-all shadow-sm max-w-[280px] truncate"
+                  title="Switch target career track"
+                >
+                  {initialJobs.map((j) => (
+                    <option key={j.id} value={j.id} className="bg-[#121214] text-white">
+                      Target: {j.title}
+                    </option>
+                  ))}
+                  <option value="custom" className="bg-[#121214] text-white">Target: Custom Role...</option>
+                </select>
+                <span className="material-symbols-outlined text-[15px] text-[#cdbdff] pointer-events-none absolute right-2">
+                  expand_more
+                </span>
+              </div>
+            )}
+
+            {workspaceTab === 'resume' && selectedRoleTarget === 'custom' && (
+              <input
+                type="text"
+                placeholder="Enter custom role..."
+                value={customRoleTitle}
+                onChange={(e) => setCustomRoleTitle(e.target.value)}
+                className="bg-[#16161A] border border-[#363639] rounded-full px-3 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#8052ff] w-44"
+              />
+            )}
           </div>
-          <h1 className="text-xl font-bold text-white mt-1">
-            {workspaceTab === 'resume'
-              ? 'Resume Analyzer & Target Alignment Workspace'
-              : 'LinkedIn Profile Optimizer & Public Insights'}
-          </h1>
-          <p className="text-xs text-[#8B8B93] mt-0.5">
-            {workspaceTab === 'resume'
-              ? 'AI-grounded passage diffing with granular Accept / Reject / Undo controls, 3D alignment scorecards, and instant multi-format export.'
-              : 'Headline evaluation, About summary critique, and strategic keyword saturation relative to your target role.'}
-          </p>
+
+          {/* Right Action Cluster */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {workspaceTab === 'resume' && (
+              <>
+                {/* Primary Action Button */}
+                <button
+                  onClick={handleAnalyzeResume}
+                  disabled={isAnalyzing}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 disabled:opacity-50 text-white text-xs font-mono font-semibold transition-all flex items-center gap-1.5 shadow-md shadow-[#8052ff]/20 cursor-pointer"
+                  title="Run AI alignment scan against target role requirements"
+                >
+                  <span className={`material-symbols-outlined text-[15px] ${isAnalyzing ? 'animate-spin' : ''}`}>
+                    {isAnalyzing ? 'sync' : 'auto_awesome'}
+                  </span>
+                  <span>{isAnalyzing ? 'Scanning...' : 'Analyze Resume'}</span>
+                </button>
+
+                {/* Unified Tools Dropdown (Upload, Single View, Faculty Review) */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowToolsDropdown(!showToolsDropdown)}
+                    className="px-3 py-1.5 bg-[#16161A] hover:bg-[#202023] text-xs font-mono text-[#D6D6DC] border border-[#363639] rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                    title="Workspace Tools & Actions"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">tune</span>
+                    <span>Tools</span>
+                    <span className={`material-symbols-outlined text-[14px] transition-transform duration-150 ${showToolsDropdown ? 'rotate-180' : ''}`}>
+                      expand_more
+                    </span>
+                  </button>
+
+                  {showToolsDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowToolsDropdown(false)} />
+                      <div className="absolute right-0 top-full mt-1.5 w-56 bg-[#16161A] border border-[#363639] rounded-xl shadow-2xl p-1.5 z-40 space-y-1 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
+                        {/* 1. Upload Document */}
+                        <label className="w-full px-3 py-2 hover:bg-[#202023] rounded-lg flex items-center gap-2 text-white cursor-pointer transition-colors">
+                          <span className="material-symbols-outlined text-[16px] text-[#8052ff]">upload_file</span>
+                          <span>Upload Document</span>
+                          <input
+                            type="file"
+                            accept=".txt,.docx,.doc"
+                            className="hidden"
+                            onChange={(e) => {
+                              handleFileUpload(e);
+                              setShowToolsDropdown(false);
+                            }}
+                          />
+                        </label>
+
+                        {/* 2. Single View / Split View Toggle */}
+                        <button
+                          onClick={() => {
+                            setViewMode(viewMode === 'side-by-side' ? 'single-draft' : 'side-by-side');
+                            setShowToolsDropdown(false);
+                          }}
+                          className="w-full px-3 py-2 hover:bg-[#202023] rounded-lg flex items-center justify-between text-white text-left transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px] text-[#60A5FA]">view_column</span>
+                            <span>{viewMode === 'side-by-side' ? 'Single View' : 'Split View'}</span>
+                          </span>
+                          <span className="text-[10px] text-[#9A9A9A] uppercase">{viewMode === 'side-by-side' ? 'Split' : 'Single'}</span>
+                        </button>
+
+                        {/* 3. Faculty Review Queue */}
+                        <button
+                          onClick={() => {
+                            handleSubmitReview();
+                            setShowToolsDropdown(false);
+                          }}
+                          disabled={submittedForReview}
+                          className="w-full px-3 py-2 hover:bg-[#202023] disabled:opacity-50 rounded-lg flex items-center justify-between text-white text-left transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px] text-[#55C98B]">
+                              {submittedForReview ? 'check_circle' : 'assignment_turned_in'}
+                            </span>
+                            <span>Faculty Review</span>
+                          </span>
+                          <span className="text-[10px] text-[#55C98B]">
+                            {submittedForReview ? 'Sent' : 'Submit'}
+                          </span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Workspace Tab Switcher */}
+            <div className="flex items-center gap-1 bg-[#16161A] p-0.5 rounded-lg border border-[#27272a]">
+              <button
+                onClick={() => setWorkspaceTab('resume')}
+                className={`px-3 py-1 rounded text-xs font-mono transition-colors cursor-pointer whitespace-nowrap ${
+                  workspaceTab === 'resume'
+                    ? 'bg-[#8052ff] text-white font-semibold shadow-md'
+                    : 'text-[#9A9A9A] hover:text-white'
+                }`}
+              >
+                Resume
+              </button>
+              <button
+                onClick={() => setWorkspaceTab('linkedin')}
+                className={`px-3 py-1 rounded text-xs font-mono transition-colors cursor-pointer whitespace-nowrap ${
+                  workspaceTab === 'linkedin'
+                    ? 'bg-[#8052ff] text-white font-semibold shadow-md'
+                    : 'text-[#9A9A9A] hover:text-white'
+                }`}
+              >
+                LinkedIn
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#16161A] p-1.5 rounded-lg border border-[#202023] self-start lg:self-auto">
-          <button
-            onClick={() => setWorkspaceTab('resume')}
-            className={`px-3.5 py-1.5 rounded text-xs font-mono transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-              workspaceTab === 'resume'
-                ? 'bg-[#8052ff] text-white font-semibold shadow-md'
-                : 'text-[#9A9A9A] hover:text-white'
-            }`}
-          >
-            Resume Analyzer &amp; Diffs
-          </button>
-          <button
-            onClick={() => setWorkspaceTab('linkedin')}
-            className={`px-3.5 py-1.5 rounded text-xs font-mono transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-              workspaceTab === 'linkedin'
-                ? 'bg-[#8052ff] text-white font-semibold shadow-md'
-                : 'text-[#9A9A9A] hover:text-white'
-            }`}
-          >
-            LinkedIn Optimizer
-          </button>
-        </div>
+        {/* Integrated ATS Alignment Metrics Row */}
+        {workspaceTab === 'resume' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-0.5">
+            {/* Left Column: Overall Alignment Hero (6 Cols - Symmetrical) */}
+            <div className="lg:col-span-6 flex items-center gap-4 border-b lg:border-b-0 lg:border-r border-[#27272a] pb-3 lg:pb-0 lg:pr-8">
+              <div className="relative w-12 h-12 rounded-full bg-[#16161A] border-2 border-[#8052ff]/60 flex flex-col items-center justify-center shrink-0 shadow-lg shadow-[#8052ff]/10">
+                <span className="text-base font-bold font-mono text-white tabular-nums leading-none">
+                  {overallAlignmentScore}
+                </span>
+                <span className="text-[8px] font-mono text-[#9A9A9A]">/ 100</span>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#9A9A9A] uppercase tracking-wider">
+                  <span>Overall ATS Alignment</span>
+                  <span className="material-symbols-outlined text-[13px] text-[#55C98B]">verified</span>
+                </div>
+                <div className="text-xs font-semibold text-white truncate mt-0.5" title={alignmentBadgeText}>
+                  {alignmentBadgeText}
+                </div>
+                <div className="w-full h-1.5 bg-[#16161A] rounded-full overflow-hidden mt-1.5">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#8052ff] to-[#55C98B] transition-all duration-500 rounded-full"
+                    style={{ width: `${overallAlignmentScore}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: 3 Compact Sub-Metrics (6 Cols - Symmetrical) */}
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* 1. Relevance to Role */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Role Relevance</span>
+                  <span className="text-white font-bold tabular-nums">{relevanceScore}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#8052ff] rounded-full transition-all duration-500" style={{ width: `${relevanceScore}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate" title={dockerAccepted ? 'Targeted (+12)' : 'Matches 4/6 core spec'}>
+                  {dockerAccepted ? 'Docker & K8s targeted (+12)' : 'Matches 4/6 core spec'}
+                </div>
+              </div>
+
+              {/* 2. Evidence & Impact */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Evidence &amp; Scale</span>
+                  <span className="text-[#55C98B] font-bold tabular-nums">{evidenceScore}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#55C98B] rounded-full transition-all duration-500" style={{ width: `${evidenceScore}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate" title={sqlAccepted ? 'SQL latency quantified (+18)' : 'Baseline metrics: 1 quantified'}>
+                  {sqlAccepted ? 'SQL latency quantified (+18)' : '1 quantified metric'}
+                </div>
+              </div>
+
+              {/* 3. Clarity & Structure */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Clarity &amp; Syntax</span>
+                  <span className="text-[#ffba35] font-bold tabular-nums">{clarityScore}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#ffba35] rounded-full transition-all duration-500" style={{ width: `${clarityScore}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate">
+                  {redisAccepted ? 'Action verbs (+4)' : 'Active verb structure'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {workspaceTab === 'resume' ? (
         <>
-          {/* 1. Target Role Header & Document Setup Bar */}
-          <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
-              {/* Linked Active Target Role Badge */}
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1.5 rounded-lg bg-[#8052ff]/15 border border-[#8052ff]/40 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-pulse" />
-                  <span className="text-xs font-mono font-medium text-[#cdbdff]">
-                    Target Role: <strong className="text-white">{targetRole}</strong>
-                  </span>
-                </div>
-              </div>
-
-              {/* Role Picker Fallback */}
-              <div className="flex-1 max-w-sm">
-                <select
-                  value={selectedRoleTarget}
-                  onChange={(e) => setSelectedRoleTarget(e.target.value)}
-                  className="w-full bg-[#16161A] border border-[#363639] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#8052ff]"
-                >
-                  {initialJobs.map((j) => (
-                    <option key={j.id} value={j.id}>
-                      {j.title} — {j.company} ({j.source})
-                    </option>
-                  ))}
-                  <option value="custom">Custom Target Role...</option>
-                </select>
-                {selectedRoleTarget === 'custom' && (
-                  <input
-                    type="text"
-                    placeholder="Enter custom target role title..."
-                    value={customRoleTitle}
-                    onChange={(e) => setCustomRoleTitle(e.target.value)}
-                    className="mt-1.5 w-full bg-[#16161A] border border-[#363639] rounded px-3 py-1.5 text-xs text-white"
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Document Setup & Action Controls */}
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              {/* Analyze Resume Button */}
-              <button
-                onClick={handleAnalyzeResume}
-                disabled={isAnalyzing}
-                className="px-4 py-2 rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 disabled:opacity-50 text-white text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-lg shadow-[#8052ff]/20 cursor-pointer"
-                title="Run AI alignment scan against target role requirements"
-              >
-                <span className={`material-symbols-outlined text-[16px] ${isAnalyzing ? 'animate-spin' : ''}`}>
-                  {isAnalyzing ? 'sync' : 'auto_awesome'}
-                </span>
-                <span>{isAnalyzing ? 'Analyzing Alignment...' : 'Analyze Resume'}</span>
-              </button>
-
-              {/* Upload TXT/DOCX */}
-              <label className="px-3 py-2 bg-[#16161A] hover:bg-[#202023] text-xs font-mono text-[#cdbdff] border border-[#363639] rounded-lg transition-colors cursor-pointer flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px]">upload_file</span>
-                <span>Upload Document</span>
-                <input type="file" accept=".txt,.docx,.doc" className="hidden" onChange={handleFileUpload} />
-              </label>
-
-              {/* Split View Toggle */}
-              <button
-                onClick={() => setViewMode(viewMode === 'side-by-side' ? 'single-draft' : 'side-by-side')}
-                className="px-3 py-2 bg-[#16161A] hover:bg-[#202023] text-xs font-mono text-[#D6D6DC] border border-[#363639] rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[15px]">view_column</span>
-                <span>{viewMode === 'side-by-side' ? 'Single Draft View' : 'Split-Pane View'}</span>
-              </button>
-
-              {/* AI Interview Room Launcher */}
-              <button
-                onClick={() => onNavigate?.('interview-room')}
-                className="px-3 py-2 bg-[#ffba35]/15 hover:bg-[#ffba35]/25 text-xs font-mono text-[#ffba35] border border-[#ffba35]/40 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                title="Launch AI Technical & HR Interview Room for Super Dream drives"
-              >
-                <span className="material-symbols-outlined text-[15px]">mic</span>
-                <span>AI Interview Room</span>
-              </button>
-
-              {/* Faculty Review Queue */}
-              <button
-                onClick={handleSubmitReview}
-                disabled={submittedForReview}
-                className={`px-3.5 py-2 text-xs font-mono font-medium rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer ${
-                  submittedForReview
-                    ? 'bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40'
-                    : 'bg-[#202023] hover:bg-[#363639] text-white border border-[#363639]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[15px]">
-                  {submittedForReview ? 'check_circle' : 'assignment_turned_in'}
-                </span>
-                <span>{submittedForReview ? 'Submitted to Faculty' : 'Submit to Queue'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 2. Three AI Rating Scorecards (0–100 Scale) & Overall Alignment Badge */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Overall Alignment Scorecard */}
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between text-xs font-mono text-[#9A9A9A]">
-                  <span>OVERALL ALIGNMENT</span>
-                  <span className="material-symbols-outlined text-[18px] text-[#8052ff]">verified</span>
-                </div>
-                <div className="text-3xl font-bold font-mono tabular-nums text-white mt-1.5">
-                  {overallAlignmentScore} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="w-full h-2 bg-[#16161A] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#8052ff] to-[#55C98B] transition-all duration-500"
-                    style={{ width: `${overallAlignmentScore}%` }}
-                  />
-                </div>
-                <div className="mt-2 text-[11px] font-mono text-[#55C98B] font-semibold truncate" title={alignmentBadgeText}>
-                  {alignmentBadgeText}
-                </div>
-              </div>
-            </div>
-
-            {/* Scorecard 1: Relevance to Target Role */}
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between text-xs font-mono text-[#9A9A9A]">
-                  <span>1. RELEVANCE TO ROLE</span>
-                  <span className="text-[#cdbdff] text-[11px]">Backend Spec</span>
-                </div>
-                <div className="text-3xl font-bold font-mono tabular-nums text-[#cdbdff] mt-1.5">
-                  {relevanceScore} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="w-full h-2 bg-[#16161A] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#8052ff] transition-all duration-500"
-                    style={{ width: `${relevanceScore}%` }}
-                  />
-                </div>
-                <div className="mt-2 text-[11px] font-mono text-[#9A9A9A]">
-                  {dockerAccepted ? 'Docker & Kubernetes targeted (+12)' : 'Matches 4/6 core backend requirements'}
-                </div>
-              </div>
-            </div>
-
-            {/* Scorecard 2: Evidence & Quantifiable Impact */}
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between text-xs font-mono text-[#9A9A9A]">
-                  <span>2. EVIDENCE &amp; IMPACT</span>
-                  <span className="text-[#55C98B] text-[11px]">Metrics Scale</span>
-                </div>
-                <div className="text-3xl font-bold font-mono tabular-nums text-[#55C98B] mt-1.5">
-                  {evidenceScore} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="w-full h-2 bg-[#16161A] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#55C98B] transition-all duration-500"
-                    style={{ width: `${evidenceScore}%` }}
-                  />
-                </div>
-                <div className="mt-2 text-[11px] font-mono text-[#9A9A9A]">
-                  {sqlAccepted ? 'SQL latency reduction quantified (+18)' : 'Baseline metrics: 1 quantified result'}
-                </div>
-              </div>
-            </div>
-
-            {/* Scorecard 3: Clarity & Structure */}
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between text-xs font-mono text-[#9A9A9A]">
-                  <span>3. CLARITY &amp; STRUCTURE</span>
-                  <span className="text-[#ffba35] text-[11px]">Active Syntax</span>
-                </div>
-                <div className="text-3xl font-bold font-mono tabular-nums text-[#ffba35] mt-1.5">
-                  {clarityScore} <span className="text-xs font-normal text-[#9A9A9A]">/ 100</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="w-full h-2 bg-[#16161A] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#ffba35] transition-all duration-500"
-                    style={{ width: `${clarityScore}%` }}
-                  />
-                </div>
-                <div className="mt-2 text-[11px] font-mono text-[#9A9A9A]">
-                  {redisAccepted ? 'High-concurrency action verbs (+4)' : 'Clean reverse-chronological structure'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contextual Faculty Advisory Banner */}
-          {studentFacultyReview && (
-            <div className="bg-[#16161A] border border-[#363639] rounded-lg p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-[#cdbdff] text-[18px] mt-0.5">comment</span>
-                <div>
-                  <span className="font-semibold text-white">
-                    Faculty Contextual Advisory ({studentFacultyReview.studentName} · {studentFacultyReview.version}):
-                  </span>{' '}
-                  <span className="text-[#BDBDBD]">&ldquo;{studentFacultyReview.facultyNote}&rdquo;</span>
-                  <div className="text-[11px] text-[#9A9A9A] mt-0.5">
-                    Non-mutating advisory: Your private working draft is never overwritten by faculty comments.
-                  </div>
-                </div>
-              </div>
-              <span className="font-mono text-[11px] text-[#ffba35] shrink-0">
-                Queue Status: {submittedForReview ? 'Submitted (v4.2)' : 'Pending Faculty Review'}
-              </span>
-            </div>
-          )}
 
           {/* Main Grid: Left Target Alignment Stream (Diffs) / Right Split Workspace Editor */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* 3. Target Alignment Stream (Surgical Diffs) - 5 Columns */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#202023]">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#8052ff] text-[18px]">compare_arrows</span>
-                    <h2 className="text-sm font-semibold text-white">Target Alignment Stream (Surgical Diffs)</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 2xl:gap-16">
+            {/* 3. Target Alignment Stream (Surgical Diffs) - 6 Columns (Symmetrical & Decluttered) */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="bg-[#121214] border border-[#27272a] rounded-xl p-5 sm:p-6 shadow-xl space-y-5">
+                <div className="flex items-center justify-between pb-3.5 border-b border-[#27272a]">
+                  <div className="flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-[#8052ff] text-[20px]">compare_arrows</span>
+                    <h2 className="text-sm font-bold text-white tracking-tight font-sans">Target Alignment Stream (Surgical Diffs)</h2>
                   </div>
-                  <span className="text-[11px] font-mono text-[#55C98B] font-bold">
+                  <span className="text-xs font-sans text-[#55C98B] font-semibold bg-[#55C98B]/10 px-2.5 py-1 rounded-full border border-[#55C98B]/30">
                     {acceptedCount} / {suggestions.length} Applied
                   </span>
                 </div>
 
-                <div className="space-y-4 mt-4">
+                <div className="space-y-4">
                   {suggestions.map((sug) => (
                     <div
                       key={sug.id}
-                      className={`p-4 rounded-lg border transition-all ${
+                      className={`p-4 sm:p-5 rounded-xl border transition-all ${
                         sug.status === 'accepted'
                           ? 'bg-[#16161A] border-[#55C98B]/50 shadow-md shadow-[#55C98B]/5'
                           : sug.status === 'rejected'
-                          ? 'bg-[#16161A]/40 border-[#202023] opacity-60'
-                          : 'bg-[#16161A] border-[#202023] hover:border-[#8052ff]/50'
+                          ? 'bg-[#16161A]/40 border-[#27272a] opacity-60'
+                          : 'bg-[#16161A] border-[#27272a] hover:border-[#8052ff]/50'
                       }`}
                     >
                       {/* Card Header: Title, Skill Gap Target & Status Badge */}
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">{sug.title}</span>
+                            <span className="text-sm font-semibold text-white font-sans">{sug.title}</span>
                           </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="px-2 py-0.5 rounded bg-[#8052ff]/20 text-[#cdbdff] text-[10px] font-mono font-medium border border-[#8052ff]/30">
+                          <div className="flex items-center gap-2 mt-1.5 font-sans">
+                            <span className="px-2.5 py-0.5 rounded-full bg-[#8052ff]/20 text-[#cdbdff] text-xs font-medium border border-[#8052ff]/30">
                               {sug.gapDescription}
                             </span>
-                            <span className="text-[10px] font-mono text-[#9A9A9A]">{sug.priority}</span>
+                            <span className="text-xs text-zinc-400 font-sans">{sug.priority}</span>
                           </div>
                         </div>
 
                         {/* Status Badge */}
-                        <div className="shrink-0">
+                        <div className="shrink-0 font-sans">
                           {sug.status === 'accepted' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 font-mono text-[11px] font-bold">
-                              <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 font-sans text-xs font-bold">
+                              <span className="material-symbols-outlined text-[14px]">check_circle</span>
                               <span>Applied ✓</span>
                             </span>
                           ) : sug.status === 'rejected' ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-950/40 text-red-400 border border-red-900/40 font-mono text-[11px]">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-950/40 text-red-400 border border-red-900/40 font-sans text-xs">
                               <span>Rejected</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#ffba35]/15 text-[#ffba35] border border-[#ffba35]/30 font-mono text-[11px]">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#ffba35]/15 text-[#ffba35] border border-[#ffba35]/30 font-sans text-xs font-medium">
                               <span>Pending</span>
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Rationale Badge */}
-                      <div className="mt-2.5 px-2.5 py-1.5 rounded bg-[#0D0D0F] border border-[#202023] text-xs text-[#BDBDBD] flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[14px] text-[#ffba35] shrink-0">psychology</span>
-                        <span className="text-[11px]"><strong>Rationale:</strong> {sug.rationale}</span>
-                      </div>
-
-                      {/* Original Passage (Red/Muted Strike-through) */}
-                      <div className="mt-3 space-y-2 font-mono text-xs">
-                        <div>
-                          <span className="text-[10px] font-mono uppercase text-[#F87171] tracking-wider block mb-1">
-                            Original Baseline Passage:
-                          </span>
-                          <div className="p-2.5 bg-red-950/20 border border-red-900/30 rounded text-[#F87171] line-through leading-relaxed">
-                            {sug.originalPassage}
-                          </div>
+                      {/* Unified Inline Word-Diff Block (Readable Font) */}
+                      <div className="mt-3.5 p-3.5 bg-[#0b0b0e] border border-[#232328] rounded-xl font-sans text-[13.5px] leading-relaxed space-y-2.5 select-text">
+                        {/* Red Deleted / Baseline line */}
+                        <div className="flex items-start gap-2.5 text-rose-300/85 line-through decoration-rose-500/60">
+                          <span className="text-rose-400 font-bold select-none shrink-0 text-sm leading-none mt-1">−</span>
+                          <span className="leading-relaxed font-sans">{sug.originalPassage.replace(/^[•\-\*]\s*/, '')}</span>
                         </div>
 
-                        {/* Proposed Replacement (Emerald Highlighted Text Emphasizing Metrics) */}
-                        <div>
-                          <span className="text-[10px] font-mono uppercase text-[#55C98B] tracking-wider block mb-1">
-                            Proposed Replacement (Verified Evidence):
-                          </span>
-                          <div className="p-2.5 bg-emerald-950/25 border border-emerald-900/40 rounded text-[#55C98B] font-medium leading-relaxed">
-                            {sug.proposedPassage}
-                          </div>
+                        {/* Green Verified / Replaced line */}
+                        <div className="flex items-start gap-2.5 text-emerald-300 font-medium">
+                          <span className="text-emerald-400 font-bold select-none shrink-0 text-sm leading-none mt-1">+</span>
+                          <span className="leading-relaxed font-sans">{sug.proposedPassage.replace(/^[•\-\*]\s*/, '')}</span>
                         </div>
                       </div>
 
-                      {/* Working Action Buttons: [Accept], [Reject], [Undo] */}
-                      <div className="mt-3.5 flex items-center justify-between pt-2.5 border-t border-[#202023]">
-                        <span className="text-[10px] text-[#8B8B93] font-mono truncate max-w-[200px]" title={sug.ruleRef}>
-                          {sug.ruleRef}
+                      {/* Action Row & Rationale Tip */}
+                      <div className="mt-3.5 flex items-center justify-between pt-3 border-t border-[#27272a] text-xs font-sans">
+                        <span className="text-zinc-400 truncate max-w-[280px]" title={sug.rationale}>
+                          💡 {sug.rationale}
                         </span>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2 shrink-0 font-sans">
                           {sug.status === 'pending' ? (
                             <>
                               <button
                                 onClick={() => handleRejectSuggestion(sug.id)}
-                                className="px-3 py-1.5 text-xs font-mono rounded-lg bg-[#202023] hover:bg-[#363639] text-[#D6D6DC] cursor-pointer transition-colors"
+                                className="px-3 py-1.5 text-xs font-sans rounded-lg bg-[#202023] hover:bg-[#363639] text-zinc-300 cursor-pointer transition-colors"
                               >
                                 Reject
                               </button>
                               <button
                                 onClick={() => handleAcceptSuggestion(sug.id)}
-                                className="px-3 py-1.5 text-xs font-mono rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 text-white font-semibold cursor-pointer transition-colors shadow-sm"
+                                className="px-3.5 py-1.5 text-xs font-sans rounded-lg bg-[#8052ff] hover:bg-[#8052ff]/90 text-white font-semibold cursor-pointer transition-colors shadow-sm"
                               >
                                 Accept
                               </button>
@@ -760,9 +815,9 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                           ) : (
                             <button
                               onClick={() => handleUndoSuggestion(sug.id)}
-                              className="px-3 py-1.5 text-xs font-mono rounded-lg bg-[#202023] hover:bg-[#363639] text-[#ffba35] flex items-center gap-1 cursor-pointer transition-colors border border-[#ffba35]/30"
+                              className="px-3 py-1.5 text-xs font-sans rounded-lg bg-[#202023] hover:bg-[#363639] text-[#ffba35] flex items-center gap-1 cursor-pointer transition-colors border border-[#ffba35]/30"
                             >
-                              <span className="material-symbols-outlined text-[13px]">undo</span>
+                              <span className="material-symbols-outlined text-[14px]">undo</span>
                               <span>Undo</span>
                             </button>
                           )}
@@ -774,11 +829,11 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
               </div>
             </div>
 
-            {/* 4. Split-Pane Workspace Editor (7 Columns) */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg overflow-hidden flex flex-col shadow-xl">
+            {/* 4. Split-Pane Workspace Editor (6 Columns - Symmetrical & Dynamically Resizable) */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="bg-[#121214] border border-[#27272a] rounded-xl overflow-hidden flex flex-col shadow-2xl">
                 {/* Editor Shelf Header Bar */}
-                <div className="px-4 py-3 bg-[#16161A] border-b border-[#202023] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                <div className="px-4 py-3 bg-[#16161A] border-b border-[#27272a] flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
                   <div className="flex items-center gap-2">
                     <span className="text-white font-bold">
                       {viewMode === 'side-by-side'
@@ -795,19 +850,19 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
 
                   <div className="flex items-center gap-3">
                     {/* Live Character Counter */}
-                    <div className="flex items-center gap-1 text-[11px] font-mono">
-                      <span className="text-[#9A9A9A]">Length:</span>
+                    <div className="flex items-center gap-1 text-[11px] font-sans">
+                      <span className="text-zinc-400">Length:</span>
                       <span className={isValidCharLength ? 'text-[#55C98B] font-bold' : 'text-[#EB5757] font-bold'}>
                         {charCount.toLocaleString()} / 20,000 chars
                       </span>
                     </div>
 
                     {/* Mode Toggle: Editable vs Highlighted Preview */}
-                    <div className="flex items-center bg-[#0D0D0F] p-0.5 rounded border border-[#202023]">
+                    <div className="flex items-center bg-[#121214] p-0.5 rounded-lg border border-[#27272a]">
                       <button
                         onClick={() => setEditorMode('editable')}
-                        className={`px-2 py-1 rounded text-[11px] transition-colors cursor-pointer ${
-                          editorMode === 'editable' ? 'bg-[#202023] text-white font-bold' : 'text-[#9A9A9A] hover:text-white'
+                        className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-sans ${
+                          editorMode === 'editable' ? 'bg-[#202023] text-white font-semibold' : 'text-zinc-400 hover:text-white'
                         }`}
                         title="Edit raw text"
                       >
@@ -815,8 +870,8 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                       </button>
                       <button
                         onClick={() => setEditorMode('preview')}
-                        className={`px-2 py-1 rounded text-[11px] transition-colors cursor-pointer ${
-                          editorMode === 'preview' ? 'bg-[#8052ff] text-white font-bold' : 'text-[#9A9A9A] hover:text-white'
+                        className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-sans ${
+                          editorMode === 'preview' ? 'bg-[#8052ff] text-white font-semibold' : 'text-zinc-400 hover:text-white'
                         }`}
                         title="View highlighted replacements"
                       >
@@ -827,63 +882,118 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                     {/* Restore Original Button */}
                     <button
                       onClick={handleRestoreOriginal}
-                      className="px-2.5 py-1 text-[11px] rounded bg-[#202023] hover:bg-[#363639] text-[#ffba35] border border-[#363639] flex items-center gap-1 cursor-pointer transition-colors"
+                      className="px-2.5 py-1 text-xs rounded-lg bg-[#202023] hover:bg-[#363639] text-[#ffba35] border border-[#363639] flex items-center gap-1 cursor-pointer transition-colors font-sans"
                       title="Reset draft back to original baseline resume"
                     >
-                      <span className="material-symbols-outlined text-[13px]">restart_alt</span>
-                      <span>Restore Original</span>
+                      <span className="material-symbols-outlined text-[14px]">restart_alt</span>
+                      <span>Restore</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Split Workspace Body */}
+                {/* Dynamic Draggable Workspace Body */}
                 <div
-                  className={`grid ${
-                    viewMode === 'side-by-side' ? 'grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x' : 'grid-cols-1'
-                  } divide-[#202023] min-h-[500px] max-h-[580px]`}
+                  ref={splitContainerRef}
+                  style={{ height: `${editorHeight}px` }}
+                  className={`flex ${viewMode === 'side-by-side' ? 'flex-col md:flex-row' : 'flex-col'} overflow-hidden relative`}
                 >
                   {/* Left Pane: Original Baseline Resume (Read-Only Reference) */}
-                  {viewMode === 'side-by-side' && (
-                    <div className="p-4 bg-[#08080A] overflow-y-auto flex flex-col">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-[#9A9A9A] uppercase mb-2 pb-1.5 border-b border-[#202023]">
-                        <span>Original Baseline (Read-Only Reference)</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#16161A] border border-[#202023]">
-                          IMMUTABLE
+                  {viewMode === 'side-by-side' ? (
+                    <>
+                      <div
+                        style={{ width: `${splitRatio}%` }}
+                        className="p-4 sm:p-5 bg-[#08080A] overflow-y-auto flex flex-col min-w-[180px] select-text"
+                      >
+                        <div className="flex items-center justify-between text-xs font-sans font-medium text-zinc-400 uppercase tracking-wider mb-2.5 pb-1.5 border-b border-[#27272a]">
+                          <span>Original Baseline (Read-Only)</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-[#16161A] border border-[#27272a] text-zinc-400 font-sans">
+                            IMMUTABLE
+                          </span>
+                        </div>
+                        <div className="font-sans text-[13.5px] sm:text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap select-text">
+                          {originalDocument}
+                        </div>
+                      </div>
+
+                      {/* Draggable Vertical Split Divider */}
+                      <div
+                        onMouseDown={startSplitDrag}
+                        className="hidden md:flex items-center justify-center w-2.5 bg-[#18181c] hover:bg-[#8052ff] cursor-col-resize transition-colors z-20 group select-none shrink-0"
+                        title="Drag left/right to resize split panes"
+                      >
+                        <div className="w-1 h-8 bg-zinc-600 group-hover:bg-white rounded-full transition-colors" />
+                      </div>
+
+                      {/* Right Pane: Live Editable Revised Draft */}
+                      <div
+                        style={{ width: `${100 - splitRatio}%` }}
+                        className="p-4 sm:p-5 bg-black overflow-y-auto flex flex-col flex-1 min-w-[180px] select-text"
+                      >
+                        <div className="flex items-center justify-between text-xs font-sans font-medium text-[#cdbdff] uppercase tracking-wider mb-2.5 pb-1.5 border-b border-[#27272a]">
+                          <span>Live Editable Revised Draft</span>
+                          <span className="text-[11px] text-[#55C98B] font-semibold font-sans">
+                            {editorMode === 'preview' ? 'Synchronized Diff View' : 'Interactive Textarea'}
+                          </span>
+                        </div>
+
+                        {editorMode === 'editable' ? (
+                          <textarea
+                            value={workingDraft}
+                            onChange={(e) => setWorkingDraft(e.target.value)}
+                            className="w-full flex-1 bg-transparent font-sans text-[13.5px] sm:text-sm text-zinc-100 leading-relaxed resize-y focus:outline-none placeholder:text-zinc-600 min-h-[300px]"
+                            spellCheck={false}
+                            placeholder="Paste or edit resume text here..."
+                          />
+                        ) : (
+                          <div className="flex-1 min-h-[300px] font-sans text-[13.5px] sm:text-sm leading-relaxed">{renderHighlightedPreview()}</div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    /* Single Draft View (Full Width) */
+                    <div className="p-4 sm:p-5 bg-black overflow-y-auto flex flex-col flex-1 w-full select-text">
+                      <div className="flex items-center justify-between text-xs font-sans font-medium text-[#cdbdff] uppercase tracking-wider mb-2.5 pb-1.5 border-b border-[#27272a]">
+                        <span>Live Editable Revised Draft</span>
+                        <span className="text-[11px] text-[#55C98B] font-semibold font-sans">
+                          {editorMode === 'preview' ? 'Synchronized Diff View' : 'Interactive Textarea'}
                         </span>
                       </div>
-                      <div className="font-mono text-xs leading-relaxed text-[#9A9A9A] whitespace-pre-wrap select-text">
-                        {originalDocument}
-                      </div>
+
+                      {editorMode === 'editable' ? (
+                        <textarea
+                          value={workingDraft}
+                          onChange={(e) => setWorkingDraft(e.target.value)}
+                          className="w-full flex-1 bg-transparent font-sans text-[13.5px] sm:text-sm text-zinc-100 leading-relaxed resize-y focus:outline-none placeholder:text-zinc-600 min-h-[300px]"
+                          spellCheck={false}
+                          placeholder="Paste or edit resume text here..."
+                        />
+                      ) : (
+                        <div className="flex-1 min-h-[300px] font-sans text-[13.5px] sm:text-sm leading-relaxed">{renderHighlightedPreview()}</div>
+                      )}
                     </div>
                   )}
+                </div>
 
-                  {/* Right Pane: Live Editable Revised Draft */}
-                  <div className="p-4 bg-black overflow-y-auto flex flex-col">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-[#cdbdff] uppercase mb-2 pb-1.5 border-b border-[#202023]">
-                      <span>Live Editable Revised Draft</span>
-                      <span className="text-[10px] text-[#55C98B] font-bold">
-                        {editorMode === 'preview' ? 'Synchronized Diff View' : 'Interactive Textarea'}
-                      </span>
-                    </div>
-
-                    {editorMode === 'editable' ? (
-                      <textarea
-                        value={workingDraft}
-                        onChange={(e) => setWorkingDraft(e.target.value)}
-                        className="w-full flex-1 min-h-[420px] bg-transparent font-mono text-xs text-[#D6D6DC] leading-relaxed resize-none focus:outline-none"
-                        spellCheck={false}
-                        placeholder="Paste or edit resume text here..."
-                      />
-                    ) : (
-                      <div className="flex-1 min-h-[420px]">{renderHighlightedPreview()}</div>
-                    )}
-                  </div>
+                {/* Dynamic Vertical Height Drag Bar */}
+                <div
+                  onMouseDown={startHeightDrag}
+                  className="w-full py-1.5 bg-[#141418] hover:bg-[#8052ff]/20 border-y border-[#27272a] cursor-row-resize flex items-center justify-center gap-2 transition-colors group select-none"
+                  title="Click and drag up/down to adjust editor height"
+                >
+                  <div className="w-8 h-1 rounded-full bg-zinc-600 group-hover:bg-[#8052ff] transition-colors" />
+                  <span className="material-symbols-outlined text-[13px] text-zinc-500 group-hover:text-zinc-300">
+                    drag_handle
+                  </span>
+                  <span className="text-[10px] font-sans font-medium text-zinc-500 group-hover:text-zinc-300 tracking-wider">
+                    Drag to resize height ({editorHeight}px)
+                  </span>
+                  <div className="w-8 h-1 rounded-full bg-zinc-600 group-hover:bg-[#8052ff] transition-colors" />
                 </div>
 
                 {/* Synchronized Highlights Shelf */}
                 {acceptedCount > 0 && (
-                  <div className="px-4 py-2.5 bg-[#16161A] border-t border-[#202023] flex flex-wrap items-center gap-2 text-[11px] font-mono">
-                    <span className="text-[#9A9A9A] uppercase tracking-wider text-[10px] font-bold">
+                  <div className="px-4 py-2.5 bg-[#16161A] border-t border-[#27272a] flex flex-wrap items-center gap-2 text-xs font-sans">
+                    <span className="text-zinc-400 uppercase tracking-wider text-[10px] font-bold">
                       Applied In-Draft:
                     </span>
                     {suggestions
@@ -891,7 +1001,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                       .map((s) => (
                         <span
                           key={s.id}
-                          className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 text-[10px] font-semibold"
+                          className="px-2.5 py-0.5 rounded-full bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 text-xs font-semibold"
                         >
                           {s.skillTarget} Revision ✓
                         </span>
@@ -900,48 +1010,48 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                 )}
 
                 {/* 5. Frictionless One-Click Export Toolbar & Factual Review Guard */}
-                <div className="p-4 bg-[#121215] border-t border-[#202023] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="p-3.5 bg-[#121215] border-t border-[#27272a] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   {/* Factual Review Guard Checkbox */}
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+                  <label className="flex items-center gap-2 text-xs text-white cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={factualConfirmed}
                       onChange={(e) => setFactualConfirmed(e.target.checked)}
                       className="w-4 h-4 accent-[#55C98B] cursor-pointer"
                     />
-                    <span>
-                      <strong className="text-white">Factual Review Guard:</strong>{' '}
-                      <em className="text-[#BDBDBD]">&ldquo;I confirm all revised claims and metrics are factually accurate.&rdquo;</em>
+                    <span className="text-xs text-zinc-400 font-sans">
+                      <strong className="text-white font-semibold">Factual Guard:</strong> I confirm revised metrics are factually accurate.
                     </span>
                   </label>
 
-                  {/* Instant Download Action Buttons: [Download PDF], [Download DOCX], [Download TXT] */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Consolidated Export Group */}
+                  <div className="flex items-center bg-[#16161A] p-1 rounded-lg border border-[#363639] shrink-0 font-sans">
+                    <span className="text-xs font-sans text-zinc-400 px-2 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[15px]">download</span>
+                      <span>Export:</span>
+                    </span>
                     <button
                       onClick={() => handleInstantDownload('pdf')}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#202023] hover:bg-[#2b2b30] text-white text-xs font-mono font-medium transition-colors cursor-pointer flex items-center gap-1.5 border border-[#363639]"
-                      title="Download instant PDF formatted document"
+                      className="px-2.5 py-1 text-xs font-sans text-white hover:bg-[#202023] rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                      title="Download PDF formatted document"
                     >
-                      <span className="material-symbols-outlined text-[15px] text-[#F87171]">picture_as_pdf</span>
-                      <span>Download PDF</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F87171]" />
+                      <span>PDF</span>
                     </button>
-
                     <button
                       onClick={() => handleInstantDownload('docx')}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#202023] hover:bg-[#2b2b30] text-white text-xs font-mono font-medium transition-colors cursor-pointer flex items-center gap-1.5 border border-[#363639]"
-                      title="Download instant Word DOCX document"
+                      className="px-2.5 py-1 text-xs font-sans text-white hover:bg-[#202023] rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                      title="Download Word DOCX document"
                     >
-                      <span className="material-symbols-outlined text-[15px] text-[#60A5FA]">description</span>
-                      <span>Download DOCX</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#60A5FA]" />
+                      <span>DOCX</span>
                     </button>
-
                     <button
                       onClick={() => handleInstantDownload('txt')}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#55C98B] hover:bg-[#55C98B]/90 text-black font-bold text-xs font-mono transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      className="px-2.5 py-1 text-xs font-sans font-bold text-black bg-[#55C98B] hover:bg-[#55C98B]/90 rounded-md transition-colors cursor-pointer shadow-sm"
                       title="Download plain text TXT resume"
                     >
-                      <span className="material-symbols-outlined text-[15px]">download</span>
-                      <span>Download TXT</span>
+                      TXT
                     </button>
                   </div>
                 </div>
@@ -951,11 +1061,11 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
         </>
       ) : (
         /* MODULE E: LinkedIn Optimizer & Public Insights */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Headline & Summary Interactive Critique (7 Cols) */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-[#202023]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-10">
+          {/* Left: Headline & Summary Interactive Critique (6 Cols - Symmetrical) */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-[#27272a]">
                 <div>
                   <h2 className="text-base font-bold text-white">LinkedIn Profile Diagnostic</h2>
                   <p className="text-xs text-[#9A9A9A]">
@@ -980,7 +1090,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                   onChange={(e) => setLinkedinHeadline(e.target.value)}
                   className="w-full bg-[#16161A] border border-[#363639] rounded-lg px-3.5 py-2.5 text-xs text-white font-mono"
                 />
-                <div className="p-3 rounded bg-[#16161A] border border-[#202023] text-xs space-y-1.5">
+                <div className="p-3 rounded bg-[#16161A] border border-[#27272a] text-xs space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[#ffba35] font-semibold">Critique: Missing Architecture &amp; Scale Keywords</span>
                     <button
@@ -1002,7 +1112,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
               </div>
 
               {/* About / Summary Critique */}
-              <div className="space-y-2 pt-2 border-t border-[#202023]">
+              <div className="space-y-2 pt-2 border-t border-[#27272a]">
                 <div className="flex items-center justify-between text-xs">
                   <label className="font-semibold text-white">2. About / Summary Critique</label>
                   <span className="font-mono text-[#55C98B]">Evidence Grounded</span>
@@ -1013,17 +1123,17 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                   onChange={(e) => setLinkedinSummary(e.target.value)}
                   className="w-full bg-[#16161A] border border-[#363639] rounded-lg p-3 text-xs text-white font-mono leading-relaxed"
                 />
-                <div className="p-3 rounded bg-[#16161A] border border-[#202023] text-xs text-[#9A9A9A]">
+                <div className="p-3 rounded bg-[#16161A] border border-[#27272a] text-xs text-[#9A9A9A]">
                   <strong className="text-white">Summary Diagnostic:</strong> Strong academic and internship framing. Add quantified latency metrics (420ms → 68ms) and container orchestration keywords to boost technical recruiter dwell time.
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right: Keyword Saturation & Strategic Placement Suggestions (5 Cols) */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 space-y-4">
-              <div className="pb-3 border-b border-[#202023]">
+          {/* Right: Keyword Saturation & Strategic Placement Suggestions (6 Cols - Symmetrical) */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-4">
+              <div className="pb-3 border-b border-[#27272a]">
                 <h3 className="text-sm font-semibold text-white">Strategic Keyword Placement &amp; Saturation</h3>
                 <p className="text-xs text-[#9A9A9A]">
                   Click any missing keyword to inject or undo placement in your working summary.
@@ -1034,7 +1144,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
                 {targetKeywords.map((item) => (
                   <div
                     key={item.kw}
-                    className="p-3 rounded bg-[#16161A] border border-[#202023] flex items-center justify-between text-xs"
+                    className="p-3 rounded bg-[#16161A] border border-[#27272a] flex items-center justify-between text-xs"
                   >
                     <div>
                       <div className="font-mono font-bold text-white">{item.kw}</div>

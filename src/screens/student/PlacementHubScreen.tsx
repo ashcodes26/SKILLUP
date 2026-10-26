@@ -77,17 +77,17 @@ export default function PlacementHubScreen({
   return (
     <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Placement Hub Header */}
-      <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#55C98B]/10 text-[#55C98B] border border-[#55C98B]/30">
-              CAMPUS RECRUITING REPERTORY
+            <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30">
+              SRMIST CDC
             </span>
-            <span className="text-xs text-[#8B8B93] font-mono">Cohort 2026 • CSE</span>
+            <span className="text-xs text-[#8B8B93] font-mono">B.Tech CSE 2026</span>
           </div>
-          <h1 className="text-xl font-bold text-white mt-1">Campus Placement Hub & Recruiting Drives</h1>
+          <h1 className="text-xl font-bold text-white mt-1">Placement Hub</h1>
           <p className="text-xs text-[#8B8B93] mt-0.5">
-            Active campus interview schedules, institutional gate validations, and accredited remediation assessments.
+            Campus drives, Super Dream eligibility gates, and verified competency assessments.
           </p>
         </div>
 
@@ -105,6 +105,34 @@ export default function PlacementHubScreen({
             Review Resume Assets
           </button>
         </div>
+      </div>
+
+      {/* AI Technical & HR Interview Room (CDC Mode) */}
+      <div className="bg-gradient-to-r from-[#18181b] via-[#1c1427] to-[#121214] border border-[#8052ff]/40 rounded-xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-lg shadow-[#8052ff]/10">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#8052ff]/20 border border-[#8052ff]/40 flex items-center justify-center text-[#ffba35] shrink-0">
+            <span className="material-symbols-outlined text-[26px]">mic</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-bold text-white">AI Technical &amp; HR Interview Room</span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#ffba35] text-black uppercase">
+                CDC Mode
+              </span>
+            </div>
+            <p className="text-xs text-[#A1A1AA] mt-1 max-w-2xl leading-relaxed">
+              Practice real-time technical rounds and behavioral STAR questions with the live reactive interviewer avatar, synchronized karaoke word subtitles, and instant CDC rubric scoring.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => onNavigate?.('interview-room')}
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8052ff] to-[#6333ea] hover:from-[#9066ff] hover:to-[#7444f0] text-white text-xs font-semibold shadow-lg shadow-[#8052ff]/25 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap self-start md:self-auto shrink-0"
+        >
+          <span className="material-symbols-outlined text-[17px] text-[#ffba35]">mic</span>
+          <span>Launch AI Interview Room</span>
+          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
       </div>
 
       {/* Institutional Gate Status Alert */}
@@ -160,10 +188,10 @@ export default function PlacementHubScreen({
             return (
               <div
                 key={drive.id}
-                className={`bg-[#0D0D0F] border rounded-lg p-5 flex flex-col justify-between space-y-4 transition-all ${
+                className={`bg-[#121214] border rounded-lg p-5 flex flex-col justify-between space-y-4 transition-all ${
                   isGated
                     ? 'border-[#ffba35]/30'
-                    : 'border-[#202023] hover:border-[#8052ff]/50'
+                    : 'border-[#27272a] hover:border-[#8052ff]/50'
                 }`}
               >
                 <div>
@@ -187,7 +215,7 @@ export default function PlacementHubScreen({
                     </span>
                   </div>
 
-                  <div className="mt-4 p-3 bg-[#16161A] rounded border border-[#202023] space-y-2 text-xs font-mono">
+                  <div className="mt-4 p-3 bg-[#16161A] rounded border border-[#27272a] space-y-2 text-xs font-mono">
                     <div className="flex justify-between text-[#8B8B93]">
                       <span>Package:</span>
                       <span className="text-[#55C98B] font-bold">{drive.compensation}</span>
@@ -208,7 +236,7 @@ export default function PlacementHubScreen({
                       {drive.mandatorySkills.map((s, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 bg-[#000000] border border-[#202023] rounded text-[10px] font-mono text-[#D6D6DC]"
+                          className="px-2 py-0.5 bg-[#000000] border border-[#27272a] rounded text-[10px] font-mono text-[#D6D6DC]"
                         >
                           {s}
                         </span>
@@ -217,7 +245,7 @@ export default function PlacementHubScreen({
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#202023]">
+                <div className="pt-3 border-t border-[#27272a]">
                   {isGated ? (
                     <button
                       onClick={() => setActiveQuizModal(true)}
@@ -249,8 +277,8 @@ export default function PlacementHubScreen({
       </div>
 
       {/* Accredited Remediation & Training Catalog */}
-      <div className="bg-[#0D0D0F] border border-[#202023] rounded-lg p-5 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[#202023]">
+      <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[#27272a]">
           <div>
             <h2 className="text-sm font-semibold text-white">Institutional Remediation & Competency Modules</h2>
             <p className="text-xs text-[#8B8B93]">Official department labs required to clear prerequisite deficit gates</p>
@@ -262,7 +290,7 @@ export default function PlacementHubScreen({
           {initialRemediations.map((mod) => (
             <div
               key={mod.id}
-              className="p-4 bg-[#16161A] border border-[#202023] rounded-lg hover:border-[#363639] transition-all flex flex-col justify-between"
+              className="p-4 bg-[#16161A] border border-[#27272a] rounded-lg hover:border-[#363639] transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between text-xs font-mono mb-2">
@@ -275,7 +303,7 @@ export default function PlacementHubScreen({
                 <p className="text-xs text-[#8B8B93] mt-1.5 leading-relaxed">{mod.description}</p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#202023] flex items-center justify-between text-xs font-mono">
+              <div className="mt-4 pt-3 border-t border-[#27272a] flex items-center justify-between text-xs font-mono">
                 <span className="text-[#55C98B]">Avg Pass: {mod.avgPassPct}%</span>
                 {mod.code === '#DCK-101' && dockerCompleted ? (
                   <span className="text-[#55C98B] font-bold flex items-center gap-1">
@@ -298,8 +326,8 @@ export default function PlacementHubScreen({
       {/* Interactive Modal for #DCK-101 */}
       {activeQuizModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#0D0D0F] border border-[#363639] rounded-xl max-w-xl w-full p-6 space-y-6 shadow-2xl">
-            <div className="flex items-start justify-between pb-3 border-b border-[#202023]">
+          <div className="bg-[#121214] border border-[#363639] rounded-xl max-w-xl w-full p-6 space-y-6 shadow-2xl">
+            <div className="flex items-start justify-between pb-3 border-b border-[#27272a]">
               <div>
                 <span className="text-[11px] font-mono text-[#8052ff] uppercase font-bold">
                   ACCREDITED ASSESSMENT
@@ -318,7 +346,7 @@ export default function PlacementHubScreen({
             {/* Questions */}
             <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
               {quizQuestions.map((q, idx) => (
-                <div key={q.id} className="p-3.5 bg-[#16161A] border border-[#202023] rounded-lg space-y-3">
+                <div key={q.id} className="p-3.5 bg-[#16161A] border border-[#27272a] rounded-lg space-y-3">
                   <div className="text-xs font-semibold text-white">
                     {idx + 1}. {q.question}
                   </div>
@@ -332,7 +360,7 @@ export default function PlacementHubScreen({
                           className={`p-2.5 rounded border text-xs font-mono cursor-pointer transition-all ${
                             isSelected
                               ? 'bg-[#8052ff]/20 border-[#8052ff] text-white'
-                              : 'bg-[#000000] border-[#202023] text-[#8B8B93] hover:text-white hover:border-[#363639]'
+                              : 'bg-[#000000] border-[#27272a] text-[#8B8B93] hover:text-white hover:border-[#363639]'
                           }`}
                         >
                           <span className="mr-2 text-[#8052ff] font-bold">
@@ -348,7 +376,7 @@ export default function PlacementHubScreen({
             </div>
 
             {/* Modal actions */}
-            <div className="pt-3 border-t border-[#202023] flex items-center justify-between">
+            <div className="pt-3 border-t border-[#27272a] flex items-center justify-between">
               <span className="text-xs font-mono text-[#8B8B93]">
                 {Object.keys(quizAnswers).length} / {quizQuestions.length} answered
               </span>
@@ -356,7 +384,7 @@ export default function PlacementHubScreen({
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setActiveQuizModal(false)}
-                  className="px-4 py-2 bg-[#16161A] text-xs font-mono text-[#8B8B93] hover:text-white rounded border border-[#202023]"
+                  className="px-4 py-2 bg-[#16161A] text-xs font-mono text-[#8B8B93] hover:text-white rounded border border-[#27272a]"
                 >
                   Cancel
                 </button>

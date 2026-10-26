@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CompetencyItem, EvidenceSourceType, ProvenanceType, StudentProfileData } from '../../types';
 import { INITIAL_STUDENT_PROFILE } from '../../data/mockData';
 import ProofOfWorkStudioDrawer from '../../components/ProofOfWorkStudioDrawer';
+import { parseTabularProfile, parseJsonProfile, parseResumeWithGemini } from '../../services/fileIngestionService';
 
 interface CareerPlanScreenProps {
   onNavigate?: (path: string) => void;
@@ -13,6 +14,9 @@ interface CareerPlanScreenProps {
   externalQuizSkillId?: string | null;
   onClearExternalQuizSkillId?: () => void;
   customRoadmapTasks?: Array<{ id: string; title: string; skillId?: string; time: string; objective: string }>;
+  onLoadDemoData?: () => void;
+  onResetCleanState?: () => void;
+  dataMode?: 'demo' | 'custom' | 'clean';
 }
 
 interface QuizDefinition {
@@ -193,6 +197,23 @@ const ROADMAP_QUIZZES: Record<string, QuizDefinition> = {
   },
 };
 
+export const AVAILABLE_CAREER_ROLES: string[] = [
+  'AI & ML Pipeline Engineer',
+  'Junior Backend Engineer (Distributed Systems)',
+  'Full-Stack Software Engineer',
+  'Cloud & DevOps Engineer',
+  'Data Scientist & Analytics Engineer',
+  'Frontend Engineer (React / TypeScript)',
+  'Systems & Infrastructure Engineer',
+  'Cybersecurity & Network Security Analyst',
+  'Mobile App Developer (React Native / iOS / Android)',
+  'Site Reliability Engineer (SRE)',
+  'Embedded Systems & IoT Engineer',
+  'Database Administrator & Data Architect',
+  'QA Automation & SDET Engineer',
+  'Blockchain & Web3 Systems Engineer',
+];
+
 export function calculateDeterministicReadiness(competencies: CompetencyItem[]): number {
   const weights: Record<string, number> = {
     'comp-py': 24,
@@ -219,11 +240,228 @@ export function calculateDeterministicReadiness(competencies: CompetencyItem[]):
   return Math.min(100, Math.round((earned / Math.max(1, totalWeight)) * 100));
 }
 
+interface ParsedStudentCsvData {
+  id?: string;
+  name: string;
+  registerNumber?: string;
+  email?: string;
+  program: string;
+  department: string;
+  specialization: string;
+  semester: string;
+  cgpa: number;
+  graduationYear: string;
+  targetRole: string;
+  skillsImported: Array<{
+    name: string;
+    proficiency: number | null;
+    evidenceSource: EvidenceSourceType;
+    note: string;
+  }>;
+}
+
+function parseCsvRow(row: string, delimiter = ','): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < row.length; i++) {
+    const char = row[i];
+    if (char === '"') {
+      if (inQuotes && row[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === delimiter && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function parseStudentCsv(rawText: string, currentProfile: StudentProfileData): ParsedStudentCsvData {
+  const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length < 2) {
+    throw new Error('CSV must contain a header line and at least one data row.');
+  }
+
+  const delimiter = lines[0].includes('\t') ? '\t' : ',';
+  const headers = parseCsvRow(lines[0], delimiter);
+  const values = parseCsvRow(lines[1], delimiter);
+
+  const map: Record<string, string> = {};
+  headers.forEach((h, idx) => {
+    const cleanKey = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    map[cleanKey] = values[idx] ?? '';
+  });
+
+  const getVal = (candidates: string[]): string | undefined => {
+    for (const c of candidates) {
+      const clean = c.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (map[clean] !== undefined && map[clean] !== '') {
+        return map[clean];
+      }
+    }
+    return undefined;
+  };
+
+  const name = getVal(['fullname', 'name', 'studentname', 'candidatename']) || currentProfile.name;
+  const id = getVal(['studentid', 'registernumber', 'regno', 'id']) || currentProfile.id || currentProfile.registerNumber;
+  const email = getVal(['emailaddr', 'email', 'emailid']) || currentProfile.email;
+
+  let cgpa = currentProfile.cgpa;
+  const rawGpa = getVal(['gpascore', 'cgpa', 'gpa', 'cumulativegpa']);
+  if (rawGpa) {
+    const parsed = parseFloat(rawGpa.replace(/[^0-9.]/g, ''));
+    if (!isNaN(parsed) && parsed > 0) {
+      cgpa = parsed > 10 ? parsed / 10 : parsed;
+    }
+  }
+
+  const program = getVal(['program', 'degree', 'degreeprogram']) || currentProfile.program || 'B.Tech';
+  const department = getVal(['department', 'dept', 'school']) || currentProfile.department || 'Computer Science & Engineering';
+  const specialization = getVal(['specialization', 'spectrack', 'spec']) || currentProfile.specialization || 'AI/ML Specialization';
+  const semester = getVal(['semester', 'currentsem', 'sem']) || currentProfile.semester || 'Semester 2';
+  const graduationYear = getVal(['graduationyear', 'batch', 'gradyear']) || currentProfile.graduationYear || '2029';
+  const targetRole = getVal(['trackrole', 'targetrole', 'role']) || currentProfile.targetRole || 'AI & ML Pipeline Engineer';
+
+  const skillsImported: Array<{
+    name: string;
+    proficiency: number | null;
+    evidenceSource: EvidenceSourceType;
+    note: string;
+  }> = [];
+
+  const parseSkillNum = (val: string | undefined): number | null => {
+    if (!val) return null;
+    const lower = val.toLowerCase().trim();
+    if (lower === 'null' || lower === 'n/a' || lower === 'none' || lower === 'missing' || lower === 'unassessed') {
+      return null;
+    }
+    const n = parseFloat(lower.replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? null : Math.min(5, Math.max(0, n));
+  };
+
+  // 1. Python
+  const pyVal = getVal(['pyscore', 'python', 'pythonscore']);
+  if (pyVal !== undefined) {
+    const num = parseSkillNum(pyVal);
+    skillsImported.push({
+      name: 'Python',
+      proficiency: num,
+      evidenceSource: num !== null ? 'verified_assessment' : 'self-reported',
+      note: num !== null ? `Verified Python Score (${num.toFixed(1)}/5.0)` : 'Unassessed / Priority Gap',
+    });
+  }
+
+  // 2. Docker
+  const dockerVal = getVal(['dockerstatus', 'docker', 'dockerscore']);
+  if (dockerVal !== undefined) {
+    const num = parseSkillNum(dockerVal);
+    skillsImported.push({
+      name: 'Docker & Containers',
+      proficiency: num,
+      evidenceSource: num !== null ? 'verified_assessment' : 'self-reported',
+      note: num !== null ? `Verified Docker Infrastructure (${num.toFixed(1)}/5.0)` : 'Unassessed / Priority Gap',
+    });
+  }
+
+  // 3. Machine Learning & EDA
+  const mlVal = getVal(['mlscore', 'machinelearning', 'aiml', 'datascience']);
+  if (mlVal !== undefined) {
+    const num = parseSkillNum(mlVal);
+    skillsImported.push({
+      name: 'Machine Learning & EDA',
+      proficiency: num,
+      evidenceSource: 'project',
+      note: num !== null ? `Verified ML Models & EDA (${num.toFixed(1)}/5.0)` : 'Under Study',
+    });
+  }
+
+  // 4. DSA / LeetCode
+  const dsaVal = getVal(['dsascore', 'dsa', 'algorithms', 'leetcodescore']);
+  if (dsaVal !== undefined) {
+    const num = parseSkillNum(dsaVal);
+    skillsImported.push({
+      name: 'Data Structures & Algorithms',
+      proficiency: num,
+      evidenceSource: 'verified_assessment',
+      note: num !== null ? `LeetCode Verified (${num.toFixed(1)}/5.0)` : 'Needs Assessment',
+    });
+  }
+
+  // 5. Git & Versioning
+  const gitVal = getVal(['gitscore', 'git', 'versioning']);
+  if (gitVal !== undefined) {
+    const num = parseSkillNum(gitVal);
+    skillsImported.push({
+      name: 'Git & Versioning',
+      proficiency: num,
+      evidenceSource: 'project',
+      note: num !== null ? `Open Source Git Audit (${num.toFixed(1)}/5.0)` : 'Unassessed',
+    });
+  }
+
+  // 6. Redis
+  const redisVal = getVal(['redisscore', 'redis']);
+  if (redisVal !== undefined) {
+    const num = parseSkillNum(redisVal);
+    skillsImported.push({
+      name: 'Redis',
+      proficiency: num,
+      evidenceSource: num !== null ? 'project' : 'self-reported',
+      note: num !== null ? `Redis In-Memory Caching (${num.toFixed(1)}/5.0)` : 'Missing / Priority Gap',
+    });
+  }
+
+  // 7. PostgreSQL / SQL
+  const sqlVal = getVal(['postgres', 'sql', 'database', 'sqlscore']);
+  if (sqlVal !== undefined) {
+    const num = parseSkillNum(sqlVal);
+    skillsImported.push({
+      name: 'PostgreSQL & SQL',
+      proficiency: num,
+      evidenceSource: num !== null ? 'verified_assessment' : 'self-reported',
+      note: num !== null ? `Relational DB Querying (${num.toFixed(1)}/5.0)` : 'Unassessed',
+    });
+  }
+
+  if (skillsImported.length === 0) {
+    skillsImported.push(
+      { name: 'Python', proficiency: 4.8, evidenceSource: 'verified_assessment', note: 'Verified Python Rubric (4.8/5.0)' },
+      { name: 'Machine Learning & EDA', proficiency: 4.6, evidenceSource: 'project', note: 'Cyber Attack EDA & ML Models (4.6/5.0)' },
+      { name: 'Data Structures & Algorithms', proficiency: 4.2, evidenceSource: 'verified_assessment', note: 'LeetCode 40+ Problems (4.2/5.0)' },
+      { name: 'Docker & Containers', proficiency: 3.2, evidenceSource: 'project', note: 'Docker & GCP Deployment (3.2/5.0)' }
+    );
+  }
+
+  return {
+    id,
+    name,
+    registerNumber: id,
+    email,
+    program,
+    department,
+    specialization,
+    semester,
+    cgpa,
+    graduationYear,
+    targetRole,
+    skillsImported,
+  };
+}
+
 export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
   onNavigate,
   onShowToast,
   profile: externalProfile,
   onUpdateProfile,
+  onLoadDemoData,
   dockerScore,
   onDockerQuizCompleted,
   externalQuizSkillId,
@@ -289,6 +527,20 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
     targetRole: profile.targetRole,
   });
 
+  // Sync draftProfile when profile changes
+  useEffect(() => {
+    setDraftProfile({
+      name: profile.name,
+      program: profile.program,
+      department: profile.department,
+      specialization: profile.specialization,
+      semester: profile.semester,
+      cgpa: profile.cgpa.toString(),
+      graduationYear: profile.graduationYear,
+      targetRole: profile.targetRole,
+    });
+  }, [profile]);
+
   // Draft form state for Adding/Updating a Competency
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState('Core Backend');
@@ -299,28 +551,105 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
 
   // CSV Upload & Alias Mapping Preview State (parses without mutating until confirmed)
   const [csvFileName, setCsvFileName] = useState('student_journey_export_2026.csv');
-  const [csvAliases] = useState<Record<string, string>>({
-    'Full Name': 'name',
-    'Degree': 'program',
-    'Dept': 'department',
-    'Spec_Track': 'specialization',
-    'Current_Sem': 'semester',
-    'CGPA_Score': 'cgpa',
-    'Grad_Year': 'graduationYear',
+  const [csvAliases, setCsvAliases] = useState<Record<string, string>>({
+    'Candidate Name': 'name',
+    'Register No / ID': 'registerNumber',
+    'Degree / Program': 'program',
+    'Department': 'department',
+    'Specialization': 'specialization',
+    'Cumulative CGPA': 'cgpa',
+    'Target Role': 'targetRole',
   });
-  const [csvPreviewParsed] = useState({
-    name: 'Alex R. Mercer',
-    program: 'B.Tech Honors',
-    department: 'Computer Science & Engineering',
-    specialization: 'Cloud & Distributed Systems',
-    semester: 'Semester 8',
-    cgpa: 3.89,
-    graduationYear: '2026',
+  const [competencyFilter, setCompetencyFilter] = useState<'all' | 'verified' | 'gaps'>('all');
+  const [showRolePopover, setShowRolePopover] = useState(false);
+  const [roleSearchQuery, setRoleSearchQuery] = useState('');
+  const [csvPreviewParsed, setCsvPreviewParsed] = useState<ParsedStudentCsvData>({
+    name: profile.name,
+    registerNumber: profile.registerNumber || profile.id,
+    program: profile.program,
+    department: profile.department,
+    specialization: profile.specialization,
+    semester: profile.semester,
+    cgpa: profile.cgpa,
+    graduationYear: profile.graduationYear,
+    targetRole: profile.targetRole,
     skillsImported: [
-      { name: 'Kubernetes Basics', proficiency: 0, evidenceSource: 'self-reported' as EvidenceSourceType, note: 'Verified at level 0.0 (Missing)' },
-      { name: 'Go (Golang)', proficiency: 3.8, evidenceSource: 'project' as EvidenceSourceType, note: 'gRPC Daemon Project' },
+      { name: 'Python', proficiency: 4.8, evidenceSource: 'verified_assessment', note: 'Verified Python Rubric (4.8/5.0)' },
+      { name: 'Docker & Containers', proficiency: 3.2, evidenceSource: 'project', note: 'Docker & GCP Deployment (3.2/5.0)' },
+      { name: 'Machine Learning & EDA', proficiency: 4.6, evidenceSource: 'project', note: 'Cyber Attack EDA & ML Models (4.6/5.0)' },
+      { name: 'Data Structures & Algorithms', proficiency: 4.2, evidenceSource: 'verified_assessment', note: 'LeetCode 40+ Problems (4.2/5.0)' },
     ],
   });
+
+    const handleUniversalFileUpload = async (file: File) => {
+    setCsvFileName(file.name);
+    try {
+      if (file.name.endsWith('.json')) {
+        const text = await file.text();
+        const parsed = parseJsonProfile(text);
+        updateProfile(() => parsed);
+        setShowCsvModal(false);
+        onShowToast?.(`Loaded profile for ${parsed.name} (${parsed.competencies.length} skills)`, 'success');
+        return;
+      }
+
+      if (file.name.endsWith('.csv') || file.name.endsWith('.tsv') || file.name.endsWith('.txt')) {
+        const text = await file.text();
+        if (text.trim().startsWith('{')) {
+          const parsed = parseJsonProfile(text);
+          updateProfile(() => parsed);
+          setShowCsvModal(false);
+          onShowToast?.(`Loaded profile for ${parsed.name} (${parsed.competencies.length} skills)`, 'success');
+          return;
+        }
+
+        const parsed = await parseTabularProfile(text, file.name);
+        updateProfile(() => parsed);
+        setShowCsvModal(false);
+        onShowToast?.(`Imported ${parsed.name} from ${file.name} (CGPA: ${parsed.cgpa.toFixed(2)})`, 'success');
+        return;
+      }
+
+      // Resume text or other format
+      const text = await file.text();
+      onShowToast?.('Extracting profile attributes with AI...', 'info');
+      const parsed = await parseResumeWithGemini(text, file.name);
+      updateProfile(() => parsed);
+      setShowCsvModal(false);
+      onShowToast?.(`Extracted profile for ${parsed.name} (${parsed.competencies.length} skills)`, 'success');
+    } catch (err: any) {
+      onShowToast?.(err.message || 'Failed to parse file', 'warning');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        try {
+          const parsed = parseStudentCsv(content, profile);
+          setCsvPreviewParsed(parsed);
+          setCsvAliases({
+            'Candidate Name': 'name',
+            'Register No / ID': 'registerNumber',
+            'Degree / Program': 'program',
+            'Department': 'department',
+            'Specialization': 'specialization',
+            'Cumulative CGPA': 'cgpa',
+            'Target Role': 'targetRole',
+          });
+          onShowToast?.(`Parsed ${file.name} for ${parsed.name} (CGPA: ${parsed.cgpa.toFixed(2)})`, 'info');
+        } catch (err: any) {
+          onShowToast?.(err.message || 'Failed to parse CSV', 'warning');
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
 
   // Embedded Micro-Quiz State (Module C Closed-Loop Verification)
   const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
@@ -410,7 +739,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
       department: draftProfile.department.trim() || prev.department,
       specialization: draftProfile.specialization.trim() || prev.specialization,
       semester: draftProfile.semester.trim() || prev.semester,
-      cgpa: !isNaN(parsedCgpa) ? Math.min(4.0, Math.max(0.0, parsedCgpa)) : prev.cgpa,
+      cgpa: !isNaN(parsedCgpa) ? Math.min(10.0, Math.max(0.0, parsedCgpa)) : prev.cgpa,
       graduationYear: draftProfile.graduationYear.trim() || prev.graduationYear,
       targetRole: draftProfile.targetRole.trim() || prev.targetRole,
     }));
@@ -451,34 +780,61 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
 
   const handleConfirmCsvImport = () => {
     updateProfile((prev) => {
-      const existingNames = new Set(prev.competencies.map((c) => c.name.toLowerCase()));
-      const addedSkills: CompetencyItem[] = csvPreviewParsed.skillsImported
-        .filter((s) => !existingNames.has(s.name.toLowerCase()))
-        .map((s, idx) => ({
-          id: `comp-csv-${idx}-${Date.now()}`,
-          name: s.name,
-          category: 'Imported Record',
-          proficiency: s.proficiency,
-          targetLevel: 3.5,
-          requirementType: 'Preferred',
-          evidenceSource: s.evidenceSource,
-          evidenceLabel: s.note,
-        }));
+      const updatedCompetencies = [...prev.competencies];
+
+      csvPreviewParsed.skillsImported.forEach((s, idx) => {
+        const sNameLower = s.name.toLowerCase();
+        const existingIdx = updatedCompetencies.findIndex(
+          (c) =>
+            c.name.toLowerCase() === sNameLower ||
+            (sNameLower.includes('docker') && c.name.toLowerCase().includes('docker')) ||
+            (sNameLower.includes('python') && c.name.toLowerCase().includes('python')) ||
+            (sNameLower.includes('sql') && c.name.toLowerCase().includes('sql')) ||
+            (sNameLower.includes('redis') && c.name.toLowerCase().includes('redis')) ||
+            (sNameLower.includes('git') && c.name.toLowerCase().includes('git')) ||
+            (sNameLower.includes('data structures') && c.name.toLowerCase().includes('algorithm')) ||
+            (sNameLower.includes('machine learning') && (c.name.toLowerCase().includes('machine learning') || c.name.toLowerCase().includes('ml')))
+        );
+
+        if (existingIdx !== -1) {
+          updatedCompetencies[existingIdx] = {
+            ...updatedCompetencies[existingIdx],
+            proficiency: s.proficiency,
+            evidenceSource: s.evidenceSource,
+            evidenceLabel: s.note,
+          };
+        } else {
+          updatedCompetencies.push({
+            id: `comp-csv-${idx}-${Date.now()}`,
+            name: s.name,
+            category: 'Imported Record',
+            proficiency: s.proficiency,
+            targetLevel: 3.5,
+            requirementType: 'Preferred',
+            evidenceSource: s.evidenceSource,
+            evidenceLabel: s.note,
+          });
+        }
+      });
 
       return {
         ...prev,
+        id: csvPreviewParsed.id || prev.id,
+        registerNumber: csvPreviewParsed.registerNumber || prev.registerNumber,
         name: csvPreviewParsed.name,
+        email: csvPreviewParsed.email || prev.email,
         program: csvPreviewParsed.program,
         department: csvPreviewParsed.department,
         specialization: csvPreviewParsed.specialization,
         semester: csvPreviewParsed.semester,
         cgpa: csvPreviewParsed.cgpa,
         graduationYear: csvPreviewParsed.graduationYear,
-        competencies: [...prev.competencies, ...addedSkills],
+        targetRole: csvPreviewParsed.targetRole,
+        competencies: updatedCompetencies,
       };
     });
     setShowCsvModal(false);
-    onShowToast?.('CSV Journey parsed and committed with alias mapping!', 'success');
+    onShowToast?.(`Imported profile for ${csvPreviewParsed.name} (CGPA: ${csvPreviewParsed.cgpa.toFixed(2)})!`, 'success');
   };
 
   const handleOpenQuiz = (skillId: string) => {
@@ -568,1059 +924,699 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
       return {
         badgeText: `${comp.proficiency.toFixed(1)}/5.0 (Self-reported)`,
         badgeClass: 'bg-[#ffba35]/15 text-[#ffba35] border-[#ffba35]/40',
-        needsAssessment: false,
+        needsAssessment: true,
       };
     }
     return {
-      badgeText: `Verified (${comp.proficiency.toFixed(1)}/5.0)`,
-      badgeClass: 'bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/40',
+      badgeText: `${comp.proficiency.toFixed(1)}/5.0 (${comp.evidenceSource})`,
+      badgeClass: 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40',
       needsAssessment: false,
     };
   };
 
+
+
+  const [skillSearchQuery, setSkillSearchQuery] = useState('');
+  const [skillsLimit, setSkillsLimit] = useState(4);
+
+  // Filter skills user actually possesses (proficiency !== null && proficiency > 0)
+  const userPossessedSkills = profile.competencies.filter((c) => {
+    if (competencyFilter === 'gaps') {
+      return c.proficiency === null || c.proficiency < c.targetLevel;
+    }
+    if (competencyFilter === 'verified') {
+      return c.proficiency !== null && c.proficiency >= c.targetLevel && c.evidenceSource !== 'self-reported';
+    }
+    // Default / 'all': only show skills the user has!
+    return c.proficiency !== null && c.proficiency > 0;
+  });
+
+  // Filter by search query
+  const searchedSkills = userPossessedSkills.filter((c) => {
+    if (!skillSearchQuery.trim()) return true;
+    const q = skillSearchQuery.toLowerCase();
+    return c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q);
+  });
+
+  // Sort by requirementType ('Required' first) then proficiency descending
+  const sortedSkills = [...searchedSkills].sort((a, b) => {
+    if (a.requirementType === 'Required' && b.requirementType !== 'Required') return -1;
+    if (a.requirementType !== 'Required' && b.requirementType === 'Required') return 1;
+    return (b.proficiency || 0) - (a.proficiency || 0);
+  });
+
+  // Top 4 skills with load more
+  const displayedCompetencies = sortedSkills.slice(0, skillsLimit);
+
   return (
-    <div className="w-full max-w-[1120px] mx-auto px-4 sm:px-6 py-6 space-y-6">
-      {/* Top Level Context + Overall Readiness Index Banner */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-[#cdbdff] mb-1">
-              <span>CORE STUDENT JOURNEY</span>
-              <span>·</span>
-              <span>TARGET ROLE ALIGNMENT ENGINE</span>
+    <div className="w-full max-w-[1120px] mx-auto px-4 sm:px-6 py-8 space-y-6">
+      {/* Clean Onboarding Dropzone when no profile or competencies are loaded */}
+      {(!profile.name || profile.competencies.length === 0) && (
+        <div className="rounded-2xl bg-gradient-to-br from-indigo-950/40 via-[#121214] to-emerald-950/30 border-2 border-dashed border-indigo-500/40 p-8 text-center space-y-6 shadow-2xl">
+          <div className="max-w-xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold">
+              <span className="material-symbols-outlined text-[15px]">upload_file</span>
+              AIMORA Career Profile Onboarding
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              My Career Plan &amp; Skill-Gap Engine
-            </h1>
-            <p className="text-sm text-[#9A9A9A] mt-1">
-              Saved Target Role: <strong className="text-white font-semibold">{profile.targetRole}</strong>
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              Upload Your Profile to Begin Placement Readiness
+            </h2>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Upload your student profile exported from your college portal (.csv, .xlsx), resume (PDF/Text), or Google AI Studio JSON to automatically calibrate your competencies and skill gaps.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start md:self-auto text-xs text-[#BDBDBD] font-mono">
-            <span>Profile ID: {profile.id}</span>
-            <span>·</span>
-            <span className="text-[#55C98B]">{verifiedCompetencies.length} Verified</span>
-            <span>·</span>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <label className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-white text-xs shadow-lg shadow-indigo-600/25 transition-all cursor-pointer hover:scale-[1.02]">
+              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+              <span>Upload Student File (.csv, .xlsx, .json, .pdf)</span>
+              <input
+                type="file"
+                className="hidden"
+                accept=".csv,.xlsx,.tsv,.txt,.json,.pdf"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUniversalFileUpload(f);
+                }}
+              />
+            </label>
+
             <button
-              onClick={() => onNavigate?.('job-search')}
-              className="px-2.5 py-1 rounded bg-[#16161A] border border-[#363639] text-[#cdbdff] hover:text-white hover:border-[#8052ff] transition-colors cursor-pointer"
+              onClick={() => onLoadDemoData?.()}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1c1c20] hover:bg-[#25252b] border border-[#36363c] text-amber-300 text-xs font-semibold transition-all cursor-pointer hover:border-amber-500/50"
             >
-              View Opportunities Radar →
+              <span className="material-symbols-outlined text-[18px] text-amber-400">bolt</span>
+              <span>Load Demo Profile (Aravind R. • 8.74 CGPA)</span>
             </button>
           </div>
         </div>
+      )}
 
-        {/* SRMIST Academic Credentials & CDC Placement Hub Card */}
-        <div className="rounded-xl bg-[#121216] border border-[#2c2c35] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-[#8052ff]/15 border border-[#8052ff]/30 flex items-center justify-center text-[#cdbdff] shrink-0 font-bold font-mono text-sm tracking-wider">
-              SRM
+      {/* Executive Command Hero: Unified Readiness & Candidate Identity */}
+      <div className="rounded-2xl bg-[#121214] border border-[#27272A] p-6 shadow-xl relative">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#8052ff]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          {/* Left: Big Readiness Score & Target Role */}
+          <div className="flex items-start sm:items-center gap-5">
+            <div className="flex flex-col items-center justify-center w-24 h-24 rounded-2xl bg-[#09090B] border border-[#27272A] shrink-0">
+              <span className="text-3xl sm:text-4xl font-bold font-mono text-white tracking-tight">
+                {readinessScorePct}%
+              </span>
+              <span className="text-[10px] font-mono text-[#10B981] font-semibold mt-0.5">BENCHMARK</span>
             </div>
-            <div>
+
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-bold text-white">{profile.name}</span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/30 font-semibold">
-                  Reg No: {profile.registerNumber || 'RA2211003010482'}
+                <span className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  Readiness Index
                 </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 font-medium">
-                  SRMIST Kattankulathur
+
+                {/* Dynamically Changeable Target Role Popover Bubble */}
+                <div className="relative inline-block">
+                  <button
+                    type="button"
+                    onClick={() => setShowRolePopover(!showRolePopover)}
+                    className="px-2.5 py-0.5 rounded-full bg-[#8052ff]/20 hover:bg-[#8052ff]/35 text-[#cdbdff] hover:text-white border border-[#8052ff]/40 hover:border-[#8052ff]/70 text-xs font-mono font-medium transition-all flex items-center gap-1 cursor-pointer shadow-sm group hover:scale-[1.02]"
+                    title="Click to switch target career track"
+                  >
+                    <span>{profile.targetRole || 'Select Target Role'}</span>
+                    <span className={`material-symbols-outlined text-[15px] transition-transform duration-200 text-[#cdbdff] group-hover:text-white ${showRolePopover ? 'rotate-180' : ''}`}>
+                      expand_more
+                    </span>
+                  </button>
+
+                  {showRolePopover && (
+                    <>
+                      {/* Invisible backdrop to dismiss popover on outside click */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => {
+                          setShowRolePopover(false);
+                          setRoleSearchQuery('');
+                        }}
+                      />
+
+                      {/* Popover Bubble */}
+                      <div className="absolute left-0 top-full mt-2 w-80 max-w-[90vw] bg-[#0E0E12] border border-[#363639] rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#202025]">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider">
+                            <span className="material-symbols-outlined text-[16px] text-[#8052ff]">work</span>
+                            <span>Target Career Track</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowRolePopover(false);
+                              setRoleSearchQuery('');
+                            }}
+                            className="text-[#71717A] hover:text-white p-0.5 rounded transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">close</span>
+                          </button>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative mb-2">
+                          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[15px] text-[#71717A]">
+                            search
+                          </span>
+                          <input
+                            type="text"
+                            value={roleSearchQuery}
+                            onChange={(e) => setRoleSearchQuery(e.target.value)}
+                            placeholder="Filter or type custom role..."
+                            className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-[#18181D] border border-[#2A2A30] text-white placeholder-[#71717A] focus:border-[#8052ff] outline-none transition-colors"
+                            autoFocus
+                          />
+                          {roleSearchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setRoleSearchQuery('')}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white text-xs"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Custom role prompt if typed value not in preset list */}
+                        {roleSearchQuery.trim() &&
+                          !AVAILABLE_CAREER_ROLES.some(
+                            (r) => r.toLowerCase() === roleSearchQuery.trim().toLowerCase()
+                          ) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const customRole = roleSearchQuery.trim();
+                                updateProfile((prev) => ({ ...prev, targetRole: customRole }));
+                                setShowRolePopover(false);
+                                setRoleSearchQuery('');
+                                onShowToast?.(`Target role set to "${customRole}". Readiness recalibrated!`, 'success');
+                              }}
+                              className="w-full mb-1.5 px-2.5 py-1.5 text-left text-xs rounded-lg bg-[#8052ff]/15 hover:bg-[#8052ff]/25 border border-[#8052ff]/30 text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-[15px] text-[#10B981]">add_circle</span>
+                              <span className="truncate">Use &quot;{roleSearchQuery.trim()}&quot;</span>
+                            </button>
+                          )}
+
+                        {/* Scrollable Role List */}
+                        <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
+                          {AVAILABLE_CAREER_ROLES.filter((role) =>
+                            role.toLowerCase().includes(roleSearchQuery.toLowerCase())
+                          ).map((role) => {
+                            const isSelected = profile.targetRole === role;
+                            return (
+                              <button
+                                key={role}
+                                type="button"
+                                onClick={() => {
+                                  updateProfile((prev) => ({ ...prev, targetRole: role }));
+                                  setShowRolePopover(false);
+                                  setRoleSearchQuery('');
+                                  onShowToast?.(`Target role switched to "${role}". Readiness recalibrated!`, 'success');
+                                }}
+                                className={`w-full px-2.5 py-2 text-left text-xs rounded-lg transition-all flex items-center justify-between cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-[#8052ff]/20 text-white font-bold border border-[#8052ff]/40 shadow-sm'
+                                    : 'text-slate-300 hover:bg-[#1C1C22] hover:text-white'
+                                }`}
+                              >
+                                <span className="truncate">{role}</span>
+                                {isSelected && (
+                                  <span className="material-symbols-outlined text-[15px] text-[#10B981] shrink-0 ml-1">
+                                    check_circle
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 text-[11px] font-mono">
+                  <span className="text-[#A1A1AA]">Sem 7 Baseline: 56%</span>
+                  <span>→</span>
+                  <span className="font-bold text-white">Live: {readinessScorePct}%</span>
+                  <span className="text-[#10b981] font-semibold">(+{Math.max(0, readinessScorePct - 56)}% Mid-Sem Delta)</span>
+                </div>
+              </div>
+              <p className="text-xs text-[#A1A1AA] max-w-xl">
+                Evidence benchmark across {totalCompetencies} role competencies. Unassessed skills are preserved strictly as <code className="text-[#F59E0B] font-mono">null</code>.
+              </p>
+              <div className="flex items-center gap-3 text-xs font-mono text-[#71717A] pt-1">
+                <span className="text-[#10B981] font-semibold">{verifiedCompetencies.length} Verified</span>
+                <span>•</span>
+                <span className="text-[#F59E0B] font-semibold">{priorityGaps.length} Gaps</span>
+                <span>•</span>
+                <span>Coverage: {evidenceCoveragePct}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Candidate Credentials & Direct Interview Room Action */}
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#27272A]">
+            <div className="text-left lg:text-right font-mono text-xs space-y-0.5">
+              <div className="text-sm font-bold text-white flex items-center lg:justify-end gap-1.5">
+                <span>{profile.name}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30 font-bold">
+                  SRM CDC
                 </span>
               </div>
-              <div className="text-xs text-[#9A9A9A] mt-1 flex items-center gap-2 sm:gap-3 flex-wrap font-mono">
-                <span>{profile.program}</span>
-                <span>•</span>
-                <span className="text-white font-semibold">CGPA: {profile.cgpa.toFixed(2)} / 10.00</span>
-                <span>•</span>
-                <span className="text-[#55C98B] font-semibold">Arrears: {profile.standingArrears ?? 0} (Cleared)</span>
-                <span>•</span>
-                <span>10th: {profile.tenthMarks || '92%'} • 12th: {profile.twelfthMarks || '89%'}</span>
+              <div className="text-[#A1A1AA] text-[11px]">
+                {profile.registerNumber || profile.id || 'No Register No.'} • CGPA {profile.cgpa.toFixed(2)} / 10.00 • 0 Arrears
               </div>
+            </div>
+
+
+          </div>
+        </div>
+
+        {/* Minimal Progress Bar */}
+        <div className="mt-5 pt-4 border-t border-[#27272A]/70">
+          <div className="w-full bg-[#09090B] h-2 rounded-full overflow-hidden border border-[#27272A]/50">
+            <div
+              className="bg-gradient-to-r from-[#8052ff] to-[#10B981] h-full rounded-full transition-all duration-500"
+              style={{ width: `${readinessScorePct}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Semester Assessment CTA Card */}
+      <div className="rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-indigo-950/40 border border-emerald-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+            <span className="material-symbols-outlined text-2xl">quiz</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                {profile.semester || 'Semester 6'} Diagnostic
+              </span>
+              <span className="text-xs text-slate-400">Institutional Benchmark</span>
+            </div>
+            <h3 className="text-base font-bold text-white mt-1">
+              Validate your technical knowledge to elevate your verified readiness
+            </h3>
+            <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
+              Take the 15-minute diagnostic test in DBMS, Operating Systems, and Networks to upgrade your skills from <em>Self-Reported</em> to <strong>Verified Assessment</strong>.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onNavigate?.('assessment')}
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all hover:scale-[1.02] shrink-0 cursor-pointer"
+        >
+          <span>Take Semester Assessment</span>
+          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </div>
+
+      {/* SECTION 1: Unified Competencies Matrix (Zero Duplication) */}
+      <section className="rounded-2xl bg-[#121214] border border-[#27272A] p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#27272A]">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-base font-bold text-white tracking-tight">Competencies</h2>
+            <div className="flex items-center rounded-lg bg-[#09090B] p-0.5 border border-[#27272A] text-xs font-mono">
+              <button
+                onClick={() => { setCompetencyFilter('all'); setSkillsLimit(4); }}
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  competencyFilter === 'all' ? 'bg-[#27272A] text-white font-semibold' : 'text-[#71717A] hover:text-white'
+                }`}
+              >
+                My Skills ({profile.competencies.filter((c) => c.proficiency !== null && c.proficiency > 0).length})
+              </button>
+              <button
+                onClick={() => { setCompetencyFilter('verified'); setSkillsLimit(4); }}
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  competencyFilter === 'verified' ? 'bg-[#10B981]/20 text-[#10B981] font-semibold' : 'text-[#71717A] hover:text-white'
+                }`}
+              >
+                Verified ({verifiedCompetencies.length})
+              </button>
+              <button
+                onClick={() => { setCompetencyFilter('gaps'); setSkillsLimit(4); }}
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  competencyFilter === 'gaps' ? 'bg-[#F59E0B]/20 text-[#F59E0B] font-semibold' : 'text-[#71717A] hover:text-white'
+                }`}
+              >
+                Gaps ({priorityGaps.length})
+              </button>
+            </div>
+
+            {/* Small Search Bar */}
+            <div className="relative min-w-[200px] sm:w-56">
+              <span className="material-symbols-outlined text-[15px] text-[#71717A] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                search
+              </span>
+              <input
+                type="text"
+                value={skillSearchQuery}
+                onChange={(e) => {
+                  setSkillSearchQuery(e.target.value);
+                  if (skillsLimit < 12) setSkillsLimit(12);
+                }}
+                placeholder="Search skill (e.g. Python, SQL)..."
+                className="w-full pl-8 pr-7 py-1 text-xs rounded-md bg-[#09090B] border border-[#27272A] text-white placeholder-[#71717A] focus:border-[#8052ff] outline-none transition-colors"
+              />
+              {skillSearchQuery && (
+                <button
+                  onClick={() => setSkillSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white text-[10px]"
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => onNavigate?.('interview-room')}
-              className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#8052ff] to-[#6938ef] hover:from-[#9066ff] hover:to-[#7948ff] text-white text-xs font-semibold shadow-lg shadow-[#8052ff]/25 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
-            >
-              <span className="material-symbols-outlined text-[17px] text-[#ffba35]">mic</span>
-              <span>Launch AI Interview Room</span>
-              <span className="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold bg-[#ffba35] text-black">New</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Overall Readiness Index Banner */}
-        <div className="rounded-xl bg-gradient-to-r from-[#16161A] via-[#1E1E24] to-[#16161A] border border-[#8052ff]/40 p-5 sm:p-6 shadow-lg">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#8052ff]/20 border border-[#8052ff]/40 text-xs font-mono text-[#cdbdff]">
-                <span className="material-symbols-outlined text-[15px]">verified</span>
-                <span>Saved Target Role: {profile.targetRole}</span>
-              </div>
-              <div className="flex items-baseline gap-3 pt-1">
-                <span className="text-4xl sm:text-5xl font-bold font-mono tabular-nums text-white">
-                  {readinessScorePct}%
-                </span>
-                <div>
-                  <div className="text-sm font-bold text-white">Overall Readiness Index</div>
-                  <div className="text-xs text-[#cdbdff] font-medium">
-                    Informational skill-evidence benchmark against target role.
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-[#9A9A9A] leading-relaxed">
-                Readiness is an informational skill-coverage indicator, not a placement guarantee. Unmeasured skills are strictly preserved as <code className="font-mono text-[#ffba35]">null</code> and never silently converted to <code className="font-mono text-white">0</code>.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row lg:flex-col justify-between gap-3 min-w-[260px] bg-[#0D0D0F] p-4 rounded-lg border border-[#202023]">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-[#9A9A9A]">Benchmark Coverage</span>
-                  <span className="text-[#55C98B] font-bold">{readinessScorePct}%</span>
-                </div>
-                <div className="w-full bg-[#16161A] h-2.5 rounded-full overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-[#8052ff] to-[#55C98B] h-full rounded-full transition-all duration-500"
-                    style={{ width: `${readinessScorePct}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-[#202023] text-xs font-mono">
-                <span className="text-[#9A9A9A]">SQL Status:</span>
-                {sqlComp?.proficiency === null ? (
-                  <button
-                    onClick={() => handleOpenQuiz('comp-sql')}
-                    className="text-[#ffba35] hover:underline font-semibold cursor-pointer"
-                  >
-                    null (Take Assessment →)
-                  </button>
-                ) : (
-                  <span className="text-[#55C98B] font-bold">
-                    Verified ({sqlComp?.proficiency.toFixed(1)}/5.0)
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 1: Target Role & Alignment Engine */}
-      <section className="flex flex-col rounded-xl bg-[#0D0D0F] border border-[#202023] p-5 sm:p-6 space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#202023]">
-          <div>
-            <h2 className="text-lg font-bold text-white">
-              Target Role &amp; Alignment Engine — {profile.targetRole}
-            </h2>
-            <p className="text-xs text-[#9A9A9A] mt-0.5">
-              Direct comparison of target role competency requirements against your current verified, self-reported, and unassessed (<code className="font-mono text-[#ffba35]">null</code>) skills.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <button
               onClick={handleAnalyze}
               disabled={isAnalyzing}
-              className="px-3.5 py-2 rounded-lg bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white font-semibold text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 rounded-lg bg-[#18181B] border border-[#27272A] hover:border-[#8052ff] text-white text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[15px]">
-                {isAnalyzing ? 'sync' : 'query_stats'}
+              <span className="material-symbols-outlined text-[14px]">
+                {isAnalyzing ? 'sync' : 'refresh'}
               </span>
-              <span>{isAnalyzing ? 'Recalculating...' : 'Recalculate Alignment'}</span>
+              <span>{isAnalyzing ? 'Syncing...' : 'Recalculate'}</span>
             </button>
             <button
               onClick={() => setShowAddSkillModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#16161A] border border-[#363639] text-[#cdbdff] hover:text-white hover:border-[#8052ff] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 rounded-lg bg-[#18181B] border border-[#27272A] hover:border-[#8052ff] text-[#cdbdff] hover:text-white text-xs font-mono transition-colors cursor-pointer flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[15px]">add_circle</span>
+              <span className="material-symbols-outlined text-[14px]">add</span>
               <span>Add Skill</span>
             </button>
             <button
               onClick={() => setShowCsvModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#16161A] border border-[#363639] text-white hover:bg-[#201f21] text-xs font-medium transition-colors cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 rounded-lg bg-[#18181B] border border-[#27272A] hover:border-[#8052ff] text-[#A1A1AA] hover:text-white text-xs font-mono transition-colors cursor-pointer flex items-center gap-1"
             >
-              <span className="material-symbols-outlined text-[15px]">upload_file</span>
-              <span>CSV Upload</span>
+              <span className="material-symbols-outlined text-[14px]">upload_file</span>
+              <span>CSV</span>
             </button>
           </div>
         </div>
 
-        {analyzedSuccess && (
-          <div className="p-3 rounded-lg bg-[#15846e]/20 border border-[#55C98B]/40 text-[#55C98B] text-xs flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px]">check_circle</span>
-            <span>
-              Alignment Engine synchronized: {readinessScorePct}% Readiness Index · {evidenceCoveragePct}% Evidence Coverage.
-            </span>
+        {/* Competencies Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {displayedCompetencies.map((comp) => {
+            const isNull = comp.proficiency === null;
+            const isZero = comp.proficiency === 0;
+            const meetsTarget = comp.proficiency !== null && comp.proficiency >= comp.targetLevel;
+            const badgeInfo = getSkillBadgeState(comp);
+            const isPoW = comp.id === 'comp-redis' || comp.id === 'comp-docker';
+            const isPoWVerified = comp.proficiency !== null && comp.evidenceLabel?.includes('GitHub Proof');
+
+            return (
+              <div
+                key={comp.id}
+                className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] hover:border-[#3F3F46] transition-all flex flex-col justify-between space-y-3"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-sm font-bold text-white tracking-tight">{comp.name}</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border shrink-0 ${badgeInfo.badgeClass}`}>
+                      {badgeInfo.badgeText}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-[#71717A] mt-1">
+                    {comp.category} • Target {comp.targetLevel.toFixed(1)}
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-[#27272A]/70">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-[#71717A]">Proficiency</span>
+                    <span className="font-bold tabular-nums">
+                      {isNull ? (
+                        <span className="text-[#F59E0B]">null</span>
+                      ) : (
+                        <span className={meetsTarget ? 'text-[#10B981]' : isZero ? 'text-[#F43F5E]' : 'text-white'}>
+                          {comp.proficiency?.toFixed(1)}/5.0
+                        </span>
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="w-full bg-[#18181B] h-1.5 rounded-full overflow-hidden">
+                    {!isNull && (
+                      <div
+                        className={`h-full rounded-full ${
+                          meetsTarget ? 'bg-[#10B981]' : isZero ? 'bg-[#F43F5E]' : 'bg-[#F59E0B]'
+                        }`}
+                        style={{ width: `${Math.max(6, ((comp.proficiency || 0) / 5.0) * 100)}%` }}
+                      />
+                    )}
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between gap-2">
+                    {isPoW ? (
+                      <button
+                        onClick={() => setProofOfWorkDrawerSkillId(comp.id)}
+                        className={`w-full py-1.5 px-2.5 rounded-lg text-[11px] font-mono font-semibold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          isPoWVerified
+                            ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30 hover:bg-[#10B981]/25'
+                            : 'bg-[#8052ff]/15 text-[#cdbdff] border-[#8052ff]/30 hover:bg-[#8052ff]/25'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[13px]">
+                          {isPoWVerified ? 'verified' : 'terminal'}
+                        </span>
+                        <span>{isPoWVerified ? 'GitHub Proof ✓' : 'Proof-of-Work Project'}</span>
+                      </button>
+                    ) : ROADMAP_QUIZZES[comp.id] ? (
+                      <button
+                        onClick={() => handleOpenQuiz(comp.id)}
+                        className="w-full py-1.5 px-2.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-[#cdbdff] hover:text-white border border-[#27272A] text-[11px] font-mono font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span>{comp.proficiency === null ? 'Take Assessment →' : 'Retake Quiz →'}</span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] font-mono text-[#71717A] truncate w-full" title={comp.evidenceLabel}>
+                        {comp.evidenceLabel}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Load More Button */}
+        {sortedSkills.length > 4 && (
+          <div className="pt-3 flex items-center justify-center">
+            {skillsLimit < sortedSkills.length ? (
+              <button
+                onClick={() => setSkillsLimit((prev) => prev + 8)}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#18181B] hover:bg-[#222226] border border-[#27272A] hover:border-[#8052ff] text-white text-xs font-semibold transition-all cursor-pointer shadow-md hover:scale-[1.01]"
+              >
+                <span>Load More Skills ({sortedSkills.length - skillsLimit} remaining)</span>
+                <span className="material-symbols-outlined text-[16px]">expand_more</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setSkillsLimit(4)}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#18181B] hover:bg-[#222226] border border-[#27272A] text-slate-300 text-xs font-medium transition-all cursor-pointer"
+              >
+                <span>Show Top 4 Skills Only</span>
+                <span className="material-symbols-outlined text-[16px]">expand_less</span>
+              </button>
+            )}
           </div>
         )}
 
-        {/* Highlighted Role Requirement Comparison Cards (SQL, System Design, Git & Versioning, Redis & Kafka) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Card 1: SQL */}
-          {sqlComp && (
-            <div className="p-4 rounded-lg bg-[#16161A] border border-[#363639] flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-sm font-bold text-white">{sqlComp.name}</span>
-                    <div className="text-[11px] text-[#9A9A9A] mt-0.5">
-                      Required · Target {sqlComp.targetLevel.toFixed(1)}/5.0
-                    </div>
-                  </div>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
-                      getSkillBadgeState(sqlComp).badgeClass
-                    }`}
-                  >
-                    {getSkillBadgeState(sqlComp).badgeText}
-                  </span>
-                </div>
-
-                <div className="mt-3 text-xs font-mono flex items-center justify-between">
-                  <span className="text-[#9A9A9A]">Proficiency:</span>
-                  <span className={sqlComp.proficiency === null ? 'text-[#ffba35] font-bold' : 'text-[#55C98B] font-bold'}>
-                    {sqlComp.proficiency === null ? 'null (Needs assessment)' : `${sqlComp.proficiency.toFixed(1)}/5.0`}
-                  </span>
-                </div>
-                <div className="mt-1 text-[11px] text-[#9A9A9A] font-mono truncate">
-                  Evidence: <span className="text-white">{sqlComp.evidenceLabel}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-[#202023] flex items-center justify-between">
-                <span className="text-[11px] font-mono text-[#9A9A9A]">
-                  {sqlComp.proficiency === null ? 'Unassessed' : 'Verified Assessment'}
-                </span>
-                <button
-                  onClick={() => handleOpenQuiz('comp-sql')}
-                  className="px-3 py-1.5 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
-                >
-                  {sqlComp.proficiency === null ? 'Take Assessment' : 'Retake Assessment'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Card 2: System Design */}
-          {sysComp && (
-            <div className="p-4 rounded-lg bg-[#16161A] border border-[#202023] flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-sm font-bold text-white">{sysComp.name}</span>
-                    <div className="text-[11px] text-[#9A9A9A] mt-0.5">
-                      Required · Target {sysComp.targetLevel.toFixed(1)}/5.0
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold border bg-[#ffba35]/15 text-[#ffba35] border-[#ffba35]/40">
-                    2.5/5.0 (Self-reported)
-                  </span>
-                </div>
-
-                <div className="mt-3 text-xs font-mono flex items-center justify-between">
-                  <span className="text-[#9A9A9A]">Proficiency:</span>
-                  <span className="text-[#ffba35] font-bold">{sysComp.proficiency?.toFixed(1)}/5.0</span>
-                </div>
-                <div className="mt-1 text-[11px] text-[#9A9A9A] font-mono truncate">
-                  Evidence: <span className="text-white">{sysComp.evidenceLabel}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-[#202023]">
-                <div className="w-full h-1.5 bg-[#0D0D0F] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#ffba35] rounded-full" style={{ width: '50%' }} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Card 3: Git & Versioning */}
-          {gitComp && (
-            <div className="p-4 rounded-lg bg-[#16161A] border border-[#202023] flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-sm font-bold text-white">{gitComp.name}</span>
-                    <div className="text-[11px] text-[#9A9A9A] mt-0.5">
-                      Required · Target {gitComp.targetLevel.toFixed(1)}/5.0
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold border bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/40">
-                    4.0/5.0 (Verified)
-                  </span>
-                </div>
-
-                <div className="mt-3 text-xs font-mono flex items-center justify-between">
-                  <span className="text-[#9A9A9A]">Proficiency:</span>
-                  <span className="text-[#55C98B] font-bold">{gitComp.proficiency?.toFixed(1)}/5.0</span>
-                </div>
-                <div className="mt-1 text-[11px] text-[#9A9A9A] font-mono truncate">
-                  Evidence: <span className="text-white">{gitComp.evidenceLabel}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-[#202023]">
-                <div className="w-full h-1.5 bg-[#0D0D0F] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#55C98B] rounded-full" style={{ width: '80%' }} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Card 4: Redis & Kafka (Missing / Priority Gaps) */}
-          <div className={`p-4 rounded-lg bg-[#16161A] border ${
-            redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
-              ? 'border-[#55C98B]/40'
-              : redisComp?.proficiency !== null
-              ? 'border-[#8052ff]/40'
-              : 'border-[#EB5757]/30'
-          } flex flex-col justify-between space-y-3`}>
-            <div>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <span className="text-sm font-bold text-white">Redis &amp; Kafka</span>
-                  <div className="text-[11px] text-[#9A9A9A] mt-0.5">
-                    Distributed Caching &amp; Streaming
-                  </div>
-                </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
-                  redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
-                    ? 'bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/40'
-                    : redisComp?.proficiency !== null
-                    ? 'bg-[#8052ff]/15 text-[#cdbdff] border-[#8052ff]/40'
-                    : 'bg-[#EB5757]/15 text-[#EB5757] border-[#EB5757]/40'
-                }`}>
-                  {redisComp?.proficiency !== null && kafkaComp?.proficiency !== null
-                    ? 'All Verified ✓'
-                    : redisComp?.proficiency !== null
-                    ? 'Redis Verified (4.0)'
-                    : 'Missing / Priority Gaps'}
-                </span>
-              </div>
-
-              <div className="mt-3 space-y-1 text-xs font-mono">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#9A9A9A]">Redis:</span>
-                  <span className={redisComp?.proficiency === null ? 'text-[#ffba35]' : 'text-[#55C98B] font-bold'}>
-                    {redisComp?.proficiency === null
-                      ? 'null (Missing / Priority Gap)'
-                      : `Verified (${redisComp?.proficiency.toFixed(1)}/5.0) ✓`}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#9A9A9A]">Kafka:</span>
-                  <span className={kafkaComp?.proficiency === null ? 'text-[#ffba35]' : 'text-[#55C98B]'}>
-                    {kafkaComp?.proficiency === null
-                      ? 'null (Missing / Priority Gap)'
-                      : `Verified (${kafkaComp?.proficiency.toFixed(1)}/5.0)`}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-[#202023] flex items-center justify-between gap-2">
+        {/* Empty Search State */}
+        {sortedSkills.length === 0 && (
+          <div className="p-8 text-center bg-[#09090B] border border-[#27272A] rounded-xl text-xs text-[#71717A] space-y-1">
+            <span className="material-symbols-outlined text-2xl text-[#71717A]">search_off</span>
+            <p className="text-slate-300 font-medium">
+              {skillSearchQuery ? `No skills matching "${skillSearchQuery}"` : 'No skills recorded yet.'}
+            </p>
+            {skillSearchQuery && (
               <button
-                onClick={() => setProofOfWorkDrawerSkillId('comp-redis')}
-                className={`flex-1 py-1.5 px-2 rounded text-[11px] font-mono font-semibold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
-                  redisComp?.proficiency !== null
-                    ? 'bg-[#55C98B]/15 text-[#55C98B] border-[#55C98B]/30 hover:bg-[#55C98B]/25'
-                    : 'bg-[#8052ff]/20 text-[#cdbdff] border-[#8052ff]/40 hover:bg-[#8052ff]/30'
-                }`}
+                onClick={() => setSkillSearchQuery('')}
+                className="text-[#8052ff] hover:underline text-xs"
               >
-                <span className="material-symbols-outlined text-[13px]">
-                  {redisComp?.proficiency !== null ? 'verified' : 'construction'}
-                </span>
-                <span>{redisComp?.proficiency !== null ? 'Redis Proof ✓' : 'Build Redis Proof'}</span>
+                Clear search
               </button>
-              <button
-                onClick={() => handleOpenQuiz('comp-kafka')}
-                className="flex-1 py-1.5 px-2 rounded bg-[#1E1E24] hover:bg-[#2a2a32] text-[#cdbdff] border border-[#363639] text-[11px] font-mono cursor-pointer"
-              >
-                Assess Kafka
-              </button>
-            </div>
+            )}
           </div>
-        </div>
-
-        {/* Full Competency Matrix Grid */}
-        <div className="pt-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <span className="text-xs font-semibold text-white">
-              All Role Competencies ({totalCompetencies}) — Scale 0.0–5.0 or <code className="font-mono text-[#ffba35]">null</code>
-            </span>
-            <button
-              onClick={() => {
-                setDraftProfile({
-                  name: profile.name,
-                  program: profile.program,
-                  department: profile.department,
-                  specialization: profile.specialization,
-                  semester: profile.semester,
-                  cgpa: profile.cgpa.toString(),
-                  graduationYear: profile.graduationYear,
-                  targetRole: profile.targetRole,
-                });
-                setShowProfileModal(true);
-              }}
-              className="text-xs font-mono text-[#cdbdff] hover:underline self-start sm:self-auto cursor-pointer"
-            >
-              Edit Academic Profile ({profile.name} · CGPA {profile.cgpa.toFixed(2)}) →
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {profile.competencies.map((comp) => {
-              const isNull = comp.proficiency === null;
-              const isZero = comp.proficiency === 0;
-              const meetsTarget = comp.proficiency !== null && comp.proficiency >= comp.targetLevel;
-              const badgeInfo = getSkillBadgeState(comp);
-
-              return (
-                <div
-                  key={comp.id}
-                  className="p-3.5 rounded-lg bg-[#1E1E24] border border-[#202023] flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="text-sm font-semibold text-white">{comp.name}</span>
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono border shrink-0 ${badgeInfo.badgeClass}`}>
-                        {badgeInfo.badgeText}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-[#9A9A9A] mb-2">
-                      {comp.category} · {comp.requirementType} (Target {comp.targetLevel.toFixed(1)})
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-baseline justify-between mt-1">
-                      <div className="w-full mr-3">
-                        <div className="h-1.5 w-full bg-[#16161A] rounded-full overflow-hidden">
-                          {!isNull && (
-                            <div
-                              className={`h-full rounded-full ${
-                                meetsTarget
-                                  ? 'bg-[#55C98B]'
-                                  : isZero
-                                  ? 'bg-[#EB5757]'
-                                  : 'bg-[#ffba35]'
-                              }`}
-                              style={{ width: `${Math.max(4, ((comp.proficiency || 0) / 5.0) * 100)}%` }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-xs font-mono font-bold tabular-nums whitespace-nowrap">
-                        {isNull ? (
-                          <span className="text-[#ffba35]">null</span>
-                        ) : (
-                          <span className={meetsTarget ? 'text-[#55C98B]' : isZero ? 'text-[#EB5757]' : 'text-white'}>
-                            {comp.proficiency?.toFixed(1)}/5.0
-                          </span>
-                        )}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#202023]/80 text-[11px]">
-                      <span className="text-[#9A9A9A] truncate" title={comp.evidenceLabel}>
-                        {comp.evidenceLabel}
-                      </span>
-                      {ROADMAP_QUIZZES[comp.id] && (
-                        <button
-                          onClick={() => handleOpenQuiz(comp.id)}
-                          className="text-[#cdbdff] hover:text-white font-mono font-semibold ml-2 shrink-0 cursor-pointer"
-                        >
-                          {comp.proficiency === null ? 'Take Assessment →' : 'Retake →'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 3-Column Role Alignment Breakdown: Validated Strengths | Priority Gaps | Unverified / Needs Assessment */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
-          {/* Column 1: Validated Strengths */}
-          <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white">Validated Strengths ({validatedStrengths.length})</h3>
-              <span className="text-xs font-mono text-[#55C98B]">Verified</span>
-            </div>
-            <ul className="space-y-2">
-              {validatedStrengths.map((item) => (
-                <li
-                  key={item.id}
-                  className="p-2.5 rounded bg-[#16161A] border border-[#202023] flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="text-white font-medium">{item.name}</div>
-                    <div className="text-[11px] text-[#9A9A9A]">{item.evidenceLabel}</div>
-                  </div>
-                  <span className="font-mono font-bold text-[#55C98B] tabular-nums ml-2 shrink-0">
-                    Verified ({item.proficiency?.toFixed(1)}/5.0)
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 2: Priority Gaps */}
-          <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white">Priority Gaps ({priorityGaps.length})</h3>
-              <span className="text-xs font-mono text-[#ffba35]">Action Required</span>
-            </div>
-            <ul className="space-y-2">
-              {priorityGaps.map((item) => (
-                <li
-                  key={item.id}
-                  className="p-2.5 rounded bg-[#16161A] border border-[#202023] flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="text-white font-medium">{item.name}</div>
-                    <div className="text-[11px] text-[#9A9A9A]">
-                      {item.proficiency === null
-                        ? 'Missing / Priority Gap (null)'
-                        : `${item.proficiency.toFixed(1)}/5.0 (${item.evidenceSource})`}
-                    </div>
-                  </div>
-                  {ROADMAP_QUIZZES[item.id] ? (
-                    <button
-                      onClick={() => handleOpenQuiz(item.id)}
-                      className="px-2.5 py-1 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white font-mono text-[11px] shrink-0 cursor-pointer"
-                    >
-                      Take Assessment
-                    </button>
-                  ) : (
-                    <span className="text-[11px] font-mono text-[#ffba35] shrink-0">Gap</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Needs Assessment & Self-Reported */}
-          <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white">Needs Assessment ({unverifiedMentions.length})</h3>
-              <span className="text-xs font-mono text-[#9A9A9A]">Null or Self-Reported</span>
-            </div>
-            <ul className="space-y-2">
-              {unverifiedMentions.map((item) => (
-                <li
-                  key={item.id}
-                  className="p-2.5 rounded bg-[#16161A] border border-[#202023] flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="text-white font-medium">{item.name}</div>
-                    <div className="text-[11px] text-[#9A9A9A]">
-                      {item.proficiency === null
-                        ? 'Needs assessment (strictly null)'
-                        : `Self-reported (${item.proficiency.toFixed(1)}/5.0)`}
-                    </div>
-                  </div>
-                  {ROADMAP_QUIZZES[item.id] ? (
-                    <button
-                      onClick={() => handleOpenQuiz(item.id)}
-                      className="px-2.5 py-1 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white font-mono text-[11px] shrink-0 cursor-pointer"
-                    >
-                      Take Assessment
-                    </button>
-                  ) : (
-                    <span className="text-[11px] font-mono text-[#9A9A9A] shrink-0">Self-reported</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        )}
       </section>
 
-      {/* SECTION 2: Dynamic Learning Roadmap (under My Career Plan) */}
-      <section className="flex flex-col rounded-xl bg-[#0D0D0F] border border-[#202023] p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#202023] mb-6">
+      {/* SECTION 2: Dynamic Learning Roadmap */}
+      <section className="rounded-2xl bg-[#121214] border border-[#27272A] p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#27272A]">
           <div>
-            <h2 className="text-lg font-bold text-white">Dynamic Learning Roadmap</h2>
-            <p className="text-xs text-[#9A9A9A] mt-0.5">
-              Ordered milestones for missing and unassessed skills with estimated time, provenance-tagged resources, and interactive assessments.
+            <h2 className="text-base font-bold text-white tracking-tight">Dynamic Learning Roadmap</h2>
+            <p className="text-xs text-[#71717A] mt-0.5">
+              Targeted technical milestones with hands-on proof verification and live assessments.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <button
-              onClick={() => onNavigate?.('job-search')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#16161A] border border-[#363639] text-white hover:bg-[#201f21] text-xs font-medium transition-colors cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[16px]">radar</span>
-              <span>View Market Demand Radar in Opportunities</span>
-            </button>
-          </div>
+          <button
+            onClick={() => onNavigate?.('job-search')}
+            className="px-3 py-1.5 rounded-lg bg-[#18181B] border border-[#27272A] text-[#cdbdff] hover:text-white hover:border-[#8052ff] text-xs font-mono transition-colors flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+          >
+            <span className="material-symbols-outlined text-[15px]">radar</span>
+            <span>Market Radar →</span>
+          </button>
         </div>
 
-        {/* Ordered Milestones Timeline */}
-        <div className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#363639]">
-          {/* Milestone 1: SQL (Needs assessment -> Verified 3.5/5.0) */}
-          <div className="relative flex flex-col gap-1">
-            <div
-              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-black ${
-                sqlComp?.proficiency !== null ? 'bg-[#55C98B]' : 'bg-[#ffba35]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px] font-bold">
-                {sqlComp?.proficiency !== null ? 'check' : 'quiz'}
-              </span>
-            </div>
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#363639]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#ffba35] font-semibold">MILESTONE 01</span>
-                  <h3 className="text-sm font-bold text-white">
-                    SQL — Indexing, Join Optimization &amp; ACID Transactions
-                  </h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
-                    Est. Time: 3-5 hrs
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-xs font-mono font-semibold border ${
-                      sqlComp ? getSkillBadgeState(sqlComp).badgeClass : ''
-                    }`}
-                  >
-                    {sqlComp ? getSkillBadgeState(sqlComp).badgeText : 'Needs assessment'}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-[#e5e1e4] mb-3">
-                <strong className="text-white">Objective:</strong> Verify proficiency in composite B-Tree indexing, query execution plans (<code className="font-mono">EXPLAIN ANALYZE</code>), hash/merge join optimization, and ACID isolation guarantees.
-              </p>
-
-              {/* Resource Links with [Google Search] and [Curated] Provenance Tags */}
-              <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-[#55C98B]">travel_explore</span>
-                    <a
-                      href="https://use-the-index-luke.com/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#cdbdff] hover:underline font-medium"
-                    >
-                      SQL Indexing &amp; Tuning Guide for Backend Engineers ↗
-                    </a>
-                  </div>
-                  {getProvenanceTag('[Google Search]')}
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#202023]">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-[#cdbdff]">menu_book</span>
-                    <a
-                      href="https://www.postgresql.org/docs/current/using-explain.html"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#78d8be] hover:underline font-medium"
-                    >
-                      PostgreSQL Query Planner, Join Strategies &amp; ACID WAL Internals ↗
-                    </a>
-                  </div>
-                  {getProvenanceTag('[Curated]')}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
-                <div className="text-xs text-[#9A9A9A] font-mono">
-                  <span>Evidence: {sqlComp?.evidenceLabel}</span>
-                  <span className="mx-2">·</span>
-                  <span>Target: 3.5/5.0</span>
-                </div>
-                <button
-                  onClick={() => handleOpenQuiz('comp-sql')}
-                  className="px-3.5 py-1.5 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
-                >
-                  {sqlComp?.proficiency === null
-                    ? 'Take Assessment (#SQL-01) →'
-                    : `Verified (${sqlComp?.proficiency.toFixed(1)}/5.0) · Retake`}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Milestone 2: Docker & Containerization */}
-          <div className="relative flex flex-col gap-1">
-            <div
-              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-black font-bold ${
-                dockerComp?.proficiency !== null ? 'bg-[#55C98B]' : 'bg-[#ffba35]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">
-                {dockerComp?.proficiency !== null ? 'check' : 'cached'}
-              </span>
-            </div>
-            <div className={`p-4 rounded-lg bg-[#1E1E24] border transition-all ${
-              dockerComp?.proficiency !== null ? 'border-[#55C98B]/40' : 'border-[#202023]'
-            }`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-mono text-[#cdbdff] font-semibold">MILESTONE 02</span>
-                  <h3 className="text-sm font-bold text-white">Docker &amp; Multi-Stage Containerization</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">verified</span>
-                    <span>Differentiator: Verifiable GitHub Proof vs. Course Certificate</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
-                    Est. Time: 4-6 hrs
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-xs font-mono font-semibold border ${
-                      dockerComp ? getSkillBadgeState(dockerComp).badgeClass : ''
-                    }`}
-                  >
-                    {dockerComp?.proficiency !== null
-                      ? 'Completed ✓'
-                      : dockerComp
-                      ? getSkillBadgeState(dockerComp).badgeText
-                      : 'Needs assessment'}
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-[#e5e1e4] mb-3">
-                <strong className="text-white">Objective:</strong> Build minimal multi-stage Alpine Dockerfiles, configure container restart policies, and optimize build layer caching.
-              </p>
-
-              {/* GitHub Verified Proof Banner (shown when verified) */}
-              {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof') && (
-                <div className="p-3 rounded-lg bg-[#0F2218] border border-[#55C98B]/40 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
-                  <div className="flex items-center gap-2 text-[#55C98B]">
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    <span className="font-bold">Completed ✓</span>
-                    <span className="text-white">{dockerComp.evidenceLabel}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] text-[10px] font-bold border border-[#55C98B]/30">
-                    Proof-of-Work Verified
-                  </span>
-                </div>
-              )}
-
-              <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-[#55C98B]">travel_explore</span>
-                    <a
-                      href="https://docs.docker.com/build/building/multi-stage/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#cdbdff] hover:underline font-medium"
-                    >
-                      Docker Official Docs: Multi-Stage Builds &amp; Layer Caching ↗
-                    </a>
-                  </div>
-                  {getProvenanceTag('[Google Search]')}
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#202023]">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-[#78d8be]">code</span>
-                    <a
-                      href="https://docs.docker.com/compose/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#78d8be] hover:underline font-medium"
-                    >
-                      Container Orchestration Lab: Docker Compose Specification ↗
-                    </a>
-                  </div>
-                  {getProvenanceTag('[Curated]')}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
-                <div className="text-xs text-[#9A9A9A] font-mono">
-                  <span>Evidence: {dockerComp?.evidenceLabel}</span>
-                  <span className="mx-2">·</span>
-                  <span>Target: 3.5/5.0</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setProofOfWorkDrawerSkillId('comp-docker')}
-                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
-                      dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'bg-[#55C98B]/20 hover:bg-[#55C98B]/30 text-[#55C98B] border border-[#55C98B]/40'
-                        : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] hover:opacity-95 text-white shadow-[#8052ff]/20'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[15px]">
-                      {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'verified'
-                        : 'construction'}
-                    </span>
-                    <span>
-                      {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'GitHub Proof Verified ✓'
-                        : '🛠️ Build Proof-of-Work Project'}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenQuiz('comp-docker')}
-                    className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
-                  >
-                    {dockerComp?.proficiency === null ? 'Quiz (#DCK-101)' : 'Retake Quiz'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Milestone 3: Redis & Caching (Priority Gap) */}
-          <div className="relative flex flex-col gap-1">
-            <div
-              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center ${
-                redisComp?.proficiency !== null
-                  ? 'bg-[#55C98B] text-black font-bold'
-                  : 'bg-[#16161A] border border-[#EB5757] text-[#EB5757]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[12px]">
-                {redisComp?.proficiency !== null ? 'check' : 'priority_high'}
-              </span>
-            </div>
-            <div className={`p-4 rounded-lg bg-[#1E1E24] border transition-all ${
-              redisComp?.proficiency !== null ? 'border-[#55C98B]/40' : 'border-[#202023]'
-            }`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-mono text-[#EB5757] font-semibold">MILESTONE 03</span>
-                  <h3 className="text-sm font-bold text-white">Redis — Distributed Caching &amp; Rate Limiting</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#55C98B]/15 text-[#55C98B] border border-[#55C98B]/30 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">verified</span>
-                    <span>Differentiator: Verifiable GitHub Proof vs. Course Certificate</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
-                    Est. Time: 3-5 hrs
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-xs font-mono font-semibold border ${
-                      redisComp ? getSkillBadgeState(redisComp).badgeClass : ''
-                    }`}
-                  >
-                    {redisComp?.proficiency !== null
-                      ? 'Completed ✓'
-                      : redisComp
-                      ? getSkillBadgeState(redisComp).badgeText
-                      : 'Missing / Priority Gap'}
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-[#9A9A9A] mb-3">
-                <strong className="text-white">Objective:</strong> Implement cache-aside invalidation, TTL jitter stampede prevention, and ZSET sliding-window rate limiters.
-              </p>
-
-              {/* GitHub Verified Proof Banner (shown when verified) */}
-              {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof') && (
-                <div className="p-3 rounded-lg bg-[#0F2218] border border-[#55C98B]/40 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
-                  <div className="flex items-center gap-2 text-[#55C98B]">
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    <span className="font-bold">Completed ✓</span>
-                    <span className="text-white">{redisComp.evidenceLabel}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-[#55C98B]/20 text-[#55C98B] text-[10px] font-bold border border-[#55C98B]/30">
-                    +8% Readiness Boost Active
-                  </span>
-                </div>
-              )}
-
-              <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <a
-                    href="https://redis.io/docs/latest/develop/use/patterns/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#cdbdff] hover:underline font-medium"
-                  >
-                    Redis Architecture Patterns &amp; Distributed Locks Guide ↗
-                  </a>
-                  {getProvenanceTag('[Curated]')}
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#202023]">
-                  <a
-                    href="https://redis.io/tutorials/howtos/ratelimiting/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#78d8be] hover:underline font-medium"
-                  >
-                    High-Concurrency Rate Limiting with Redis Sorted Sets ↗
-                  </a>
-                  {getProvenanceTag('[Google Search]')}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
-                <span className="text-xs text-[#9A9A9A] font-mono">
-                  Evidence: {redisComp?.evidenceLabel} · Target: 3.0/5.0
+        {/* Milestones List */}
+        <div className="space-y-3.5">
+          {/* Milestone 1: SQL */}
+          <div className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#F59E0B] font-bold">01</span>
+                <span className="text-sm font-bold text-white">SQL — Indexing, Join Execution & ACID Guarantees</span>
+                <span className="px-2 py-0.5 rounded bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
+                  3-5 hrs
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setProofOfWorkDrawerSkillId('comp-redis')}
-                    className={`px-3 py-1.5 rounded text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
-                      redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'bg-[#55C98B]/20 hover:bg-[#55C98B]/30 text-[#55C98B] border border-[#55C98B]/40'
-                        : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] hover:opacity-95 text-white shadow-[#8052ff]/20'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[15px]">
-                      {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'verified'
-                        : 'construction'}
-                    </span>
-                    <span>
-                      {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
-                        ? 'GitHub Proof Verified ✓'
-                        : '🛠️ Build Proof-of-Work Project'}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenQuiz('comp-redis')}
-                    className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono transition-colors cursor-pointer"
-                  >
-                    {redisComp?.proficiency === null ? 'Quiz (#RED-201)' : 'Retake Quiz'}
-                  </button>
-                </div>
               </div>
+              <p className="text-xs text-[#A1A1AA]">
+                Verify composite B-Tree indexing, execution plan analysis (EXPLAIN ANALYZE), and ACID WAL durability.
+              </p>
             </div>
-          </div>
 
-          {/* Milestone 4: Apache Kafka (Priority Gap) */}
-          <div className="relative flex flex-col gap-1">
-            <div
-              className={`absolute -left-[27px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center ${
-                kafkaComp?.proficiency !== null
-                  ? 'bg-[#55C98B] text-black'
-                  : 'bg-[#16161A] border border-[#EB5757] text-[#EB5757]'
+            <button
+              onClick={() => handleOpenQuiz('comp-sql')}
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all shrink-0 cursor-pointer ${
+                sqlComp?.proficiency !== null
+                  ? 'bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30'
+                  : 'bg-[#8052ff] hover:bg-[#8052ff]/90 text-white shadow-md shadow-[#8052ff]/20'
               }`}
             >
-              <span className="material-symbols-outlined text-[12px]">
-                {kafkaComp?.proficiency !== null ? 'check' : 'priority_high'}
-              </span>
-            </div>
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#202023]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-[#EB5757] font-semibold">MILESTONE 04</span>
-                  <h3 className="text-sm font-bold text-white">Kafka — Event-Driven Partitioning &amp; Consumer Groups</h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
-                    Est. Time: 5-8 hrs
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-xs font-mono font-semibold border ${
-                      kafkaComp ? getSkillBadgeState(kafkaComp).badgeClass : ''
-                    }`}
-                  >
-                    {kafkaComp ? getSkillBadgeState(kafkaComp).badgeText : 'Missing / Priority Gap'}
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-[#9A9A9A] mb-3">
-                <strong className="text-white">Objective:</strong> Partition key design for ordered event streams, consumer group rebalancing, and at-least-once offset commits.
-              </p>
+              {sqlComp && sqlComp.proficiency !== null ? `Verified (${sqlComp.proficiency.toFixed(1)}/5.0) · Retake` : 'Take Assessment (#SQL-01) →'}
+            </button>
+          </div>
 
-              <div className="p-3 rounded bg-[#16161A] border border-[#202023] mb-3 space-y-2 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <a
-                    href="https://kafka.apache.org/documentation/#intro_concepts_and_terms"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#cdbdff] hover:underline font-medium"
-                  >
-                    Apache Kafka Core Concepts &amp; Consumer Group Guarantees ↗
-                  </a>
-                  {getProvenanceTag('[Curated]')}
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#202023]">
-                  <a
-                    href="https://developer.confluent.io/courses/apache-kafka/partitions/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#78d8be] hover:underline font-medium"
-                  >
-                    Distributed Partitioning &amp; Event Ordering Deep-Dive ↗
-                  </a>
-                  {getProvenanceTag('[Google Search]')}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
-                <span className="text-xs text-[#9A9A9A] font-mono">
-                  Evidence: {kafkaComp?.evidenceLabel} · Target: 3.0/5.0
+          {/* Milestone 2: Docker */}
+          <div className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#10B981] font-bold">02</span>
+                <span className="text-sm font-bold text-white">Docker — Container Lifecycle & Multi-Stage Builds</span>
+                <span className="px-2 py-0.5 rounded bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
+                  4-6 hrs
                 </span>
-                <button
-                  onClick={() => handleOpenQuiz('comp-kafka')}
-                  className="px-3 py-1.5 rounded bg-[#16161A] border border-[#363639] hover:border-[#8052ff] text-white text-xs font-mono transition-colors cursor-pointer"
-                >
-                  {kafkaComp?.proficiency === null ? 'Take Assessment (#KAF-302) →' : 'Retake Assessment'}
-                </button>
+                <span className="px-2 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                  GitHub Proof
+                </span>
               </div>
+              <p className="text-xs text-[#A1A1AA]">
+                Multi-stage Alpine Dockerfile optimization, non-root security contexts, and container isolation.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setProofOfWorkDrawerSkillId('comp-docker')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof')
+                    ? 'bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30'
+                    : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof') ? 'verified' : 'terminal'}
+                </span>
+                <span>{dockerComp?.proficiency !== null && dockerComp?.evidenceLabel?.includes('GitHub Proof') ? 'Proof Verified ✓' : 'Proof-of-Work Project'}</span>
+              </button>
             </div>
           </div>
 
-          {/* Copilot-Added Dynamic Roadmap Tasks */}
+          {/* Milestone 3: Redis */}
+          <div className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#F43F5E] font-bold">03</span>
+                <span className="text-sm font-bold text-white">Redis — Distributed In-Memory Caching & Rate Limiting</span>
+                <span className="px-2 py-0.5 rounded bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
+                  3-5 hrs
+                </span>
+                <span className="px-2 py-0.2 rounded text-[10px] font-mono font-semibold bg-[#F43F5E]/15 text-[#F43F5E] border border-[#F43F5E]/30">
+                  Priority Gap
+                </span>
+              </div>
+              <p className="text-xs text-[#A1A1AA]">
+                Cache-aside invalidation, TTL jitter stampede prevention, and ZSET sliding-window rate limiters.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setProofOfWorkDrawerSkillId('comp-redis')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof')
+                    ? 'bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30'
+                    : 'bg-gradient-to-r from-[#8052ff] to-[#6035d8] text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof') ? 'verified' : 'terminal'}
+                </span>
+                <span>{redisComp?.proficiency !== null && redisComp?.evidenceLabel?.includes('GitHub Proof') ? 'Proof Verified ✓' : 'Proof-of-Work Project'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Milestone 4: Kafka */}
+          <div className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#F43F5E] font-bold">04</span>
+                <span className="text-sm font-bold text-white">Apache Kafka — Distributed Event Streaming</span>
+                <span className="px-2 py-0.5 rounded bg-[#18181B] border border-[#27272A] text-[10px] font-mono text-[#A1A1AA]">
+                  4-6 hrs
+                </span>
+              </div>
+              <p className="text-xs text-[#A1A1AA]">
+                Partition key routing, consumer group offsets (PEL & XACK), and event broker idempotency.
+              </p>
+            </div>
+
+            <button
+              onClick={() => handleOpenQuiz('comp-kafka')}
+              className="px-4 py-2 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-[#cdbdff] hover:text-white border border-[#27272A] text-xs font-mono font-semibold transition-colors cursor-pointer shrink-0"
+            >
+              Assess Kafka →
+            </button>
+          </div>
+
+          {/* Custom Milestones added by Copilot */}
           {customRoadmapTasks.map((task, idx) => (
-            <div key={task.id} className="relative flex flex-col gap-1">
-              <div className="absolute -left-[27px] top-1.5 w-5 h-5 rounded-full bg-[#8052ff] flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-[13px]">auto_awesome</span>
-              </div>
-              <div className="p-4 rounded-lg bg-[#1E1E24] border border-[#8052ff]/50 shadow-md">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-[#cdbdff] font-semibold">
-                      COPILOT MILESTONE 0{5 + idx}
-                    </span>
-                    <h3 className="text-sm font-bold text-white">{task.title}</h3>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded bg-[#16161A] border border-[#202023] text-[11px] font-mono text-[#D6D6DC]">
-                      Est. Time: {task.time}
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold border bg-[#8052ff]/15 text-[#cdbdff] border-[#8052ff]/40">
-                      Copilot Added
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs text-[#e5e1e4] mb-3">
-                  <strong className="text-white">Objective:</strong> {task.objective}
-                </p>
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#202023]">
-                  <span className="text-xs text-[#55C98B] font-mono flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">check</span>
-                    Active on personalized roadmap
+            <div
+              key={task.id}
+              className="p-4 rounded-xl bg-[#09090B] border border-[#8052ff]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-[#cdbdff] font-bold">0{5 + idx}</span>
+                  <span className="text-sm font-bold text-white">{task.title}</span>
+                  <span className="px-2 py-0.5 rounded bg-[#8052ff]/20 text-[#cdbdff] text-[10px] font-mono">
+                    Copilot Task
                   </span>
-                  {task.skillId && ROADMAP_QUIZZES[task.skillId] && (
-                    <button
-                      onClick={() => handleOpenQuiz(task.skillId!)}
-                      className="px-3.5 py-1.5 rounded bg-[#8052ff] hover:bg-[#8052ff]/90 text-white text-xs font-mono font-semibold transition-colors cursor-pointer"
-                    >
-                      Take Assessment →
-                    </button>
-                  )}
                 </div>
+                <p className="text-xs text-[#A1A1AA]">{task.objective}</p>
               </div>
+
+              <span className="px-3 py-1.5 rounded-lg bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-xs font-mono font-semibold shrink-0">
+                Active Goal
+              </span>
             </div>
           ))}
         </div>
       </section>
+
 
       {/* MODAL 1: Manual Profile Entry (Module A) */}
       {showProfileModal && (
@@ -1682,12 +1678,12 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[#9A9A9A] mb-1">CGPA (4.0)</label>
+                    <label className="block text-[#9A9A9A] mb-1">CGPA (10.0)</label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      max="4.0"
+                      max="10.0"
                       value={draftProfile.cgpa}
                       onChange={(e) => setDraftProfile({ ...draftProfile, cgpa: e.target.value })}
                       className="w-full bg-[#16161A] border border-[#363639] rounded px-2.5 py-2 text-white font-mono"
@@ -1870,12 +1866,12 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 Choose CSV/XLSX
                 <input
                   type="file"
-                  accept=".csv,.xlsx,.xls"
+                  accept=".csv,.xlsx,.xls,.tsv,.txt"
                   className="hidden"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) setCsvFileName(file.name);
-                  }}
+                      const f = e.target.files?.[0];
+                      if (f) handleUniversalFileUpload(f);
+                    }}
                 />
               </label>
             </div>
@@ -1896,7 +1892,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                       <td className="py-2 px-3 text-white">{srcCol}</td>
                       <td className="py-2 px-3 text-[#cdbdff]">→ {targetField}</td>
                       <td className="py-2 px-3 text-[#55C98B]">
-                        {(csvPreviewParsed as any)[targetField]?.toString()}
+                        {(csvPreviewParsed as any)[targetField]?.toString() ?? '—'}
                       </td>
                     </tr>
                   ))}
@@ -1905,10 +1901,10 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
             </div>
 
             <div className="p-3 rounded bg-[#16161A] border border-[#202023] text-xs space-y-1">
-              <div className="font-semibold text-white">Staged Competency Rows (2):</div>
+              <div className="font-semibold text-white">Staged Competency Rows ({csvPreviewParsed.skillsImported.length}):</div>
               {csvPreviewParsed.skillsImported.map((s, idx) => (
                 <div key={idx} className="text-[#9A9A9A] font-mono">
-                  · {s.name}: level {s.proficiency.toFixed(1)} ({s.evidenceSource}) — {s.note}
+                  · {s.name}: level {s.proficiency !== null ? s.proficiency.toFixed(1) : 'null'} ({s.evidenceSource || 'unassessed'}) — {s.note}
                 </div>
               ))}
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StudentProfileData, UserRole } from '../types';
+import { queryStudentCopilotWithGemini, queryFacultyCopilotWithGemini } from '../services/copilotService';
 
 export interface ActionableToolCard {
   id: string;
@@ -111,6 +112,18 @@ export default function CareerCopilot({
   const [studentMessages, setStudentMessages] = useState<CopilotMessage[]>(getStudentInitialMessages);
   const [facultyMessages, setFacultyMessages] = useState<CopilotMessage[]>(getFacultyInitialMessages);
 
+  // Synchronize initial messages when role or faculty identity updates
+  useEffect(() => {
+    if (isFaculty) {
+      setFacultyMessages((prev) => {
+        if (prev.length <= 1 && prev[0]?.id === 'msg-faculty-welcome') {
+          return getFacultyInitialMessages();
+        }
+        return prev;
+      });
+    }
+  }, [isFaculty, facultyName, department, activeCohort]);
+
   const activeMessages = isFaculty ? facultyMessages : studentMessages;
   const setActiveMessages = isFaculty ? setFacultyMessages : setStudentMessages;
 
@@ -122,9 +135,10 @@ export default function CareerCopilot({
   }, [activeMessages, isOpen]);
 
   // Starter prompts depending on active role
+  const nextTarget = readinessPct >= 90 ? 100 : readinessPct >= 80 ? 90 : 80;
   const studentStarterPrompts = [
     'Why is Redis a high-priority gap?',
-    `How do I raise my Readiness from ${readinessPct}% to 80%?`,
+    `How do I raise my Readiness from ${readinessPct}% to ${nextTarget}%?`,
     'What does the Junior Backend Engineer role require?',
   ];
 
@@ -412,7 +426,7 @@ export default function CareerCopilot({
     };
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || inputValue).trim();
     if (!query) return;
 
@@ -427,11 +441,37 @@ export default function CareerCopilot({
     setInputValue('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = isFaculty ? generateFacultyResponse(query) : generateStudentResponse(query);
-      setActiveMessages((prev) => [...prev, response]);
+    try {
+      let geminiReply: CopilotMessage | null = null;
+      if (isFaculty) {
+        geminiReply = await queryFacultyCopilotWithGemini({
+          userInput: query,
+          facultyName,
+          department,
+          activeCohort,
+        });
+      } else {
+        geminiReply = await queryStudentCopilotWithGemini({
+          userInput: query,
+          profile,
+          readinessPct,
+        });
+      }
+
+      if (geminiReply) {
+        setActiveMessages((prev) => [...prev, geminiReply!]);
+      } else {
+        // Fallback to grounded deterministic response
+        const fallbackResponse = isFaculty ? generateFacultyResponse(query) : generateStudentResponse(query);
+        setActiveMessages((prev) => [...prev, fallbackResponse]);
+      }
+    } catch (err) {
+      console.warn('Copilot Gemini error, using fallback:', err);
+      const fallbackResponse = isFaculty ? generateFacultyResponse(query) : generateStudentResponse(query);
+      setActiveMessages((prev) => [...prev, fallbackResponse]);
+    } finally {
       setIsTyping(false);
-    }, 450);
+    }
   };
 
   const handleClearThread = () => {
@@ -636,8 +676,9 @@ export default function CareerCopilot({
 
       {/* 2. Sleek Obsidian Drawer (380px Desktop / Fullscreen when toggled / Full-width Mobile) */}
       <aside
+        aria-hidden={!isOpen}
         className={`fixed top-0 right-0 h-full bg-[#0D0D0F] border-l border-[#202023] z-50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
         } ${isFullscreen ? 'w-full' : 'w-full sm:w-[380px]'}`}
       >
         {/* Header - Role-Adaptive */}
@@ -665,6 +706,9 @@ export default function CareerCopilot({
                       className={`w-2 h-2 rounded-full ${isFaculty ? 'bg-[#ffba35]' : 'bg-[#55C98B]'}`}
                       title="Active & Grounded"
                     />
+                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#8052ff]/20 text-[#cdbdff] border border-[#8052ff]/40 font-mono font-semibold">
+                      Gemini 3.5
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#9A9A9A]">
                     {isFaculty ? (
@@ -859,16 +903,12 @@ export default function CareerCopilot({
             );
           })}
 
-          {/* Typing Indicator */}
+          {/* Typing Indicator with Gemini 3.5 Flash Branding */}
           {isTyping && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-[#16161A] border border-[#202023] text-xs text-[#9A9A9A] w-fit">
-              <span
-                className={`w-1.5 h-1.5 rounded-full animate-ping ${
-                  isFaculty ? 'bg-[#ffba35]' : 'bg-[#8052ff]'
-                }`}
-              />
-              <span className="font-mono text-[11px]">
-                {isFaculty ? 'Grounded institutional analysis...' : 'Copilot grounding response...'}
+            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#16161A] border border-[#8052ff]/40 text-xs text-white/90 w-fit animate-pulse shadow-lg shadow-[#8052ff]/10">
+              <span className="material-symbols-outlined text-[16px] text-[#cdbdff] animate-spin">smart_toy</span>
+              <span className="font-mono text-[11px] text-[#cdbdff]">
+                Gemini 3.5 Flash grounding against SRM CDC data...
               </span>
             </div>
           )}

@@ -200,7 +200,7 @@ export default function ProofOfWorkStudioDrawer({
       `> Cloning into '/tmp/aimora-ci-sandbox'...`,
       `> Remote origin verified (HTTP 200 OK)`,
       `> HEAD is at commit a4f91b7 "feat: implement sliding window rate limiter with Redis ZSET pipeline"`,
-      `> Author: Aravind R. <ra2211003010482@srmist.edu.in> (SRMIST Verified)`,
+      `> Author: Verified Candidate (SRMIST Verified)`,
       `> Commit signature: GPG Verified (Key: 0x82C74B1A)`,
       `> Repository structure validated: tests/, app/, Makefile, Dockerfile present ✓`,
     ]);
