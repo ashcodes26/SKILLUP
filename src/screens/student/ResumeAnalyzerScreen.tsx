@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initialJobs, initialSharedReviews } from '../../data/mockData';
 import { ResumeSuggestionDiff, StudentProfileData, CompetencyItem } from '../../types';
+import {
+  fetchLinkedInPublicProfile,
+  analyzeLinkedInProfile,
+  buildFormattedLinkedInDraft,
+  parseLinkedInDraft,
+  LinkedInEnhancerSuggestion,
+  canonicalizeLinkedInUrl,
+} from '../../services/linkedinAnalyzerService';
 
 interface ResumeAnalyzerScreenProps {
   onNavigate?: (screen: string) => void;
@@ -15,8 +23,8 @@ export interface ExtendedResumeSuggestionDiff extends ResumeSuggestionDiff {
   gapDescription: string;
 }
 
-const INITIAL_RESUME_TEXT = `ARAVIND R. (ALEX MERCER)
-Register No: RA2211003010482 | ra2211003010482@srmist.edu.in | +91 98401 29384 | Chennai, India | github.com/aravind-mercer
+const INITIAL_RESUME_TEXT = `ARAVIND R.
+Register No: RA2211003010482 | ra2211003010482@srmist.edu.in | +91 98401 29384 | Chennai, India | github.com/aravind-r
 
 EDUCATION
 B.Tech in Computer Science and Engineering (School of Computing) | Batch 2022–2026
@@ -203,6 +211,123 @@ export default function ResumeAnalyzerScreen({
   // Factual Review Guard Checkbox (Non-negotiable before Export)
   const [factualConfirmed, setFactualConfirmed] = useState<boolean>(true);
   const [submittedForReview, setSubmittedForReview] = useState<boolean>(false);
+
+  // LinkedIn Optimizer & SerpApi Diff State
+  const [linkedinUrl, setLinkedinUrl] = useState<string>('https://www.linkedin.com/in/aravind-r/');
+  const [isFetchingLinkedin, setIsFetchingLinkedin] = useState<boolean>(false);
+  const [linkedinProvenance, setLinkedinProvenance] = useState<'serpapi_live' | 'curated_fallback' | null>('curated_fallback');
+  const [linkedinLookupStatus, setLinkedinLookupStatus] = useState<'idle' | 'found' | 'not_found' | 'error'>('found');
+  const [linkedinWarning, setLinkedinWarning] = useState<string | null>(null);
+  const [linkedinOriginalDraft, setLinkedinOriginalDraft] = useState<string>('');
+  const [linkedinWorkingDraft, setLinkedinWorkingDraft] = useState<string>('');
+  const [linkedinScores, setLinkedinScores] = useState({
+    searchability: 76,
+    evidenceGrounding: 74,
+    targetRoleMatch: 82,
+    completeness: 88,
+  });
+  const [linkedinSuggestions, setLinkedinSuggestions] = useState<LinkedInEnhancerSuggestion[]>([]);
+  const [linkedinCategoryFilter, setLinkedinCategoryFilter] = useState<'all' | 'Headline SEO' | 'About Storytelling' | 'Project Proofs' | 'Skill Keywords'>('all');
+  const [linkedinViewMode, setLinkedinViewMode] = useState<'side-by-side' | 'single-draft'>('side-by-side');
+  const [linkedinEditorMode, setLinkedinEditorMode] = useState<'editable' | 'preview'>('editable');
+  const [linkedinEditorHeight, setLinkedinEditorHeight] = useState<number>(560);
+  const [linkedinFactualConfirmed, setLinkedinFactualConfirmed] = useState<boolean>(false);
+
+  const handleRetrieveLinkedIn = async (overrideUrl?: string) => {
+    const targetUrl = overrideUrl || linkedinUrl;
+    if (!targetUrl.trim()) {
+      onShowToast?.('Please enter a valid LinkedIn profile URL', 'warning');
+      return;
+    }
+    setIsFetchingLinkedin(true);
+    setLinkedinWarning(null);
+    try {
+      const canonical = canonicalizeLinkedInUrl(targetUrl);
+      setLinkedinUrl(canonical);
+      const lookupResult = await fetchLinkedInPublicProfile(canonical);
+      setLinkedinLookupStatus(lookupResult.status);
+      setLinkedinProvenance(lookupResult.provenance);
+
+      if (lookupResult.status === 'not_found') {
+        setLinkedinWarning('Public search returned limited or unindexed snippets for this profile. Benchmark optimization loaded.');
+        onShowToast?.('Profile appears private or unindexed by Google. Benchmark loaded.', 'warning');
+      }
+
+      const effectiveRole = customRoleTitle.trim() || activeJob.title || targetRole;
+      const analysis = await analyzeLinkedInProfile(lookupResult, effectiveRole);
+
+      const formatted = buildFormattedLinkedInDraft(analysis.sections);
+      setLinkedinOriginalDraft(formatted);
+      setLinkedinWorkingDraft(formatted);
+      setLinkedinScores(analysis.scores);
+      setLinkedinSuggestions(analysis.suggestions);
+
+      const provText = lookupResult.provenance === 'serpapi_live' ? 'SerpApi Live Search' : 'Curated Fallback Engine';
+      onShowToast?.(`LinkedIn profile analyzed via ${provText}!`, 'success');
+    } catch (err: any) {
+      setLinkedinLookupStatus('error');
+      setLinkedinWarning(err.message || 'Failed to retrieve LinkedIn profile');
+      onShowToast?.(err.message || 'Failed to retrieve LinkedIn profile', 'warning');
+    } finally {
+      setIsFetchingLinkedin(false);
+    }
+  };
+
+  const handleAcceptLinkedinSuggestion = (id: number) => {
+    const sug = linkedinSuggestions.find((s) => s.id === id);
+    if (!sug || sug.status === 'accepted') return;
+
+    if (linkedinWorkingDraft.includes(sug.originalPassage)) {
+      setLinkedinWorkingDraft((prev) => prev.replace(sug.originalPassage, sug.proposedPassage));
+    } else {
+      setLinkedinWorkingDraft((prev) => `${prev}\n\n// Applied ${sug.skillTarget}:\n${sug.proposedPassage}`);
+    }
+
+    setLinkedinSuggestions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: 'accepted' } : s))
+    );
+
+    setLinkedinScores((prev) => ({
+      ...prev,
+      searchability: Math.min(100, prev.searchability + 6),
+      evidenceGrounding: Math.min(100, prev.evidenceGrounding + 7),
+      targetRoleMatch: Math.min(100, prev.targetRoleMatch + 5),
+    }));
+
+    onShowToast?.(`Applied: ${sug.title} ✓`, 'success');
+  };
+
+  const handleRejectLinkedinSuggestion = (id: number) => {
+    setLinkedinSuggestions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: 'rejected' } : s))
+    );
+    onShowToast?.('Dismissed recommendation', 'info');
+  };
+
+  const handleCopySection = (sectionName: string, text: string) => {
+    if (!text.trim()) {
+      onShowToast?.(`${sectionName} is currently empty`, 'warning');
+      return;
+    }
+    navigator.clipboard.writeText(text);
+    onShowToast?.(`Copied ${sectionName} to clipboard!`, 'success');
+  };
+
+  const handleCopyFullLinkedInDraft = () => {
+    if (!linkedinWorkingDraft.trim()) {
+      onShowToast?.('Working draft is empty', 'warning');
+      return;
+    }
+    navigator.clipboard.writeText(linkedinWorkingDraft);
+    onShowToast?.('Copied complete enhanced LinkedIn profile to clipboard!', 'success');
+  };
+
+  // Initial auto-hydration when switching to LinkedIn tab
+  useEffect(() => {
+    if (workspaceTab === 'linkedin' && !linkedinWorkingDraft) {
+      handleRetrieveLinkedIn('https://www.linkedin.com/in/aravind-r/');
+    }
+  }, [workspaceTab]);
 
   // LinkedIn Optimizer State (Module E)
   const [linkedinHeadline, setLinkedinHeadline] = useState(
@@ -486,7 +611,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
             </div>
 
             {/* Unified Target Role Dropdown (Single element like Career Plan) */}
-            {workspaceTab === 'resume' && (
+            {(workspaceTab === 'resume' || workspaceTab === 'linkedin') && (
               <div className="relative inline-flex items-center">
                 <span className="w-2 h-2 rounded-full bg-[#55C98B] absolute left-2.5 pointer-events-none z-10 animate-pulse" />
                 <select
@@ -508,7 +633,7 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
               </div>
             )}
 
-            {workspaceTab === 'resume' && selectedRoleTarget === 'custom' && (
+            {(workspaceTab === 'resume' || workspaceTab === 'linkedin') && selectedRoleTarget === 'custom' && (
               <input
                 type="text"
                 placeholder="Enter custom role..."
@@ -637,6 +762,80 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
         </div>
 
         {/* Integrated ATS Alignment Metrics Row */}
+        {workspaceTab === 'linkedin' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-0.5">
+            {/* Left Column: Overall Recruiter Searchability Hero */}
+            <div className="lg:col-span-6 flex items-center gap-4 border-b lg:border-b-0 lg:border-r border-[#27272a] pb-3 lg:pb-0 lg:pr-8">
+              <div className="relative w-12 h-12 rounded-full bg-[#16161A] border-2 border-[#8052ff]/60 flex flex-col items-center justify-center shrink-0 shadow-lg shadow-[#8052ff]/10">
+                <span className="text-base font-bold font-mono text-white tabular-nums leading-none">
+                  {linkedinScores.searchability}
+                </span>
+                <span className="text-[8px] font-mono text-[#9A9A9A]">/ 100</span>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#9A9A9A] uppercase tracking-wider">
+                  <span>Recruiter Searchability</span>
+                  <span className="material-symbols-outlined text-[13px] text-[#55C98B]">travel_explore</span>
+                </div>
+                <div className="text-xs font-semibold text-white truncate mt-0.5">
+                  {linkedinScores.searchability >= 85 ? 'High Visibility — Boolean Stack Saturated' : 'Headline & Summary Optimization Recommended'}
+                </div>
+                <div className="w-full h-1.5 bg-[#16161A] rounded-full overflow-hidden mt-1.5">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#8052ff] to-[#55C98B] transition-all duration-500 rounded-full"
+                    style={{ width: `${linkedinScores.searchability}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: 3 LinkedIn Sub-Metrics */}
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* 1. Evidence Grounding */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Evidence Proof</span>
+                  <span className="text-[#55C98B] font-bold tabular-nums">{linkedinScores.evidenceGrounding}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#55C98B] rounded-full transition-all duration-500" style={{ width: `${linkedinScores.evidenceGrounding}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate">
+                  Scale &amp; Latency Metrics
+                </div>
+              </div>
+
+              {/* 2. Target Role Match */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Role Keyword Match</span>
+                  <span className="text-[#8052ff] font-bold tabular-nums">{linkedinScores.targetRoleMatch}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#8052ff] rounded-full transition-all duration-500" style={{ width: `${linkedinScores.targetRoleMatch}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate">
+                  Target: {activeJob.title}
+                </div>
+              </div>
+
+              {/* 3. Profile Completeness */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#9A9A9A]">Completeness</span>
+                  <span className="text-[#ffba35] font-bold tabular-nums">{linkedinScores.completeness}%</span>
+                </div>
+                <div className="w-full h-1 bg-[#16161A] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#ffba35] rounded-full transition-all duration-500" style={{ width: `${linkedinScores.completeness}%` }} />
+                </div>
+                <div className="text-[10px] text-[#9A9A9A] font-mono truncate">
+                  Headline, About &amp; Proofs
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {workspaceTab === 'resume' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-0.5">
             {/* Left Column: Overall Alignment Hero (6 Cols - Symmetrical) */}
@@ -1060,108 +1259,381 @@ pre { font-family: inherit; white-space: pre-wrap; font-size: 10pt; line-height:
           </div>
         </>
       ) : (
-        /* MODULE E: LinkedIn Optimizer & Public Insights */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-10">
-          {/* Left: Headline & Summary Interactive Critique (6 Cols - Symmetrical) */}
-          <div className="lg:col-span-6 space-y-4">
-            <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-[#27272a]">
-                <div>
-                  <h2 className="text-base font-bold text-white">LinkedIn Profile Diagnostic</h2>
-                  <p className="text-xs text-[#9A9A9A]">
-                    Target Role Benchmark: <strong className="text-white">{targetRole}</strong>
-                  </p>
-                </div>
-                <div className="text-right font-mono">
-                  <span className="text-xs text-[#9A9A9A]">Keyword Saturation: </span>
-                  <span className="text-base font-bold text-[#55C98B] tabular-nums">{keywordSaturationPct}%</span>
-                </div>
+        /* MODULE E: Full Side-by-Side LinkedIn Profile Analyzer & Diff Workspace */
+        <div className="space-y-6">
+          {/* LinkedIn Profile URL Retrieval Card */}
+          <div className="rounded-xl bg-[#121214] border border-[#27272a] p-4 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex-1 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#0077B5]/15 border border-[#0077B5]/30 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[20px] text-[#0077B5]">link</span>
               </div>
-
-              {/* Headline Evaluation */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-semibold text-white">1. Headline Evaluation (Max 220 chars)</label>
-                  <span className="font-mono text-[#9A9A9A] tabular-nums">{linkedinHeadline.length} / 220 chars</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                    Public LinkedIn Profile URL
+                  </span>
+                  {linkedinProvenance === 'serpapi_live' ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
+                      SerpApi Live Verified ✓
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#8052ff]/15 text-[#cdbdff] border border-[#8052ff]/30">
+                      Curated Fallback Engine
+                    </span>
+                  )}
                 </div>
-                <input
-                  type="text"
-                  value={linkedinHeadline}
-                  onChange={(e) => setLinkedinHeadline(e.target.value)}
-                  className="w-full bg-[#16161A] border border-[#363639] rounded-lg px-3.5 py-2.5 text-xs text-white font-mono"
-                />
-                <div className="p-3 rounded bg-[#16161A] border border-[#27272a] text-xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#ffba35] font-semibold">Critique: Missing Architecture &amp; Scale Keywords</span>
-                    <button
-                      onClick={() => {
-                        setLinkedinHeadline(
-                          'Incoming Backend Systems Engineer (Class of 2026) | Distributed Systems, Python/FastAPI, PostgreSQL & Docker'
-                        );
-                        onShowToast?.('Applied high-discoverability Headline recommendation!', 'success');
-                      }}
-                      className="text-[#cdbdff] hover:underline font-mono text-[11px] cursor-pointer"
-                    >
-                      Apply Suggested Headline →
-                    </button>
-                  </div>
-                  <p className="text-[#9A9A9A]">
-                    Recruiter boolean searches for Junior Backend roles filter on exact stack pairings (&ldquo;Distributed Systems&rdquo;, &ldquo;FastAPI&rdquo;, &ldquo;PostgreSQL&rdquo;) in the first 120 characters.
-                  </p>
-                </div>
-              </div>
-
-              {/* About / Summary Critique */}
-              <div className="space-y-2 pt-2 border-t border-[#27272a]">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-semibold text-white">2. About / Summary Critique</label>
-                  <span className="font-mono text-[#55C98B]">Evidence Grounded</span>
-                </div>
-                <textarea
-                  rows={5}
-                  value={linkedinSummary}
-                  onChange={(e) => setLinkedinSummary(e.target.value)}
-                  className="w-full bg-[#16161A] border border-[#363639] rounded-lg p-3 text-xs text-white font-mono leading-relaxed"
-                />
-                <div className="p-3 rounded bg-[#16161A] border border-[#27272a] text-xs text-[#9A9A9A]">
-                  <strong className="text-white">Summary Diagnostic:</strong> Strong academic and internship framing. Add quantified latency metrics (420ms → 68ms) and container orchestration keywords to boost technical recruiter dwell time.
+                <div className="relative mt-1">
+                  <input
+                    type="url"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                    placeholder="https://www.linkedin.com/in/username/"
+                    className="w-full bg-[#18181D] border border-[#363639] rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-[#8052ff] outline-none transition-colors"
+                  />
                 </div>
               </div>
             </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-end md:self-auto">
+              <button
+                onClick={() => handleRetrieveLinkedIn()}
+                disabled={isFetchingLinkedin}
+                className="px-4 py-2 rounded-lg bg-[#0077B5] hover:bg-[#0077B5]/90 disabled:opacity-50 text-white text-xs font-mono font-semibold transition-all flex items-center gap-1.5 shadow-md shadow-[#0077B5]/20 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {isFetchingLinkedin ? 'sync' : 'search'}
+                </span>
+                <span>{isFetchingLinkedin ? 'Retrieving Snippets...' : 'Retrieve & Analyze'}</span>
+              </button>
+
+              <a
+                href={linkedinUrl.startsWith('http') ? linkedinUrl : `https://${linkedinUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-2 rounded-lg bg-[#18181D] hover:bg-[#27272A] border border-[#363639] text-[#A1A1AA] hover:text-white text-xs font-mono transition-colors flex items-center gap-1 cursor-pointer"
+                title="Open public profile on LinkedIn in new tab"
+              >
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                <span className="hidden sm:inline">Open Profile</span>
+              </a>
+            </div>
           </div>
 
-          {/* Right: Keyword Saturation & Strategic Placement Suggestions (6 Cols - Symmetrical) */}
-          <div className="lg:col-span-6 space-y-4">
-            <div className="bg-[#121214] border border-[#27272a] rounded-lg p-5 space-y-4">
-              <div className="pb-3 border-b border-[#27272a]">
-                <h3 className="text-sm font-semibold text-white">Strategic Keyword Placement &amp; Saturation</h3>
-                <p className="text-xs text-[#9A9A9A]">
-                  Click any missing keyword to inject or undo placement in your working summary.
-                </p>
+          {/* Warning Banner if unindexed or private */}
+          {linkedinWarning && (
+            <div className="rounded-xl bg-amber-950/30 border border-amber-500/40 p-3.5 flex items-start gap-3 text-xs text-amber-200">
+              <span className="material-symbols-outlined text-[18px] text-amber-400 shrink-0">info</span>
+              <div className="space-y-0.5">
+                <span className="font-bold">Public Search Notice:</span>
+                <p className="text-amber-300/90">{linkedinWarning}</p>
               </div>
+            </div>
+          )}
 
-              <div className="space-y-2.5">
-                {targetKeywords.map((item) => (
-                  <div
-                    key={item.kw}
-                    className="p-3 rounded bg-[#16161A] border border-[#27272a] flex items-center justify-between text-xs"
-                  >
-                    <div>
-                      <div className="font-mono font-bold text-white">{item.kw}</div>
-                      <div className="text-[11px] text-[#9A9A9A]">Recommended Zone: {item.section}</div>
-                    </div>
+          {/* Main Grid: Left Target Alignment Stream (Diffs) / Right Split Workspace Editor */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 2xl:gap-16">
+            {/* Left Column: Target Alignment Stream (Surgical Diffs) */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="bg-[#121214] border border-[#27272a] rounded-xl p-5 sm:p-6 shadow-xl space-y-5">
+                <div className="flex items-center justify-between pb-3.5 border-b border-[#27272a]">
+                  <div className="flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-[#8052ff] text-[20px]">compare_arrows</span>
+                    <h2 className="text-sm font-bold text-white tracking-tight font-sans">
+                      Profile Enhancements (Surgical Diffs)
+                    </h2>
+                  </div>
+                  <span className="text-xs font-sans text-[#55C98B] font-semibold bg-[#55C98B]/10 px-2.5 py-1 rounded-full border border-[#55C98B]/30">
+                    {linkedinSuggestions.filter((s) => s.status === 'accepted').length} / {linkedinSuggestions.length} Applied
+                  </span>
+                </div>
+
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 pb-1">
+                  {(['all', 'Headline SEO', 'About Storytelling', 'Project Proofs', 'Skill Keywords'] as const).map((cat) => (
                     <button
-                      onClick={() => handleApplyLinkedinKeyword(item.kw)}
-                      className={`px-2.5 py-1 rounded font-mono text-[11px] cursor-pointer ${
-                        item.present
-                          ? 'bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40'
-                          : 'bg-[#8052ff] text-white hover:bg-[#8052ff]/90'
+                      key={cat}
+                      onClick={() => setLinkedinCategoryFilter(cat)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors cursor-pointer ${
+                        linkedinCategoryFilter === cat
+                          ? 'bg-[#8052ff] text-white font-semibold'
+                          : 'bg-[#18181D] text-[#9A9A9A] hover:text-white border border-[#27272a]'
                       }`}
                     >
-                      {item.present ? 'Present ✓' : '+ Inject Keyword'}
+                      {cat === 'all' ? 'All Diffs' : cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Diffs List */}
+                <div className="space-y-4">
+                  {linkedinSuggestions
+                    .filter((s) => linkedinCategoryFilter === 'all' || s.category === linkedinCategoryFilter)
+                    .map((sug) => (
+                      <div
+                        key={sug.id}
+                        className={`p-4 sm:p-5 rounded-xl border transition-all ${
+                          sug.status === 'accepted'
+                            ? 'bg-[#16161A] border-[#55C98B]/50 shadow-md shadow-[#55C98B]/5'
+                            : sug.status === 'rejected'
+                            ? 'bg-[#16161A]/40 border-[#27272a] opacity-60'
+                            : 'bg-[#16161A] border-[#27272a] hover:border-[#8052ff]/50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-semibold text-white font-sans">{sug.title}</div>
+                            <div className="flex items-center gap-2 mt-1.5 font-sans">
+                              <span className="px-2.5 py-0.5 rounded-full bg-[#8052ff]/20 text-[#cdbdff] text-xs font-medium border border-[#8052ff]/30">
+                                {sug.category}
+                              </span>
+                              <span className="text-xs text-zinc-400 font-sans">{sug.priority}</span>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 font-sans">
+                            {sug.status === 'accepted' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 font-sans text-xs font-bold">
+                                <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                                <span>Applied ✓</span>
+                              </span>
+                            ) : sug.status === 'rejected' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-950/40 text-red-400 border border-red-900/40 font-sans text-xs">
+                                <span>Rejected</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#ffba35]/15 text-[#ffba35] border border-[#ffba35]/30 font-sans text-xs font-medium">
+                                <span>Pending</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Rationale & Rule Ref */}
+                        <p className="mt-2 text-xs text-zinc-300 leading-relaxed font-sans">{sug.rationale}</p>
+                        <div className="mt-1 text-[11px] font-mono text-[#71717A]">{sug.ruleRef}</div>
+
+                        {/* Before / After Passages */}
+                        <div className="mt-3.5 p-3.5 bg-[#0b0b0e] border border-[#232328] rounded-xl font-sans text-[13px] leading-relaxed space-y-2 select-text">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-mono uppercase text-[#F87171] font-bold">Original:</span>
+                            <div className="p-2 rounded bg-red-950/20 text-red-300 border border-red-900/30 line-through">
+                              {sug.originalPassage}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-mono uppercase text-[#55C98B] font-bold">Proposed Enhancement:</span>
+                            <div className="p-2 rounded bg-emerald-950/20 text-emerald-300 border border-emerald-900/30">
+                              {sug.proposedPassage}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Accept / Reject Buttons */}
+                        {sug.status === 'pending' && (
+                          <div className="mt-4 flex items-center justify-end gap-2.5 pt-3 border-t border-[#27272a]/80 font-sans">
+                            <button
+                              onClick={() => handleRejectLinkedinSuggestion(sug.id)}
+                              className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white hover:bg-[#202023] rounded-lg transition-colors cursor-pointer"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => handleAcceptLinkedinSuggestion(sug.id)}
+                              className="px-4 py-1.5 text-xs font-bold text-white bg-[#8052ff] hover:bg-[#8052ff]/90 rounded-lg transition-all cursor-pointer shadow-md shadow-[#8052ff]/20 flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">check</span>
+                              <span>Accept Diff</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Split-Pane Workspace Editor */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="bg-[#121214] border border-[#27272a] rounded-xl overflow-hidden flex flex-col shadow-2xl">
+                {/* Editor Header Bar */}
+                <div className="px-4 py-3 bg-[#16161A] border-b border-[#27272a] flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold">
+                      {linkedinViewMode === 'side-by-side'
+                        ? 'Split Workspace: Baseline Reference vs Live Working Draft'
+                        : 'Working Profile Editor'}
+                    </span>
+                    {linkedinSuggestions.filter((s) => s.status === 'accepted').length > 0 && (
+                      <span className="px-2 py-0.5 bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/40 font-bold text-[10px] rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#55C98B]" />
+                        {linkedinSuggestions.filter((s) => s.status === 'accepted').length} DIFFS APPLIED
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setLinkedinViewMode(linkedinViewMode === 'side-by-side' ? 'single-draft' : 'side-by-side')}
+                      className="px-2 py-1 rounded bg-[#202023] hover:bg-[#2b2b30] text-zinc-300 text-xs transition-colors cursor-pointer"
+                      title="Toggle Side-by-Side vs Single Draft"
+                    >
+                      {linkedinViewMode === 'side-by-side' ? 'Single Draft' : 'Side-by-Side'}
+                    </button>
+                    <div className="flex items-center bg-[#121214] p-0.5 rounded-lg border border-[#27272a]">
+                      <button
+                        onClick={() => setLinkedinEditorMode('editable')}
+                        className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-sans ${
+                          linkedinEditorMode === 'editable' ? 'bg-[#202023] text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setLinkedinEditorMode('preview')}
+                        className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer font-sans ${
+                          linkedinEditorMode === 'preview' ? 'bg-[#8052ff] text-white font-semibold' : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        Diff View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick-Copy Action Chips Bar */}
+                <div className="px-4 py-2 bg-[#141418] border-b border-[#27272a] flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider font-semibold">
+                    Quick-Copy for LinkedIn:
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        const parsed = parseLinkedInDraft(linkedinWorkingDraft);
+                        handleCopySection('Headline', parsed.headline);
+                      }}
+                      className="px-2.5 py-1 rounded-md bg-[#1C1C22] hover:bg-[#282832] border border-[#36363c] text-white text-[11px] font-mono transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Copy enhanced Headline only"
+                    >
+                      <span className="material-symbols-outlined text-[13px] text-[#cdbdff]">content_copy</span>
+                      <span>Copy Headline</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const parsed = parseLinkedInDraft(linkedinWorkingDraft);
+                        handleCopySection('About Summary', parsed.about);
+                      }}
+                      className="px-2.5 py-1 rounded-md bg-[#1C1C22] hover:bg-[#282832] border border-[#36363c] text-white text-[11px] font-mono transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Copy enhanced About summary only"
+                    >
+                      <span className="material-symbols-outlined text-[13px] text-[#cdbdff]">content_copy</span>
+                      <span>Copy About</span>
+                    </button>
+                    <button
+                      onClick={handleCopyFullLinkedInDraft}
+                      className="px-2.5 py-1 rounded-md bg-[#8052ff]/20 hover:bg-[#8052ff]/30 border border-[#8052ff]/40 text-white text-[11px] font-mono font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Copy full enhanced draft to clipboard"
+                    >
+                      <span className="material-symbols-outlined text-[13px] text-[#10B981]">assignment_turned_in</span>
+                      <span>Copy All Draft</span>
                     </button>
                   </div>
-                ))}
+                </div>
+
+                {/* Editor Body */}
+                <div
+                  style={{ height: `${linkedinEditorHeight}px` }}
+                  className="w-full bg-[#0D0D10] overflow-hidden flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-[#27272a]"
+                >
+                  {linkedinViewMode === 'side-by-side' && (
+                    <div className="w-full md:w-1/2 h-full flex flex-col bg-[#0A0A0C]">
+                      <div className="px-3.5 py-2 bg-[#121215] border-b border-[#202025] text-[11px] font-mono text-zinc-400 flex items-center justify-between">
+                        <span>Original Ingested Profile</span>
+                        <span className="text-[10px] text-zinc-500">Read-Only</span>
+                      </div>
+                      <textarea
+                        readOnly
+                        value={linkedinOriginalDraft || linkedinWorkingDraft}
+                        className="w-full h-full p-4 bg-transparent text-zinc-400 font-mono text-xs leading-relaxed resize-none outline-none select-text"
+                      />
+                    </div>
+                  )}
+
+                  <div className={`h-full flex flex-col ${linkedinViewMode === 'side-by-side' ? 'w-full md:w-1/2' : 'w-full'}`}>
+                    <div className="px-3.5 py-2 bg-[#141418] border-b border-[#202025] text-[11px] font-mono text-white flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 font-bold">
+                        <span className="w-2 h-2 rounded-full bg-[#55C98B] animate-pulse" />
+                        <span>Enhanced Working Draft (Live)</span>
+                      </span>
+                      <span className="text-[10px] text-[#cdbdff]">Auto-Formatted</span>
+                    </div>
+
+                    {linkedinEditorMode === 'editable' ? (
+                      <textarea
+                        value={linkedinWorkingDraft}
+                        onChange={(e) => setLinkedinWorkingDraft(e.target.value)}
+                        className="w-full h-full p-4 bg-transparent text-white font-mono text-xs leading-relaxed resize-none outline-none select-text focus:bg-white/[0.01]"
+                        placeholder="Retrieve public LinkedIn profile above to begin analysis..."
+                      />
+                    ) : (
+                      <div className="w-full h-full p-4 overflow-y-auto font-mono text-xs text-zinc-200 whitespace-pre-wrap leading-relaxed select-text space-y-2">
+                        {linkedinWorkingDraft}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Resizer Handle */}
+                <div
+                  className="w-full py-1.5 bg-[#141418] hover:bg-[#8052ff]/20 border-y border-[#27272a] cursor-row-resize flex items-center justify-center gap-2 transition-colors select-none"
+                  onClick={() => setLinkedinEditorHeight((prev) => (prev > 600 ? 560 : 780))}
+                  title="Click to toggle editor height"
+                >
+                  <div className="w-8 h-1 rounded-full bg-zinc-600" />
+                  <span className="text-[10px] font-mono text-zinc-500">Toggle / Resize Height</span>
+                  <div className="w-8 h-1 rounded-full bg-zinc-600" />
+                </div>
+
+                {/* Export Toolbar */}
+                <div className="p-3.5 bg-[#121215] border-t border-[#27272a] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <label className="flex items-center gap-2 text-xs text-white cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={linkedinFactualConfirmed}
+                      onChange={(e) => setLinkedinFactualConfirmed(e.target.checked)}
+                      className="w-4 h-4 accent-[#55C98B] cursor-pointer"
+                    />
+                    <span className="text-xs text-zinc-400 font-sans">
+                      <strong className="text-white font-semibold">Factual Guard:</strong> I confirm LinkedIn changes are truthful.
+                    </span>
+                  </label>
+
+                  <div className="flex items-center bg-[#16161A] p-1 rounded-lg border border-[#363639] shrink-0 font-sans">
+                    <span className="text-xs font-sans text-zinc-400 px-2 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[15px]">download</span>
+                      <span>Export:</span>
+                    </span>
+                    <button
+                      onClick={() => handleInstantDownload('pdf')}
+                      className="px-2.5 py-1 text-xs font-sans text-white hover:bg-[#202023] rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F87171]" />
+                      <span>PDF</span>
+                    </button>
+                    <button
+                      onClick={() => handleInstantDownload('docx')}
+                      className="px-2.5 py-1 text-xs font-sans text-white hover:bg-[#202023] rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#60A5FA]" />
+                      <span>DOCX</span>
+                    </button>
+                    <button
+                      onClick={() => handleInstantDownload('txt')}
+                      className="px-2.5 py-1 text-xs font-sans font-bold text-black bg-[#55C98B] hover:bg-[#55C98B]/90 rounded-md transition-colors cursor-pointer shadow-sm"
+                    >
+                      TXT
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

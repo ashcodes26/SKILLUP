@@ -18,7 +18,7 @@ export default function FacultyPlacementDrivesScreen({ onNavigate, onShowToast }
     {
       id: 'ov-1',
       studentId: '#STU-2026-88',
-      studentName: 'Alex R. Mercer',
+      studentName: 'Aravind R.',
       grantedBy: 'Prof. Sarah Jenkins',
       timestamp: 'Today, 09:42 AM',
       reason: 'Verified Capstone containerization equivalent to Docker 4.0; awaiting quiz sync.',

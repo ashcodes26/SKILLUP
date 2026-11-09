@@ -26,7 +26,7 @@ export default function FacultyOverviewScreen({ onNavigate, onShowToast }: Facul
   const flaggedStudents = [
     {
       id: '#STU-2026-88',
-      name: 'Alex R. Mercer',
+      name: 'Aravind R.',
       section: 'Section A',
       flag: 'Missing Assessment' as const,
       detail: 'Docker #DCK-101 proficiency is null (unverified)',

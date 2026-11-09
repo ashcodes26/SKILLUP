@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CompetencyItem, EvidenceSourceType, ProvenanceType, StudentProfileData } from '../../types';
 import { INITIAL_STUDENT_PROFILE } from '../../data/mockData';
 import ProofOfWorkStudioDrawer from '../../components/ProofOfWorkStudioDrawer';
+import ParticleBrain from '../../components/ParticleBrain';
 import { parseTabularProfile, parseJsonProfile, parseResumeWithGemini } from '../../services/fileIngestionService';
 
 interface CareerPlanScreenProps {
@@ -560,7 +561,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
     'Cumulative CGPA': 'cgpa',
     'Target Role': 'targetRole',
   });
-  const [competencyFilter, setCompetencyFilter] = useState<'all' | 'verified' | 'gaps'>('all');
+  const [competencyFilter, setCompetencyFilter] = useState<'all' | 'verified' | 'unverified' | 'gaps'>('all');
   const [showRolePopover, setShowRolePopover] = useState(false);
   const [roleSearchQuery, setRoleSearchQuery] = useState('');
   const [csvPreviewParsed, setCsvPreviewParsed] = useState<ParsedStudentCsvData>({
@@ -693,7 +694,13 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
     (c) =>
       c.proficiency !== null &&
       c.proficiency > 0 &&
-      (c.evidenceSource === 'verified_assessment' || c.evidenceSource === 'coursework' || c.evidenceSource === 'project')
+      (c.evidenceSource === 'verified_assessment' || c.evidenceSource === 'project')
+  );
+  const unverifiedCompetencies = profile.competencies.filter(
+    (c) =>
+      c.proficiency !== null &&
+      c.proficiency > 0 &&
+      (c.evidenceSource === 'self-reported' || !c.evidenceSource)
   );
 
   // Evidence coverage % = competencies with non-null evidence / total role competencies
@@ -909,26 +916,39 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
     if (comp.proficiency === null) {
       if (comp.id === 'comp-redis' || comp.id === 'comp-kafka') {
         return {
-          badgeText: 'Missing / Priority Gap',
+          badgeText: 'Priority Gap',
           badgeClass: 'bg-[#EB5757]/15 text-[#EB5757] border-[#EB5757]/40',
           needsAssessment: true,
         };
       }
       return {
-        badgeText: 'Needs assessment',
+        badgeText: 'Needs Assessment',
         badgeClass: 'bg-[#ffba35]/15 text-[#ffba35] border-[#ffba35]/40',
         needsAssessment: true,
       };
     }
-    if (comp.evidenceSource === 'self-reported') {
+    if (comp.proficiency === 0) {
       return {
-        badgeText: `${comp.proficiency.toFixed(1)}/5.0 (Self-reported)`,
+        badgeText: '0.0 (Unassessed)',
+        badgeClass: 'bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/40',
+        needsAssessment: true,
+      };
+    }
+
+    // 1. Parsed from student input reference -> Unverified Competency
+    if (comp.evidenceSource === 'self-reported' || !comp.evidenceSource) {
+      return {
+        badgeText: `${comp.proficiency.toFixed(1)}/5.0 (Unverified)`,
+        fullLabel: 'Unverified Competency',
         badgeClass: 'bg-[#ffba35]/15 text-[#ffba35] border-[#ffba35]/40',
         needsAssessment: true,
       };
     }
+
+    // 2. Got improved from assessment -> Verified Competency
     return {
-      badgeText: `${comp.proficiency.toFixed(1)}/5.0 (${comp.evidenceSource})`,
+      badgeText: `${comp.proficiency.toFixed(1)}/5.0 (Verified)`,
+      fullLabel: 'Verified Competency',
       badgeClass: 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/40',
       needsAssessment: false,
     };
@@ -945,7 +965,18 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
       return c.proficiency === null || c.proficiency < c.targetLevel;
     }
     if (competencyFilter === 'verified') {
-      return c.proficiency !== null && c.proficiency >= c.targetLevel && c.evidenceSource !== 'self-reported';
+      return (
+        c.proficiency !== null &&
+        c.proficiency > 0 &&
+        (c.evidenceSource === 'verified_assessment' || c.evidenceSource === 'project')
+      );
+    }
+    if (competencyFilter === 'unverified') {
+      return (
+        c.proficiency !== null &&
+        c.proficiency > 0 &&
+        (c.evidenceSource === 'self-reported' || !c.evidenceSource)
+      );
     }
     // Default / 'all': only show skills the user has!
     return c.proficiency !== null && c.proficiency > 0;
@@ -982,7 +1013,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
               Upload Your Profile to Begin Placement Readiness
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Upload your student profile exported from your college portal (.csv, .xlsx), resume (PDF/Text), or Google AI Studio JSON to automatically calibrate your competencies and skill gaps.
+              Upload your student profile exported from your college portal (.csv, .xlsx), resume (PDF/Text), or Career Profile JSON to automatically calibrate your competencies and skill gaps.
             </p>
           </div>
 
@@ -1170,6 +1201,8 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
               <div className="flex items-center gap-3 text-xs font-mono text-[#71717A] pt-1">
                 <span className="text-[#10B981] font-semibold">{verifiedCompetencies.length} Verified</span>
                 <span>•</span>
+                <span className="text-[#ffba35] font-semibold">{unverifiedCompetencies.length} Unverified</span>
+                <span>•</span>
                 <span className="text-[#F59E0B] font-semibold">{priorityGaps.length} Gaps</span>
                 <span>•</span>
                 <span>Coverage: {evidenceCoveragePct}%</span>
@@ -1177,10 +1210,14 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
             </div>
           </div>
 
-          {/* Right: Candidate Credentials & Direct Interview Room Action */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#27272A]">
-            <div className="text-left lg:text-right font-mono text-xs space-y-0.5">
-              <div className="text-sm font-bold text-white flex items-center lg:justify-end gap-1.5">
+          {/* Right: Candidate Credentials, Compact Brain & Direct Interview Room Action */}
+          <div className="flex flex-col sm:flex-row lg:flex-row items-center gap-4 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#27272A]">
+            <div className="w-28 h-24 hidden md:block shrink-0 -my-2 opacity-90 hover:opacity-100 transition-opacity">
+              <ParticleBrain compact />
+            </div>
+
+            <div className="text-left sm:text-right font-mono text-xs space-y-0.5">
+              <div className="text-sm font-bold text-white flex items-center sm:justify-end gap-1.5">
                 <span>{profile.name}</span>
                 <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30 font-bold">
                   SRM CDC
@@ -1190,8 +1227,6 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 {profile.registerNumber || profile.id || 'No Register No.'} • CGPA {profile.cgpa.toFixed(2)} / 10.00 • 0 Arrears
               </div>
             </div>
-
-
           </div>
         </div>
 
@@ -1260,6 +1295,14 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 Verified ({verifiedCompetencies.length})
               </button>
               <button
+                onClick={() => { setCompetencyFilter('unverified'); setSkillsLimit(4); }}
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  competencyFilter === 'unverified' ? 'bg-[#ffba35]/20 text-[#ffba35] font-semibold' : 'text-[#71717A] hover:text-white'
+                }`}
+              >
+                Unverified ({unverifiedCompetencies.length})
+              </button>
+              <button
                 onClick={() => { setCompetencyFilter('gaps'); setSkillsLimit(4); }}
                 className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                   competencyFilter === 'gaps' ? 'bg-[#F59E0B]/20 text-[#F59E0B] font-semibold' : 'text-[#71717A] hover:text-white'
@@ -1324,7 +1367,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
         </div>
 
         {/* Competencies Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
           {displayedCompetencies.map((comp) => {
             const isNull = comp.proficiency === null;
             const isZero = comp.proficiency === 0;
@@ -1339,14 +1382,16 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                 className="p-4 rounded-xl bg-[#09090B] border border-[#27272A] hover:border-[#3F3F46] transition-all flex flex-col justify-between space-y-3"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-sm font-bold text-white tracking-tight">{comp.name}</span>
+                  <h4 className="text-sm font-bold text-white tracking-tight leading-snug">
+                    {comp.name}
+                  </h4>
+                  <div className="flex items-center justify-between gap-2 mt-1.5">
+                    <span className="text-[11px] font-mono text-[#71717A] truncate" title={`${comp.category} • Target ${comp.targetLevel.toFixed(1)}`}>
+                      {comp.category} • Target {comp.targetLevel.toFixed(1)}
+                    </span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border shrink-0 ${badgeInfo.badgeClass}`}>
                       {badgeInfo.badgeText}
                     </span>
-                  </div>
-                  <div className="text-[11px] font-mono text-[#71717A] mt-1">
-                    {comp.category} • Target {comp.targetLevel.toFixed(1)}
                   </div>
                 </div>
 
@@ -1395,7 +1440,7 @@ export const CareerPlanScreen: React.FC<CareerPlanScreenProps> = ({
                         onClick={() => handleOpenQuiz(comp.id)}
                         className="w-full py-1.5 px-2.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-[#cdbdff] hover:text-white border border-[#27272A] text-[11px] font-mono font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer"
                       >
-                        <span>{comp.proficiency === null ? 'Take Assessment →' : 'Retake Quiz →'}</span>
+                        <span>{comp.evidenceSource === 'verified_assessment' ? 'Verified Assessment ✓' : comp.proficiency === null ? 'Take Assessment →' : 'Verify via Quiz →'}</span>
                       </button>
                     ) : (
                       <span className="text-[11px] font-mono text-[#71717A] truncate w-full" title={comp.evidenceLabel}>

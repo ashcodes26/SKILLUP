@@ -360,11 +360,11 @@ export function parseSectionBasedResumeCsv(rawContent: string, fileName: string)
             id: `comp-csv-${competencies.length + 1}`,
             name: item,
             category: skillCategory,
-            proficiency: 4.0,
-            targetLevel: 4.5,
+            proficiency: 3.5,
+            targetLevel: 4.0,
             requirementType: 'Required',
-            evidenceSource: 'project',
-            evidenceLabel: `Listed under ${skillCategory}`,
+            evidenceSource: 'self-reported',
+            evidenceLabel: `Parsed from student input reference (${fileName || 'document'})`,
           });
         });
       }
@@ -378,11 +378,11 @@ export function parseSectionBasedResumeCsv(rawContent: string, fileName: string)
           id: `comp-proj-${competencies.length + 1}`,
           name: projectTitle,
           category: 'Flagship Project',
-          proficiency: 4.5,
+          proficiency: 3.8,
           targetLevel: 4.5,
           requirementType: 'Required',
-          evidenceSource: 'project',
-          evidenceLabel: `Project: ${details ? details.slice(0, 90) : 'Completed project'}...`,
+          evidenceSource: 'self-reported',
+          evidenceLabel: `Parsed from student input reference (Project: ${details ? details.slice(0, 60) : 'Project'}...)`,
         });
       }
     }
@@ -394,11 +394,11 @@ export function parseSectionBasedResumeCsv(rawContent: string, fileName: string)
           id: `comp-dsa-leetcode`,
           name: 'Data Structures & Algorithms (LeetCode)',
           category: 'Competitive Programming',
-          proficiency: 4.2,
+          proficiency: 3.8,
           targetLevel: 4.5,
           requirementType: 'Required',
-          evidenceSource: 'verified_assessment',
-          evidenceLabel: '40+ LeetCode problems (Arrays, Trees, Recursion, DP)',
+          evidenceSource: 'self-reported',
+          evidenceLabel: 'Parsed from student input reference (Unverified)',
         });
       }
     }
@@ -603,7 +603,7 @@ export async function parseTabularProfile(rawContent: string, fileName: string):
 }
 
 /**
- * Parses JSON profile text (such as output from Google AI Studio).
+ * Parses JSON profile text exported from profile models.
  */
 export function parseJsonProfile(jsonString: string): StudentProfileData {
   let cleaned = jsonString.trim();
@@ -762,8 +762,8 @@ function parseResumeOfflineFallback(text: string, fileName: string): StudentProf
         proficiency: 3.5,
         targetLevel: 4.5,
         requirementType: 'Required',
-        evidenceSource: 'project',
-        evidenceLabel: `Identified in resume (${fileName})`,
+        evidenceSource: 'self-reported',
+        evidenceLabel: `Parsed from student input resume (${fileName})`,
       });
     }
   });

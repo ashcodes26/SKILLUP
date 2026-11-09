@@ -34,7 +34,7 @@ export default function ReactiveInterviewerAvatar({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Path to the user-provided 3D reference avatar image
-  const referenceAvatarPath = '/assets/aistudio/image_6edb2f7d.png';
+  const referenceAvatarPath = '/assets/media/image_6edb2f7d.png';
 
   // Process reference image to isolate character from white background and blend into obsidian dark studio
   useEffect(() => {

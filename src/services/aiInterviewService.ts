@@ -260,6 +260,41 @@ Return ONLY raw JSON without markdown code fences.`;
 }
 
 /**
+ * Transcribes recorded student audio using Gemini Flash multimodal capabilities when browser Web Speech API encounters network limitations.
+ */
+export async function transcribeAudioWithGemini(audioBlob: Blob): Promise<string> {
+  const ai = getGeminiClient();
+  if (!ai || !audioBlob || audioBlob.size === 0) return '';
+  try {
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const base64Audio = btoa(binary);
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        {
+          inlineData: {
+            mimeType: audioBlob.type || 'audio/webm',
+            data: base64Audio,
+          },
+        },
+        'Listen to this student answer for a technical job interview. Transcribe the spoken English accurately. Return ONLY the transcribed text verbatim, nothing else.',
+      ],
+    });
+    return response.text?.trim() || '';
+  } catch (err) {
+    console.warn('Gemini audio transcription fallback failed:', err);
+    return '';
+  }
+}
+
+/**
  * Analyzes the student's actual transcribed answers across the entire session to generate the final CDC Evaluation Scorecard.
  */
 export async function generateFinalAnalysis(params: {

@@ -3,7 +3,7 @@ import { StudentRecord, PlacementDrive, SharedResumeReview, RemediationModule, J
 export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'RA2211003010482',
-    name: 'Aravind R. (Alex Mercer)',
+    name: 'Aravind R.',
     avatarText: 'AR',
     email: 'ra2211003010482@srmist.edu.in',
     department: 'B.Tech CSE (School of Computing) — Batch 2022–2026',
@@ -209,7 +209,7 @@ export const SHARED_REVIEWS_DATA: SharedResumeReview[] = [
   {
     id: 'rev-stu-88',
     studentId: '#STU-2026-88',
-    studentName: 'Alex R. Mercer',
+    studentName: 'Aravind R.',
     targetRole: 'Junior Backend Engineer (Distributed Systems)',
     driveName: 'CloudScale Infrastructure',
     version: 'v1.3',
@@ -590,7 +590,7 @@ export const CLEAN_STUDENT_PROFILE: StudentProfileData = {
 
 export const DEMO_STUDENT_PROFILE: StudentProfileData = {
   id: 'RA2211003010482',
-  name: 'Aravind R. (Alex Mercer)',
+  name: 'Aravind R.',
   registerNumber: 'RA2211003010482',
   email: 'ra2211003010482@srmist.edu.in',
   program: 'B.Tech Computer Science and Engineering (School of Computing)',
@@ -622,7 +622,7 @@ export const DEMO_STUDENT_PROFILE: StudentProfileData = {
       targetLevel: 3.0,
       requirementType: 'Required' as const,
       evidenceSource: 'self-reported' as const,
-      evidenceLabel: 'Self-reported (2.5/5.0)',
+      evidenceLabel: 'Parsed from student input reference (2.5/5.0)',
     },
     {
       id: 'comp-git',
@@ -672,7 +672,7 @@ export const DEMO_STUDENT_PROFILE: StudentProfileData = {
       targetLevel: 3.5,
       requirementType: 'Required' as const,
       evidenceSource: 'self-reported' as const,
-      evidenceLabel: 'In-progress (1.4/5.0 · 28%)',
+      evidenceLabel: 'Parsed from student input reference (1.4/5.0)',
     },
   ],
 };
@@ -696,7 +696,7 @@ export const CLEAN_USER_SESSION: UserSession = {
 
 export const alexMercerSession: UserSession = {
   role: 'student',
-  name: 'Aravind R. (Alex Mercer)',
+  name: 'Aravind R.',
   id: 'RA2211003010482',
   email: 'ra2211003010482@srmist.edu.in',
   department: 'B.Tech CSE (School of Computing) — Batch 2022–2026',

@@ -9,6 +9,7 @@ import {
   CDCEvaluationReport,
   TurnExchange,
   RealtimeFollowupResult,
+  transcribeAudioWithGemini,
 } from '../../services/aiInterviewService';
 
 interface InterviewRoomScreenProps {
@@ -276,10 +277,15 @@ export default function InterviewRoomScreen({
   const restartTimerRef = useRef<NodeJS.Timeout | null>(null);
   const boundaryFiredRef = useRef<boolean>(false);
   const isMountedRef = useRef<boolean>(true);
+  const networkErrorCountRef = useRef<number>(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Audio / Speech & Natural Voice Engine State
   const [isMicActive, setIsMicActive] = useState<boolean>(false);
   const [micAudioLevel, setMicAudioLevel] = useState<number>(0);
+  const [isSpeechNetworkIssue, setIsSpeechNetworkIssue] = useState<boolean>(false);
+  const [isTranscribingWithGemini, setIsTranscribingWithGemini] = useState<boolean>(false);
   const isMicActiveRef = useRef<boolean>(false);
   const avatarStateRef = useRef<AvatarState>('idle');
   const audioStreamRef = useRef<MediaStream | null>(null);
@@ -816,10 +822,8 @@ export default function InterviewRoomScreen({
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
-
-      // Adapt to user's locale (defaults to English India / English US for high-accuracy phonetic recognition)
-      const browserLang = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
-      recognition.lang = browserLang && browserLang.startsWith('en') ? browserLang : 'en-IN';
+      // Default to 'en-US' for universal Google cloud speech compatibility across Chromium builds
+      recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         isMicActiveRef.current = true;
@@ -828,6 +832,8 @@ export default function InterviewRoomScreen({
       };
 
       recognition.onresult = (event: any) => {
+        networkErrorCountRef.current = 0;
+        setIsSpeechNetworkIssue(false);
         let interimText = '';
         let finalTranscripts = '';
 
@@ -889,18 +895,31 @@ export default function InterviewRoomScreen({
           stopAudioAnalyser();
           onShowToast?.('Microphone permission blocked. You can type directly in the response box.', 'warning');
         } else if (event.error === 'network') {
-          onShowToast?.('Speech service network issue. You can type directly in the response box.', 'info');
+          networkErrorCountRef.current++;
+          if (networkErrorCountRef.current === 1) {
+            console.warn('Speech service network hiccup, fallback will activate if persistent...');
+          } else if (networkErrorCountRef.current === 2) {
+            setIsSpeechNetworkIssue(true);
+            onShowToast?.('Speech service network issue detected. Direct Voice Recording & typing mode are active.', 'info');
+          }
         }
       };
 
       recognition.onend = () => {
-        // Auto-restart recognition continuously while user wants the mic on.
+        // Auto-restart recognition only if mic is active and we haven't hit persistent network failure
         if (isMicActiveRef.current && avatarStateRef.current === 'listening') {
-          setTimeout(() => {
+          if (networkErrorCountRef.current >= 2) {
+            // Stop hammering the speech endpoint on network block; stay gracefully in voice recording / direct mode
+            setIsSpeechNetworkIssue(true);
+            return;
+          }
+          const delay = networkErrorCountRef.current > 0 ? 1500 : 350;
+          if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = setTimeout(() => {
             if (isMicActiveRef.current && avatarStateRef.current === 'listening') {
               startStudentMic();
             }
-          }, 200);
+          }, delay);
         } else if (!isMicActiveRef.current) {
           setIsMicActive(false);
           stopAudioAnalyser();
@@ -910,8 +929,24 @@ export default function InterviewRoomScreen({
       recognitionRef.current = recognition;
       recognition.start();
 
-      // Launch audio analyser asynchronously without blocking speech recognition
-      initAudioAnalyser().catch(() => {});
+      // Launch audio analyser & MediaRecorder fallback asynchronously without blocking speech recognition
+      initAudioAnalyser().then(() => {
+        if (typeof MediaRecorder !== 'undefined' && audioStreamRef.current && (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive')) {
+          try {
+            audioChunksRef.current = [];
+            const recorder = new MediaRecorder(audioStreamRef.current);
+            recorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) {
+                audioChunksRef.current.push(e.data);
+              }
+            };
+            recorder.start(1000);
+            mediaRecorderRef.current = recorder;
+          } catch (e) {
+            // Ignore MediaRecorder error
+          }
+        }
+      }).catch(() => {});
     } catch (err) {
       console.warn('Speech recognition init error:', err);
       isMicActiveRef.current = false;
@@ -926,6 +961,11 @@ export default function InterviewRoomScreen({
     setIsMicActive(false);
     setLiveInterimSpeech('');
     stopAudioAnalyser();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {}
+    }
     if (restartTimerRef.current) {
       clearTimeout(restartTimerRef.current);
       restartTimerRef.current = null;
@@ -998,11 +1038,34 @@ export default function InterviewRoomScreen({
 
   // Commit Answer & Advance to Next Question / Dynamic Grill
   const commitTurnAndAdvance = async (text: string) => {
-    const finalAnswer =
+    let finalAnswer =
       text?.trim() ||
       userAnswer.trim() ||
-      liveTranscriptRef.current.trim() ||
-      "I don't know";
+      liveTranscriptRef.current.trim();
+
+    // If text was not transcribed by Web Speech API but we recorded microphone audio:
+    if ((!finalAnswer || finalAnswer === "I don't know") && audioChunksRef.current.length > 0 && !userAnswer.trim()) {
+      try {
+        setIsTranscribingWithGemini(true);
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        if (audioBlob.size > 2000) {
+          const transcribed = await transcribeAudioWithGemini(audioBlob);
+          if (transcribed && transcribed.length >= 3) {
+            finalAnswer = transcribed;
+          }
+        }
+      } catch (err) {
+        // Fallback
+      } finally {
+        setIsTranscribingWithGemini(false);
+      }
+    }
+
+    if (!finalAnswer) {
+      finalAnswer = "I don't know";
+    }
+
+    audioChunksRef.current = [];
 
     // Record response
     setResponses((prev) => ({
@@ -1891,7 +1954,12 @@ Directorate of Career Centre (CDC) · SRMIST · Placement Assessment
                             <span>Real-Time Student Voice &amp; Response:</span>
                           </span>
                           <div className="flex items-center gap-2">
-                            {isMicActive ? (
+                            {isSpeechNetworkIssue ? (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold flex items-center gap-1" title="Browser speech service network issue bypassed; using high-fidelity recording fallback">
+                                <span className="material-symbols-outlined text-[12px]">cloud_off</span>
+                                <span>RECORDING (AI FALLBACK)</span>
+                              </span>
+                            ) : isMicActive ? (
                               <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#55C98B]/20 text-[#55C98B] border border-[#55C98B]/30 font-semibold animate-pulse flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[12px]">mic</span>
                                 <span>LIVE STREAMING</span>
@@ -1931,6 +1999,14 @@ Directorate of Career Centre (CDC) · SRMIST · Placement Assessment
                           </div>
                         )}
 
+                        {/* Gemini Transcription In-Flight Indicator */}
+                        {isTranscribingWithGemini && (
+                          <div className="px-2.5 py-2 rounded-lg bg-indigo-500/15 border border-indigo-500/40 text-indigo-300 text-xs font-mono flex items-center gap-2 animate-pulse">
+                            <span className="material-symbols-outlined text-[16px] animate-spin text-indigo-400">sync</span>
+                            <span>Transcribing audio response via AI speech service...</span>
+                          </div>
+                        )}
+
                         {/* Live Synchronized Answer Input: Displays live transcripts & allows instant inline editing */}
                         <div className="relative">
                           <textarea
@@ -1942,9 +2018,13 @@ Directorate of Career Centre (CDC) · SRMIST · Placement Assessment
                               liveTranscriptRef.current = e.target.value;
                             }}
                             placeholder={
-                              isMicActive
-                                ? 'Listening in real time... Speak your response now (e.g. say "I don\'t know" or your technical explanation), or type directly here.'
-                                : 'Microphone paused. Click "Start Mic" below to capture your voice, or type your answer directly here.'
+                              isTranscribingWithGemini
+                                ? 'Processing your recorded speech with AI transcription...'
+                                : isSpeechNetworkIssue
+                                  ? 'Voice recording active. Speak your response and click "Submit Answer", or type directly here.'
+                                  : isMicActive
+                                    ? 'Listening in real time... Speak your response now (e.g. say "I don\'t know" or your technical explanation), or type directly here.'
+                                    : 'Microphone paused. Click "Start Mic" below to capture your voice, or type your answer directly here.'
                             }
                             className="w-full bg-[#070e0a] border border-[#173a25] focus:border-[#55C98B]/70 rounded-lg p-2.5 text-xs sm:text-sm font-mono text-[#55C98B] placeholder-[#55C98B]/40 leading-relaxed focus:outline-none resize-none transition-all"
                           />

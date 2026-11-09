@@ -130,8 +130,8 @@ export default function FacultyImportScreen({ onNavigate, onShowToast }: Faculty
             <tbody className="divide-y divide-[#202023]">
               {[
                 { src: 'student_id', tgt: 'Student ID (Primary Key)', type: 'STRING (#STU-...)', sample: '#STU-2026-88' },
-                { src: 'full_name', tgt: 'Full Name', type: 'STRING', sample: 'Alex R. Mercer' },
-                { src: 'email_addr', tgt: 'Institutional Email', type: 'EMAIL (FERPA)', sample: 'alex.mercer@cs.edu' },
+                { src: 'full_name', tgt: 'Full Name', type: 'STRING', sample: 'Aravind R.' },
+                { src: 'email_addr', tgt: 'Institutional Email', type: 'EMAIL (FERPA)', sample: 'ra2211003010482@srmist.edu.in' },
                 { src: 'gpa_score', tgt: 'Cumulative GPA', type: 'FLOAT [0.0 - 4.0]', sample: '3.82' },
                 { src: 'track_role', tgt: 'Target Role', type: 'STRING ENUM', sample: 'Backend Systems Engineer' },
                 { src: 'py_score', tgt: 'Python Rubric', type: 'FLOAT [1.0 - 5.0]', sample: '4.2' },

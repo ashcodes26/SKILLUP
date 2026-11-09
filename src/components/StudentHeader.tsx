@@ -45,7 +45,7 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#09090b]/95 backdrop-blur-md border-b border-[#27272a]">
-      <div className="h-14 w-full max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-2">
+      <div className="h-14 w-full px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
         {/* Left: Logo & Navigation Links */}
         <div className="flex items-center gap-2 lg:gap-4 shrink-0">
           <button
@@ -91,8 +91,8 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                     <span className="material-symbols-outlined text-[14px] text-[#ffba35] shrink-0">mic</span>
                   )}
                   <span>
-                    <span className="hidden xl:inline">{link.label}</span>
-                    <span className="inline xl:hidden">{link.shortLabel}</span>
+                    <span className="hidden 2xl:inline">{link.label}</span>
+                    <span className="inline 2xl:hidden">{link.shortLabel}</span>
                   </span>
                 </button>
               );
@@ -198,6 +198,17 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                   <span>9. Placement Drives</span>
                   <span className="text-[10px] text-[#8052ff]">Tiers</span>
                 </button>
+
+                <button
+                  onClick={() => {
+                    setShowQuickMenu(false);
+                    onLogout ? onLogout() : onNavigate('login');
+                  }}
+                  className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-red-500/10 flex items-center gap-1.5 border-t border-[#202023] mt-1 transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[14px]">logout</span>
+                  <span>Log Out / Exit Session</span>
+                </button>
               </div>
             )}
           </div>
@@ -262,7 +273,7 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                         {dataMode === 'demo' ? 'bolt' : studentName ? 'verified' : 'info'}
                       </span>
                       {dataMode === 'demo'
-                        ? 'Demo Mode (Aravind R. / Alex Mercer)'
+                        ? 'Demo Mode (Aravind R.)'
                         : studentName
                         ? 'Custom Profile File Active'
                         : 'Clean State (No File Loaded)'}
@@ -284,7 +295,7 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                   <span className="material-symbols-outlined text-[16px] text-emerald-400">upload_file</span>
                   <div className="flex-1">
                     <div className="font-medium">Upload / Replace Profile</div>
-                    <div className="text-[10px] text-[#71717A]">Import CSV, Resume PDF, or AI Studio JSON</div>
+                    <div className="text-[10px] text-[#71717A]">Import CSV, Resume PDF, or Career Profile JSON</div>
                   </div>
                 </button>
 
@@ -316,16 +327,26 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
                   </div>
                 </button>
 
-                <div className="border-t border-[#202023] mt-1 pt-1">
+                <div className="border-t border-[#202023] mt-1 pt-1 space-y-0.5">
                   <button
                     onClick={() => {
                       setShowProfileMenu(false);
                       onRoleSwitch ? onRoleSwitch('faculty') : onSwitchRole?.();
                     }}
-                    className="w-full px-3.5 py-2 text-left text-xs text-slate-300 hover:bg-[#16161A] flex items-center gap-2 cursor-pointer"
+                    className="w-full px-3.5 py-2 text-left text-xs text-slate-300 hover:bg-[#16161A] flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <span className="material-symbols-outlined text-[15px] text-[#8052ff]">swap_horiz</span>
                     <span>Switch to Faculty Console</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      onLogout ? onLogout() : onNavigate('login');
+                    }}
+                    className="w-full px-3.5 py-2 text-left text-xs text-red-400 hover:bg-red-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">logout</span>
+                    <span>Log Out</span>
                   </button>
                 </div>
               </div>
@@ -342,12 +363,14 @@ export const StudentHeader: React.FC<StudentHeaderProps> = ({
             <span className="hidden sm:inline">Faculty View</span>
           </button>
 
+          {/* Logout Button */}
           <button
             onClick={() => (onLogout ? onLogout() : onNavigate('login'))}
-            className="p-1 rounded-md text-[#9A9A9A] hover:text-white hover:bg-[#18181b] transition-colors shrink-0 cursor-pointer"
-            title="Log out"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/25 hover:border-red-500/40 text-xs font-medium transition-all shrink-0 cursor-pointer shadow-sm"
+            title="Log out of Skillup"
           >
-            <span className="material-symbols-outlined text-[17px]">logout</span>
+            <span className="material-symbols-outlined text-[15px]">logout</span>
+            <span className="text-xs font-mono">Logout</span>
           </button>
         </div>
       </div>

@@ -26,8 +26,8 @@ import FacultyReportsScreen from './screens/faculty/FacultyReportsScreen';
 import FacultyImportScreen from './screens/faculty/FacultyImportScreen';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(alexMercerSession);
-  const [currentScreen, setCurrentScreen] = useState<string>('career-plan');
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<string>('login');
   const [studentProfile, setStudentProfile] = useState<StudentProfileData>(CLEAN_STUDENT_PROFILE);
   const [dataMode, setDataMode] = useState<'demo' | 'custom' | 'clean'>('clean');
   const [dockerQuizCompleted, setDockerQuizCompleted] = useState<boolean>(false);
@@ -172,6 +172,19 @@ export default function App() {
             evidenceLabel: `Semester Assessment (${result.percentageScore}%) • Verified (4.0/5.0)`,
           };
         }
+        if (
+          lower.includes('algorithm') ||
+          lower.includes('dsa') ||
+          lower.includes('data structure') ||
+          lower.includes('leetcode')
+        ) {
+          return {
+            ...c,
+            proficiency: 4.5,
+            evidenceSource: 'verified_assessment' as const,
+            evidenceLabel: `Semester Assessment (${result.percentageScore}%) • Verified (4.5/5.0)`,
+          };
+        }
         return c;
       }),
     }));
@@ -263,7 +276,7 @@ export default function App() {
                 onUpdateProfile={(updater) => {
                   setStudentProfile((prev) => {
                     const next = typeof updater === 'function' ? updater(prev) : updater;
-                    if (next.name && next.name !== 'Aravind R. (Alex Mercer)') {
+                    if (next.name && next.name !== 'Aravind R.') {
                       setDataMode('custom');
                     }
                     return next;

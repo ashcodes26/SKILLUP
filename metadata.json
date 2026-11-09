@@ -1,6 +1,0 @@
-{
-  "name": "Skillup",
-  "description": "Connecting verified evidence to career outcomes. Deterministic career readiness assessment, verified credential grounding, resume analyzer, and institutional placement console.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
