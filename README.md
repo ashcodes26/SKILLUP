@@ -11,7 +11,7 @@
 
 ---
 
-## 📖 About SKILLUP
+## About SKILLUP
 
 ### The Core Problem
 Conventional placement systems and resume analyzers suffer from two critical flaws:
@@ -20,6 +20,7 @@ Conventional placement systems and resume analyzers suffer from two critical fla
 
 ### The SKILLUP Solution
 **SKILLUP** is an enterprise-grade placement readiness platform engineered for universities and educational institutions. It unifies the student career preparation journey with institutional placement director workflows:
+
 - **Evidence-Grounded Calibration:** Every score, roadmap milestone, and resume recommendation is grounded strictly in verified academic transcripts, lab practicals, placement quiz results, or verifiable GitHub proof-of-work repositories.
 - **Strictly Deterministic:** Unassessed skills are stored strictly as `null` — never 0 (which falsely implies tested failure) and never an inflated estimate.
 - **Interactive Neural Mesh:** A custom-engineered 3D particle brain visualizer mapping frontal (strategy), parieto-temporal (knowledge), and cerebellar (execution) competencies with real-time physics and cosmic warp transition dynamics.
@@ -27,7 +28,7 @@ Conventional placement systems and resume analyzers suffer from two critical fla
 
 ---
 
-## 📌 Repository Metadata & Topics
+## Repository Metadata & Topics
 
 For the GitHub repository **About** sidebar configuration:
 
@@ -47,7 +48,7 @@ For the GitHub repository **About** sidebar configuration:
 
 ## Key Modules & Capabilities
 
-### 🎓 Student Workspace
+### Student Workspace
 - **My Career Plan & Readiness Index**: Real-time deterministic readiness benchmarks against dynamically selectable target career roles (Full Stack Engineer, ML Engineer, Cloud Architect, Data Engineer).
 - **Interactive 3D Particle Brain**: Real-time canvas physics engine mapping Frontal, Parieto-Temporal, and Cerebellar brain structures. Responds dynamically to cursor hover deflection, mouse rotation, click shockwaves, and keyboard inputs.
 - **Cinematic Warp Transition**: High-speed cosmic particle burst upon authentication with radial shockwave and accessibility skip controls.
@@ -56,7 +57,7 @@ For the GitHub repository **About** sidebar configuration:
 - **Interactive Mock Interview Room**: Real-time conversational interview simulation with speech recognition, text-to-speech feedback, and reactive 3D interviewer avatar.
 - **Placement Hub & Opportunities**: Institutional company drives, eligibility verification, and salary distribution insights.
 
-### 🏛️ Faculty Placement Console
+### Faculty Placement Console
 - **Cohort Readiness Overview**: Batch-level readiness analytics for graduating classes (e.g., Class of 2026/2027).
 - **Student Audit Directory**: Granular verification of student credentials, CGPA, arrears, and placement status under FERPA boundaries.
 - **Curriculum & Skill Analytics**: Department-wide skill gap heatmaps and institutional intervention triggers.
@@ -138,6 +139,7 @@ SKILLUP/
 │   ├── components/         # Reusable UI & specialized widgets
 │   │   ├── ParticleBrain.tsx       # 3D interactive particle neural mesh
 │   │   ├── LoginTransition.tsx     # Cinematic warp-speed burst overlay
+│   │   ├── AboutModal.tsx          # Institutional about modal
 │   │   ├── StudentHeader.tsx       # Student workspace navigation
 │   │   ├── FacultyHeader.tsx       # Placement director console header
 │   │   ├── CareerCopilot.tsx       # Role-adaptive conversational copilot
