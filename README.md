@@ -11,6 +11,34 @@
 
 ---
 
+## 📖 About SKILLUP
+
+### The Core Problem
+Conventional placement systems and resume analyzers suffer from two critical flaws:
+1. **Self-Reported Inflation:** Candidates list technologies on resumes without verified proof, resulting in high ATS rejection rates and mismatched interview evaluations.
+2. **AI Hallucinations:** Generic generative AI career tools often fabricate or inflate candidate proficiencies, giving students a false sense of readiness that fails during rigorous technical screenings.
+
+### The SKILLUP Solution
+**SKILLUP** is an enterprise-grade placement readiness platform engineered for universities and educational institutions. It unifies the student career preparation journey with institutional placement director workflows:
+- **Evidence-Grounded Calibration:** Every score, roadmap milestone, and resume recommendation is grounded strictly in verified academic transcripts, lab practicals, placement quiz results, or verifiable GitHub proof-of-work repositories.
+- **Strictly Deterministic:** Unassessed skills are stored strictly as `null` — never 0 (which falsely implies tested failure) and never an inflated estimate.
+- **Interactive Neural Mesh:** A custom-engineered 3D particle brain visualizer mapping frontal (strategy), parieto-temporal (knowledge), and cerebellar (execution) competencies with real-time physics and cosmic warp transition dynamics.
+- **Institutional Scale:** Designed for active graduating cohorts (e.g., Class of 2026/2027 Engineering batches), empowering placement directors with cohort-level readiness analytics, eligibility gates, and drive scheduling.
+
+---
+
+## 📌 Repository Metadata & Topics
+
+For the GitHub repository **About** sidebar configuration:
+
+| Field | Value |
+|---|---|
+| **Description** | Connecting verified evidence to career outcomes. Deterministic career readiness, 3D particle brain, mock interviews, and institutional placement console. |
+| **Website** | `http://localhost:3000` (Local) / Custom Deployment Domain |
+| **Topics** | `career-readiness`, `placement-portal`, `react-19`, `typescript`, `vite`, `canvas-3d`, `particle-system`, `resume-analyzer`, `mock-interview`, `ferpa-compliance`, `tailwindcss` |
+
+---
+
 ## Overview
 
 **SKILLUP** bridges student academic evidence with real-world industry hiring benchmarks. Unlike heuristic career tools, SKILLUP computes career readiness deterministically across verified coursework, lab practicals, placement assessments, and proof-of-work artifacts — preserving unverified competencies strictly as `null` to eliminate synthetic score inflation.

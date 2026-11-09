@@ -24,8 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - One-click instant Sandbox triggers for Demo Student and Placement Faculty.
   - Dedicated student registration flow.
 - **Documentation & Architecture Standards**:
-  - Comprehensive `README.md` with module guides, installation steps, and compliance disclosures.
+  - Comprehensive `README.md` with dedicated **About SKILLUP** narrative, repository topics metadata, module guides, installation steps, and compliance disclosures.
   - Standardized project metadata and changelog tracking.
+  - Integrated `AboutModal.tsx` platform modal with architecture pillars and 3D visual preview.
 
 ### Changed
 - **Branding & Identity**:

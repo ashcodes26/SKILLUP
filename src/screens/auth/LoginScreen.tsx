@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { UserRole } from '../../types';
 import ParticleBrain from '../../components/ParticleBrain';
 import LoginTransition from '../../components/LoginTransition';
+import AboutModal from '../../components/AboutModal';
 
 interface LoginScreenProps {
   onLogin?: (role: UserRole) => void;
@@ -16,6 +17,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onLoginSucces
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAbout, setShowAbout] = useState(false);
 
   // Warp transition state
   const [transitioning, setTransitioning] = useState(false);
